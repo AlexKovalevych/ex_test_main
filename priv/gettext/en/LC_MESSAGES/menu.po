@@ -1,0 +1,204 @@
+## `msgid`s in this file come from POT (.pot) files.
+##
+## Do not add, change, or remove `msgid`s manually here as
+## they're tied to the ones in the corresponding POT file
+## (with the same domain).
+##
+## Use `mix gettext.extract --merge` or `mix gettext.merge`
+## to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: en\n"
+
+#: web/controllers/calendar_event_controller.ex:161
+#: web/templates/layout/menu.html.eex:87
+msgid "calendar_events"
+msgstr "Events"
+
+#: web/templates/layout/menu.html.eex:69
+msgid "cohorts_report"
+msgstr "Cohorts report"
+
+#: web/controllers/consolidated_report_controller.ex:62
+#: web/templates/consolidated_report/index.html.eex:2
+#: web/templates/layout/menu.html.eex:64
+msgid "consolidated_report"
+msgstr "Consolidated report"
+
+#: web/controllers/data_source_controller.ex:193
+#: web/templates/layout/menu.html.eex:139
+msgid "data_sources"
+msgstr "Data sources"
+
+#: web/controllers/calendar_group_controller.ex:108
+#: web/templates/layout/menu.html.eex:93
+msgid "event_groups"
+msgstr "Event groups"
+
+#: web/controllers/calendar_type_controller.ex:120
+#: web/templates/layout/menu.html.eex:92
+msgid "event_types"
+msgstr "Event types"
+
+#: web/templates/layout/menu.html.eex:91
+msgid "events_list"
+msgstr "Events"
+
+#: web/templates/layout/menu.html.eex:36
+msgid "finances"
+msgstr "Finance"
+
+#: web/templates/layout/menu.html.eex:42
+msgid "funds_flow"
+msgstr "Funds flow"
+
+#: web/templates/layout/menu.html.eex:65
+msgid "ltv_report"
+msgstr "Ltv report"
+
+#: web/templates/layout/menu.html.eex:43
+msgid "monthly_balances"
+msgstr "Monthly balances"
+
+#: web/templates/layout/menu.html.eex:114
+msgid "multiaccounts"
+msgstr "Multiaccounts"
+
+#: web/templates/layout/menu.html.eex:41
+msgid "payment_system"
+msgstr "Payment systems"
+
+#: web/templates/layout/menu.html.eex:40
+msgid "payments_check"
+msgstr "Payments check"
+
+#: web/controllers/permissions_controller.ex:42
+#: web/templates/layout/menu.html.eex:138
+msgid "permissions"
+msgstr "Permissions"
+
+#: web/templates/layout/menu.html.eex:110
+msgid "players"
+msgstr "Players"
+
+#: web/controllers/project_controller.ex:113
+#: web/templates/layout/menu.html.eex:137
+msgid "projects"
+msgstr "Projects"
+
+#: web/templates/layout/menu.html.eex:67
+msgid "retentions_report"
+msgstr "Retentions report"
+
+#: web/templates/layout/menu.html.eex:66
+msgid "segments_report"
+msgstr "Segments report"
+
+#: web/templates/layout/menu.html.eex:132
+msgid "settings"
+msgstr "Settings"
+
+#: web/templates/layout/menu.html.eex:115
+msgid "signup_channels"
+msgstr "Signup channels"
+
+#: web/templates/layout/menu.html.eex:141
+msgid "smtp_servers"
+msgstr "SMTP servers"
+
+#: web/templates/layout/menu.html.eex:60
+msgid "statistics"
+msgstr "Statistics"
+
+#: web/templates/layout/menu.html.eex:68
+msgid "timeline_report"
+msgstr "Timeline report"
+
+#: web/templates/layout/menu.html.eex:70
+msgid "universal_report"
+msgstr "Universal report"
+
+#: web/controllers/user_controller.ex:122 web/templates/layout/menu.html.eex:136
+msgid "users"
+msgstr "Users"
+
+#: web/templates/layout/menu.html.eex:26
+msgid "english"
+msgstr "English"
+
+#: web/templates/layout/menu.html.eex:18
+msgid "russian"
+msgstr "Русский"
+
+#: web/controllers/dashboard_controller.ex:82
+msgid "dashboard"
+msgstr "Dashboard"
+
+#: web/controllers/user_controller.ex:49 web/controllers/user_controller.ex:73
+#: web/templates/user/new.html.eex:2
+msgid "new_user"
+msgstr "New user"
+
+#: web/controllers/project_controller.ex:46
+#: web/controllers/project_controller.ex:67 web/templates/project/new.html.eex:2
+msgid "new_project"
+msgstr "New project"
+
+#: web/controllers/cache_controller.ex:162
+#: web/templates/layout/menu.html.eex:140
+msgid "cache"
+msgstr "Cache"
+
+#: web/controllers/cache_controller.ex:43 web/controllers/cache_controller.ex:64
+#: web/templates/cache/new.html.eex:2
+msgid "new_cache_worker"
+msgstr "New cache worker"
+
+#: web/controllers/cache_controller.ex:85
+msgid "edit_cache_worker"
+msgstr "%{id}"
+
+#: web/controllers/calendar_event_controller.ex:64
+#: web/controllers/calendar_event_controller.ex:88
+#: web/templates/calendar_event/new.html.eex:2
+msgid "new_calendar_event"
+msgstr "New calendar event"
+
+#: web/controllers/calendar_group_controller.ex:29
+#: web/controllers/calendar_group_controller.ex:50
+#: web/templates/calendar_group/new.html.eex:2
+msgid "new_calendar_group"
+msgstr "New calendar group"
+
+#: web/controllers/calendar_type_controller.ex:33
+#: web/controllers/calendar_type_controller.ex:55
+#: web/templates/calendar_type/new.html.eex:2
+msgid "new_calendar_type"
+msgstr "New calendar type"
+
+#: web/controllers/data_source_controller.ex:37
+#: web/controllers/data_source_controller.ex:59
+#: web/controllers/data_source_controller.ex:99
+#: web/templates/data_source/new.html.eex:2
+msgid "new_data_source"
+msgstr "New data source"
+
+#: web/controllers/payment_system_controller.ex:31
+#: web/controllers/payment_system_controller.ex:53
+#: web/templates/payment_system/new.html.eex:2
+msgid "new_payment_system"
+msgstr "New payment system"
+
+#: web/controllers/payment_system_controller.ex:111
+msgid "payment_systems"
+msgstr "Payment systems"
+
+#: web/controllers/payment_check_controller.ex:39
+#: web/controllers/payment_check_controller.ex:94
+#: web/templates/payment_check/new.html.eex:2
+msgid "new_payment_check"
+msgstr "New payment check"
+
+#: web/controllers/payment_check_controller.ex:195
+msgid "payment_checks"
+msgstr "Payment checks"

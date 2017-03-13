@@ -1,0 +1,23 @@
+<%= form_for @changeset, @action, fn f -> %>
+  <% is_started = is_started(@changeset.data) %>
+  <div id="status"></div>
+  <div class="col-sm-12"></div>
+  <div class="col-sm-12 col-md-12 col-lg-6">
+
+    <%= render Gt.LayoutView, "period_field.html", form: f,
+      field_from: :start,
+      field_to: :end,
+      label: dgettext("cache", "period"),
+      current_user: @current_user,
+      disabled: is_started
+    %>
+
+    <%= render Gt.LayoutView, "multiple_field.html", form: f, field: :projects, label: dgettext("cache", "projects"), options: @projects, disabled: is_started %>
+  </div>
+
+  <div class="col-sm-12"></div>
+  <div class="col-sm-12 col-md-12 col-lg-6">
+    <%= render(Gt.LayoutView, "submit_button.html", disabled: is_started) %>
+  </div>
+
+<% end %>

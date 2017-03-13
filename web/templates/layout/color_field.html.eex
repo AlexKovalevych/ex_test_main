@@ -1,0 +1,14 @@
+<div class="form-group row <%= if @form.errors[@field], do: "has-danger" %>">
+  <%= label @form, @field, @label, class: "col-sm-4 col-md-3 col-lg-3 col-form-label text-sm-right" %>
+  <div class="col-sm-8 col-md-9 col-lg-9">
+    <% attrs = [class: "form-control"] %>
+    <% attrs = if Map.has_key?(assigns, :disabled) && assigns.disabled, do: Keyword.put(attrs, :disabled, true), else: attrs %>
+    <%= color_input @form, @field, attrs %>
+  </div>
+  <div class="offset-sm-4 offset-md-3 offset-lg-3 col-sm-8 col-md-9 col-lg-9">
+    <%= error_tag @form, @field %>
+    <%= if Map.has_key?(assigns, :help) do %>
+      <small class="form-text text-muted"><%= @help %></small>
+    <%= end %>
+  </div>
+</div>

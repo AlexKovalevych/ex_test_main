@@ -1,0 +1,170 @@
+## `msgid`s in this file come from POT (.pot) files.
+##
+## Do not add, change, or remove `msgid`s manually here as
+## they're tied to the ones in the corresponding POT file
+## (with the same domain).
+##
+## Use `mix gettext.extract --merge` or `mix gettext.merge`
+## to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: ru\n"
+
+#: lib/gt/report/payment_check.ex:40
+#: web/templates/payment_check/one_gamepay_errors.html.eex:17
+msgid "1gp_channel_currency"
+msgstr "Валюта канала в 1Gamepay"
+
+#: lib/gt/report/payment_check.ex:41
+#: web/templates/payment_check/one_gamepay_errors.html.eex:18
+msgid "1gp_channel_sum"
+msgstr "Сумма канала в 1Gamepay"
+
+#: lib/gt/report/payment_check.ex:39
+#: web/templates/payment_check/one_gamepay_errors.html.eex:16
+msgid "1gp_currency"
+msgstr "Валюта в 1Gamepay"
+
+#: web/templates/payment_check/show.html.eex:45
+msgid "1gp_errors"
+msgstr "Ошибки 1Gamepay"
+
+#: lib/gt/report/payment_check.ex:30
+#: web/templates/payment_check/one_gamepay_errors.html.eex:7
+msgid "1gp_id"
+msgstr "1Gamepay Id"
+
+#: lib/gt/report/payment_check.ex:38
+#: web/templates/payment_check/one_gamepay_errors.html.eex:15
+msgid "1gp_sum"
+msgstr "Сумма в 1Gamepay"
+
+#: lib/gt/report/payment_check.ex:31
+#: web/templates/payment_check/one_gamepay_errors.html.eex:8
+msgid "account_id"
+msgstr "Id аккаунта"
+
+#: lib/gt/report/payment_check.ex:37
+#: web/templates/payment_check/one_gamepay_errors.html.eex:14
+msgid "comment"
+msgstr "Комментарий"
+
+#: web/templates/payment_check/index.html.eex:37
+msgid "confirm_delete"
+msgstr "Вы уверены что хотите удалить эту сверку?"
+
+#: lib/gt/report/payment_check.ex:35
+#: web/templates/payment_check/one_gamepay_errors.html.eex:12
+msgid "currency"
+msgstr "Валюта"
+
+#: lib/gt/report/payment_check.ex:32
+#: web/templates/payment_check/one_gamepay_errors.html.eex:9
+msgid "date"
+msgstr "Дата"
+
+#: web/templates/payment_check/download_button.html.eex:4
+#: web/templates/payment_check/show.html.eex:74
+msgid "download"
+msgstr "Скачать"
+
+#: web/views/payment_check_view.ex:15
+msgid "duplicate"
+msgstr "Дубликат"
+
+#: lib/gt/report/payment_check.ex:42
+#: web/templates/payment_check/one_gamepay_errors.html.eex:19
+msgid "errors"
+msgstr "Ошибки"
+
+#: web/templates/payment_check/form.html.eex:16
+msgid "file"
+msgstr "Файлы"
+
+#: web/templates/payment_check/index.html.eex:21
+msgid "inserted_at"
+msgstr "Время создания"
+
+#: web/views/payment_check_view.ex:17
+msgid "invalid_currency"
+msgstr "Валюта не совпадает"
+
+#: web/views/payment_check_view.ex:18
+msgid "invalid_date"
+msgstr "Дата на совпадает"
+
+#: web/views/payment_check_view.ex:16
+msgid "invalid_sum"
+msgstr "Сумма не совпадает"
+
+#: web/templates/payment_check/index.html.eex:2
+msgid "list"
+msgstr "Сверки платежей"
+
+#: web/views/payment_check_view.ex:14
+msgid "not_found"
+msgstr "Не найдена"
+
+#: web/templates/payment_check/show.html.eex:15
+msgid "one_gamepay_errors"
+msgstr "Ошибки 1Gamepay"
+
+#: web/templates/payment_check/show.html.eex:2
+msgid "payment_check"
+msgstr "Сверка платежей"
+
+#: web/templates/payment_check/form.html.eex:8
+#: web/templates/payment_check/index.html.eex:18
+#: web/templates/payment_check/show.html.eex:29
+msgid "payment_system"
+msgstr "Платежная система"
+
+#: web/templates/payment_check/show.html.eex:36
+#: web/templates/payment_check/show.html.eex:66
+msgid "period"
+msgstr "Период"
+
+#: lib/gt/report/payment_check.ex:29
+#: web/templates/payment_check/one_gamepay_errors.html.eex:6
+msgid "ps_id"
+msgstr "Id платежной системы"
+
+#: lib/gt/report/payment_check.ex:33
+#: web/templates/payment_check/one_gamepay_errors.html.eex:10
+msgid "site"
+msgstr "Сайт"
+
+#: web/templates/payment_check/show.html.eex:42
+msgid "skipped_transactions"
+msgstr "Пропущенные транзакции"
+
+#: web/templates/payment_check/show.html.eex:10
+msgid "state"
+msgstr "Статус"
+
+#: web/templates/payment_check/index.html.eex:19
+msgid "status"
+msgstr "Статус"
+
+#: lib/gt/report/payment_check.ex:36
+#: web/templates/payment_check/one_gamepay_errors.html.eex:13
+msgid "sum"
+msgstr "Сумма"
+
+#: web/templates/payment_check/show.html.eex:39
+msgid "total_transactions"
+msgstr "Найдено транзакций"
+
+#: lib/gt/report/payment_check.ex:34
+#: web/templates/payment_check/one_gamepay_errors.html.eex:11
+msgid "type"
+msgstr "Тип"
+
+#: web/templates/payment_check/index.html.eex:20
+#: web/templates/payment_check/show.html.eex:32
+msgid "user"
+msgstr "Пользователь"
+
+#: web/templates/payment_check/show.html.eex:51
+msgid "one_s_report"
+msgstr "1С отчет"

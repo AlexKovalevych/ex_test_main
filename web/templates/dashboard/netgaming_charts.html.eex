@@ -1,0 +1,149 @@
+<div id="<%= @id %>netgaming" class="row">
+  <%
+    {daily_from, daily_to} = @daily_chart_period
+    daily_from = format_date(daily_from)
+    daily_to = format_date(daily_to)
+  %>
+  <% [monthly_from, monthly_to] = @monthly_chart_period %>
+  <% rake_translation = dgettext "dashboard", "rake" %>
+
+  <%= for {metrics, translation, daily_title, monthly_title} <- [
+    {
+      "netgaming_sum",
+      (dgettext "dashboard", "netgaming"),
+      (dgettext "dashboard", "netgaming_by_period_daily", from: daily_from, to: daily_to),
+      (dgettext "dashboard", "netgaming_by_period_monthly", from: monthly_from, to: monthly_to)
+    },
+    {
+      "bets_sum",
+      (dgettext "dashboard", "bets"),
+      (dgettext "dashboard", "bets_by_period_daily", from: daily_from, to: daily_to),
+      (dgettext "dashboard", "bets_by_period_monthly", from: monthly_from, to: monthly_to)
+    },
+    {
+      "wins_sum",
+      (dgettext "dashboard", "wins"),
+      (dgettext "dashboard", "wins_by_period_daily", from: daily_from, to: daily_to),
+      (dgettext "dashboard", "wins_by_period_monthly", from: monthly_from, to: monthly_to)
+    }] do %>
+    <div class="col-sm-12 col-md-12 col-lg-4">
+      <div class="<%= metrics_color(metrics) %>-text">
+        <% netgaming_rake = (@id != "total" && metrics == "netgaming_sum") %>
+        <%= if netgaming_rake do %>
+          <span class="<%= metrics_color(metrics) %>-text"><%= translation %></span>
+          <span class="<%= metrics_color("rake_sum") %>-text"><%= rake_translation %></span>
+        <% else %>
+          <%= translation %>
+        <% end %>
+      </div>
+      <% chart_class = if netgaming_rake, do: "netgaming-rake" %>
+      <div id="<%= metrics %>_daily<%= @id %>" class="dashboard-chart <%= chart_class %>"></div>
+      <%= render Gt.DashboardView, "chart_modal.html",
+        id: "#{metrics}_daily#{@id}modal",
+        title: daily_title
+      %>
+      <div id="<%= metrics %>_monthly<%= @id %>" class="dashboard-chart <%= chart_class %>"></div>
+      <%= render Gt.DashboardView, "chart_modal.html",
+        id: "#{metrics}_monthly#{@id}modal",
+        title: monthly_title
+      %>
+    </div>
+  <% end %>
+</div>
+
+<script type="text/javascript">
+    (function () {
+      var netgamingColor = $("#<%= @id %>netgaming > div > div").first().css("color");
+      var rakeColor;
+      var betsColor = $("#<%= @id %>netgaming > div > div").eq(5).css("color");
+      var winsColor = $("#<%= @id %>netgaming > div > div").eq(10).css("color");
+      var dailyConfig = {
+        bets_sum_daily<%= @id %>: {
+          data: [<%= raw Poison.encode!(chart_data @data.daily, :bets_sum) %>],
+          colors: [betsColor]
+        },
+        wins_sum_daily<%= @id %>: {
+          data: [<%= raw Poison.encode!(chart_data @data.daily, :wins_sum) %>],
+          colors: [winsColor]
+        }
+      };
+
+      var monthlyConfig = {
+        bets_sum_monthly<%= @id %>: {
+          data: [<%= raw Poison.encode!(chart_data @data.monthly, :bets_sum) %>],
+          colors: [betsColor]
+        },
+        wins_sum_monthly<%= @id %>: {
+          data: [<%= raw Poison.encode!(chart_data @data.monthly, :wins_sum) %>],
+          colors: [winsColor]
+        }
+      };
+
+      <%= if @id != "total" do %>
+        rakeColor = $("#<%= @id %>netgaming > div span").eq(1).css("color");
+        dailyConfig["netgaming_sum_daily" + "<%= @id %>"] = {
+          data: [
+            <%= raw Poison.encode!(chart_data @data.daily, :netgaming_sum) %>,
+            <%= raw Poison.encode!(chart_data @data.daily, :rake_sum) %>
+          ],
+          colors: [netgamingColor, rakeColor]
+        };
+        monthlyConfig["netgaming_sum_monthly" + "<%= @id %>"] = {
+          data: [
+            <%= raw Poison.encode!(chart_data @data.monthly, :netgaming_sum) %>,
+            <%= raw Poison.encode!(chart_data @data.monthly, :rake_sum) %>
+          ],
+          colors: [netgamingColor, rakeColor]
+        };
+      <%= else %>
+        dailyConfig["netgaming_sum_daily" + "<%= @id %>"] = {
+          data: [
+            <%= raw Poison.encode!(chart_data @data.daily, :netgaming_sum) %>,
+          ],
+          colors: [netgamingColor]
+        };
+        monthlyConfig["netgaming_sum_monthly" + "<%= @id %>"] = {
+          data: [<%= raw Poison.encode!(chart_data @data.monthly, :netgaming_sum) %>],
+          colors: [netgamingColor]
+        };
+      <%= end %>
+
+      var dailyIds = ["netgaming_sum_daily<%= @id %>", "bets_sum_daily<%= @id %>", "wins_sum_daily<%= @id %>"];
+      for (var i in dailyIds) {
+        renderAreaChart(dailyIds[i],
+          dailyConfig[dailyIds[i]].colors,
+          dailyConfig[dailyIds[i]].data
+        );
+      }
+
+      var monthlyIds = ["netgaming_sum_monthly<%= @id %>", "bets_sum_monthly<%= @id %>", "wins_sum_monthly<%= @id %>"];
+      for (var i in monthlyIds) {
+        renderBarChart(monthlyIds[i],
+          monthlyConfig[monthlyIds[i]].colors,
+          monthlyConfig[monthlyIds[i]].data
+        );
+      }
+
+      $('#<%= @id %>netgaming .dashboard-chart').on('mouseout', function() {
+        $('.canvasjs-chart-tooltip').hide();
+      });
+
+    $('#<%= @id %>netgaming .dashboard-chart').on('click', function(e) {
+      var id = $(e.currentTarget).attr('id');
+      var selector = "#" + id + "modal";
+
+      $(selector).on('shown.bs.modal', function (e) {
+        $('.canvasjs-chart-tooltip').hide();
+        if (id.indexOf("daily") > -1) {
+          renderZoomAreaChart(selector + " .chart", dailyConfig[id].colors, dailyConfig[id].data, true);
+        } else {
+          renderZoomBarChart(selector + " .chart", monthlyConfig[id].colors, monthlyConfig[id].data, true);
+        }
+      });
+      $(selector).on('hidden.bs.modal', function() {
+        $(selector + " .chart > *").remove();
+      });
+      $(selector).modal('show');
+    });
+  })();
+</script>

@@ -1,0 +1,327 @@
+<script src="<%= static_path(@conn, "/js/dashboard.js") %>"></script>
+<script src="<%= static_path(@conn, "/js/highcharts.js") %>"></script>
+<%= render Gt.LayoutView, "highcharts.html" %>
+<script type="text/javascript">
+  var dailyLabels = <%= raw Poison.encode!(chart_labels @data.charts.totals.daily, :daily) %>;
+  var monthlyLabels = <%= raw Poison.encode!(chart_labels @data.charts.totals.monthly, :monthly) %>;
+  var dailyTimestamps = <%= raw Poison.encode!(chart_timestamps @data.charts.totals.daily) %>;
+  var monthlyTimestamps = <%= raw Poison.encode!(chart_timestamps @data.charts.totals.monthly) %>;
+  var monthNames = [
+    "<%= gettext "jan" %>",
+    "<%= gettext "feb" %>",
+    "<%= gettext "mar" %>",
+    "<%= gettext "apr" %>",
+    "<%= gettext "may" %>",
+    "<%= gettext "jun" %>",
+    "<%= gettext "jul" %>",
+    "<%= gettext "aug" %>",
+    "<%= gettext "sep" %>",
+    "<%= gettext "oct" %>",
+    "<%= gettext "nov" %>",
+    "<%= gettext "dec" %>",
+  ];
+
+  var chartConfig = {
+    toolTip: {
+      shared: true
+    },
+    axisX: {
+      valueFormatString: ' ',
+      lineThickness: 1,
+      gridThickness: 1,
+      tickLength: 0,
+      margin: 0
+    },
+    axisY: {
+      valueFormatString: ' ',
+      lineThickness: 0,
+      gridThickness: 0,
+      tickLength: 0,
+      margin: 0
+    },
+    axisY2: {
+      valueFormatString: ' ',
+      lineThickness: 0,
+      gridThickness: 0,
+      tickLength: 0,
+      margin: 0
+    }
+  };
+
+  var zoomConfig = {
+    credits: {
+      enabled: false
+    },
+    chart: {},
+    title: {
+      text: null
+    },
+    legend: {
+      enabled: false
+    },
+    xAxis: {
+      labels: {},
+      title: {
+        text: null
+      }
+    },
+    yAxis: {
+      title: {
+        text: null
+      }
+    },
+    tooltip: {},
+    rangeSelector: {
+      inputDateFormat: '%Y-%m-%d',
+      inputEditDateFormat: '%Y-%m-%d',
+      inputStyle: {
+        color: '#9a9fa3',
+        fontWeight: 100
+      },
+      inputBoxBorderColor: '#9a9fa3',
+      buttons: [
+        {
+          type: 'month',
+          count: 1,
+          text: '<%= dgettext "highstock", "1m" %>'
+        },
+        {
+          type: 'month',
+          count: 3,
+          text: '<%= dgettext "highstock", "3m" %>'
+        },
+        {
+          type: 'month',
+          count: 6,
+          text: '<%= dgettext "highstock", "6m" %>'
+        },
+        {
+          type: 'ytd',
+          text: '<%= dgettext "highstock", "ytd" %>'
+        },
+        {
+          type: 'year',
+          count: 1,
+          text: '<%= dgettext "highstock", "1y" %>'
+        },
+        {
+          type: 'all',
+          text: '<%= dgettext "highstock", "all" %>'
+        }
+      ],
+      buttonTheme: {
+        fill: '#e7ebee',
+        stroke: '#9a9fa3',
+        'stroke-width': 1,
+        style: {
+          color: '#9a9fa3'
+        },
+        states: {
+          hover: {
+            fill: '#31404e',
+            style: {color: 'white'},
+            stroke: '#9a9fa3',
+            'stroke-width': 1
+          },
+          select: {
+            fill: '#9a9fa3',
+            stroke: '#9a9fa3',
+            style: {
+              color: 'white'
+            }
+          }
+        },
+        width: null,
+        padding: 5
+      },
+      buttonSpacing: 0,
+      labelStyle: {
+        display: 'none'
+      }
+    },
+    plotOptions: {
+      column: {
+        stacking: 'normal'
+      }
+    }
+  };
+
+  function getDatasets(type, datasets, colors, labels, withDates) {
+    var data = [];
+    for (var i = 0; i < datasets.length; i++) {
+      var points = [];
+      for (var j = 0; j < datasets[i].length; j++) {
+        var point = {
+          label: labels[j],
+          y: datasets[i][j].y
+        };
+        if (withDates) {
+          point.x = datasets[i][j].x;
+        }
+        points.push(point);
+      }
+      data.push({
+        toolTipContent: '<span style=\'"\'color: {color};\'"\'>{label}:</span> ${y}',
+        type: type,
+        color: colors[i].replace(")", ", 0.7)").replace("rgb", "rgba"),
+        lineColor: colors[i].replace(")", ", 1)").replace("rgb", "rgba"),
+        markerSize: 1,
+        dataPoints: points
+      });
+    }
+    return data;
+  };
+
+  function formatDate(date) {
+    var month = monthNames[date.getMonth()];
+    return month + " " + date.getDate() + ", " + date.getFullYear();
+  }
+
+  function formatMonth(date) {
+    var month = monthNames[date.getMonth()];
+    return month + " " + date.getFullYear();
+  }
+
+  function renderAreaChart(canvasId, colors, data)
+  {
+    var config = JSON.parse(JSON.stringify(chartConfig));
+    config.data = getDatasets('splineArea', data, colors, dailyLabels, true);
+
+    var chart = new CanvasJS.Chart(canvasId, config);
+    chart.render();
+  }
+
+  function renderBarChart(canvasId, colors, data)
+  {
+    var config = JSON.parse(JSON.stringify(chartConfig));
+    config.axisX.margin = -30;
+    config.data = getDatasets('stepArea', data, colors, monthlyLabels);
+    var chart = new CanvasJS.Chart(canvasId, config);
+    chart.render();
+  }
+
+  function renderZoomAreaChart(canvasId, colors, data, isCashable)
+  {
+    var options = JSON.parse(JSON.stringify(zoomConfig));
+    options.chart.renderTo = $(canvasId).get(0);
+    options.chart.type = 'areaspline';
+    options.rangeSelector.inputEnabled = true;
+    options.xAxis.type = "datetime";
+    options.tooltip.formatter = function() {
+      var result = formatDate(new Date(this.x));
+      var points = [];
+      for (var point of this.points) {
+        var value = isCashable ? accounting.formatMoney(point.y, "$", 0) : point.y;
+        points.push("<span style=\"color: " + point.color + ";\">●</span>" + value);
+      }
+      return points.join(' ') + " (" + result + ")";
+    };
+
+    options.series = [];
+    for (var i in data) {
+      var chartData = [];
+      for (var j in data[i]) {
+        chartData.push({
+          x: dailyTimestamps[j],
+          y: data[i][j].y
+        });
+      }
+      var series = {
+        data: chartData
+      };
+      if (colors) {
+        series.color = colors[i];
+      }
+      options.series.push(series);
+    }
+    new Highcharts.StockChart(options, function() {
+      $('input.highcharts-range-selector').focus(function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    });
+  }
+
+  function renderZoomBarChart(canvasId, colors, data, isCashable)
+  {
+    var options = JSON.parse(JSON.stringify(zoomConfig));
+    options.chart.renderTo = $(canvasId).get(0);
+    options.chart.type = 'column';
+    options.rangeSelector.inputEnabled = true;
+    options.xAxis.type = "datetime";
+    options.tooltip.formatter = function() {
+      var result = formatMonth(new Date(this.x));
+      var points = [];
+      for (var point of this.points) {
+        var value = isCashable ? accounting.formatMoney(point.y, "$", 0) : point.y;
+        points.push("<span style=\"color: " + point.color + ";\">●</span>" + value);
+      }
+      return points.join(' ') + " (" + result + ")";
+    };
+
+    options.series = [];
+    for (var i in data) {
+      var chartData = [];
+      for (var j in data[i]) {
+        chartData.push({
+          x: monthlyTimestamps[j],
+          y: data[i][j].y
+        });
+      }
+      var series = {
+        data: chartData
+      };
+      if (colors) {
+        series.color = colors[i];
+      }
+      options.series.push(series);
+    }
+    new Highcharts.StockChart(options, function() {
+      $('input.highcharts-range-selector').focus(function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    });
+  }
+
+  function isCashableMetrics(metrics) {
+    return ["avg_dep", "avg_arpu", "avg_first_dep", "first_deps_sum"].indexOf(metrics) > -1;
+  }
+</script>
+
+<div class="col-xs-12">
+  <h1 class="mt-1"><%= dgettext "dashboard", "title" %></h1>
+  <%= render Gt.DashboardView, "form.html", assigns %>
+  <div class="card">
+    <% {monthly_from, monthly_to, _, _} = @data.monthly_chart_period %>
+    <%= render Gt.DashboardView, "stats_block.html", %{
+      id: "total",
+      user: @current_user,
+      data: @data,
+      stats: @data.totals,
+      title: (dgettext "dashboard", "total"),
+      daily_chart_period: @data.periods.current,
+      monthly_chart_period: [monthly_from, monthly_to],
+      max_value: @data.max_value,
+      charts: @data.charts.totals,
+      conn: @conn,
+    } %>
+  </div>
+  <%= for %{id: id, values: values} <- @data.stats do %>
+    <div class="card">
+      <%= render Gt.DashboardView, "stats_block.html", %{
+        id: id,
+        user: @current_user,
+        data: @data,
+        stats: values,
+        project: @data.projects[id],
+        title: @data.projects[id].title,
+        max_value: @data.max_value,
+        daily_chart_period: @data.periods.current,
+        monthly_chart_period: [monthly_from, monthly_to],
+        charts: @data.charts.stats[id],
+        conn: @conn,
+      } %>
+    </div>
+  <%= end %>
+</div>

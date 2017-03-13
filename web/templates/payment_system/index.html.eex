@@ -1,0 +1,46 @@
+<div class="col-xs-12">
+  <h1 class="mt-1"><%= dgettext "payment_systems", "list" %></h1>
+  <hr />
+</div>
+
+<p class="col-xs-4">
+  <a href="<%= payment_system_path(@conn, :new) %>" class="btn btn-success">
+    <i class="fa fa-plus"></i>
+    <%= gettext "create" %>
+  </a>
+</p>
+
+<div class="col-xs-12">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th><%= dgettext "payment_systems", "name" %></th>
+        <th><%= dgettext "payment_systems", "script" %></th>
+        <th><%= dgettext "payment_systems", "inserted_at" %></th>
+        <th><%= dgettext "payment_systems", "updated_at" %></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= for {payment_system, i} <- Enum.with_index(@payment_systems) do %>
+          <tr>
+            <td><%= (@page.page - 1) * @page.per_page + i + 1 %></td>
+            <td><%= payment_system.name %></td>
+            <td><%= payment_system.script %></td>
+            <td><%= payment_system.inserted_at |> Gt.Date.format(:datetime) %></td>
+            <td><%= payment_system.updated_at |> Gt.Date.format(:datetime) %></td>
+            <td>
+              <%= link gettext("edit"), to: payment_system_path(@conn, :edit, payment_system), class: "btn btn-outline-primary btn-sm" %>
+              <%= render Gt.LayoutView, "confirm_delete.html",
+                id: payment_system.id,
+                title: dgettext("payment_systems", "confirm_delete", id: payment_system.id),
+                link: link(gettext("delete"), to: payment_system_path(@conn, :delete, payment_system), class: "btn btn-danger", method: :delete)
+              %>
+            </td>
+          </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <%= paginate @conn, @page %>
+</div>

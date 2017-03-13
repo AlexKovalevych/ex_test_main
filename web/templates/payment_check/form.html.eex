@@ -1,0 +1,25 @@
+<div class="row">
+  <% is_started = is_started(@changeset.data) %>
+  <%= form_for @changeset, @action, [multipart: true], fn f -> %>
+
+    <div class="col-sm-12 col-md-12 col-lg-6">
+      <%= render Gt.LayoutView, "select_field.html", form: f,
+        field: :payment_system_id,
+        label: dgettext("payment_checks", "payment_system"),
+        options: @payment_systems,
+        disabled: is_started
+      %>
+
+      <%= render Gt.LayoutView, "file_field.html", form: f,
+        field: :files,
+        multiple: true,
+        label: dgettext("payment_checks", "file"),
+        disabled: is_started %>
+    </div>
+
+    <div class="col-sm-12"></div>
+    <div class="col-sm-12 col-md-12 col-lg-6">
+      <%= render(Gt.LayoutView, "submit_button.html") %>
+    </div>
+  <% end %>
+</div>

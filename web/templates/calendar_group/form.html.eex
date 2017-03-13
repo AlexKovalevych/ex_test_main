@@ -1,0 +1,13 @@
+<div class="row">
+  <%= form_for @changeset, @action, fn f -> %>
+    <div class="col-sm-12 col-md-12 col-lg-6">
+      <%= render(Gt.LayoutView, "text_field.html", form: f, field: :name, label: dgettext("calendar_groups", "name")) %>
+      <%= render(Gt.LayoutView, "color_field.html", form: f, field: :color, label: dgettext("calendar_groups", "color")) %>
+    </div>
+
+    <div class="col-sm-12"></div>
+    <div class="col-sm-12 col-md-12 col-lg-6">
+      <%= render(Gt.LayoutView, "submit_button.html") %>
+    </div>
+  <% end %>
+</div>

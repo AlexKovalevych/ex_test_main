@@ -1,0 +1,65 @@
+<% is_started = is_started(@changeset.data) %>
+<%= form_for @changeset, @action, fn f -> %>
+  <div id="status"></div>
+  <div class="col-sm-12"></div>
+
+  <div class="col-sm-12 col-md-12 col-lg-6">
+    <%= render Gt.LayoutView, "text_field.html", form: f,
+      field: :name,
+      label: dgettext("data_sources", "name"),
+      disabled: is_started %>
+
+    <%= render Gt.LayoutView, "text_field.html", form: f,
+      field: :host,
+      label: dgettext("data_sources", "host"),
+      disabled: is_started %>
+
+    <%= render Gt.LayoutView, "checkbox_field.html", form: f,
+      field: :encryption,
+      label: dgettext("data_sources", "encryption"),
+      disabled: is_started %>
+
+    <%= render Gt.LayoutView, "text_field.html", form: f,
+      field: :mailbox,
+      label: dgettext("data_sources", "mailbox"),
+      disabled: is_started %>
+
+    <%= render Gt.LayoutView, "text_field.html", form: f,
+      field: :port,
+      label: dgettext("data_sources", "port"),
+      disabled: is_started %>
+
+    <%= render Gt.LayoutView, "password_field.html", form: f,
+      field: :password,
+      label: dgettext("data_sources", "password"),
+      disabled: is_started %>
+
+    <%= render(Gt.LayoutView, "select_field.html",
+              form: f,
+              label: dgettext("data_sources", "separator"),
+              field: :separator,
+              options: separators(),
+              disabled: is_started,
+              ) %>
+
+    <%= render(Gt.LayoutView, "select_field.html",
+              form: f,
+              label: dgettext("data_sources", "double_qoute"),
+              field: :double_qoute,
+              options: double_qoutes(),
+              disabled: is_started,
+              ) %>
+
+    <%= render Gt.LayoutView, "text_field.html", form: f,
+      field: :interval,
+      label: dgettext("data_sources", "interval"),
+      help: dgettext("data_sources", "interval_help"),
+      disabled: is_started %>
+
+  </div>
+
+  <div class="col-sm-12"></div>
+  <div class="col-sm-12 col-md-12 col-lg-6">
+    <%= render(Gt.LayoutView, "submit_button.html", disabled: is_started) %>
+  </div>
+<% end %>

@@ -1,0 +1,19 @@
+<%= form_tag session_path(@conn, :callback, "identity"), method: "post" do %>
+  <div class='form-group row'>
+    <label class='col-sm-2 col-form-label' for='email'><%= dgettext "users", "email"  %></label>
+    <div class="col-sm-10">
+      <input type="email" class="form-control" id="email" name="email" value='<%= @conn.params["email"] %>'>
+    </div>
+  </div>
+
+  <div class='form-group row'>
+    <label class='col-sm-2 col-form-label' for='password'><%= dgettext "users", "password" %></label>
+    <div class="col-sm-10">
+      <input type="password" class="form-control" id="password" name="password" required>
+    </div>
+  </div>
+
+  <div class='form-group row text-xs-center'>
+    <button class='btn btn-primary'><%= dgettext "login", "login" %></button>
+  </div>
+<% end %>

@@ -1,0 +1,58 @@
+<div class="col-xs-12">
+  <h1 class="mt-1"><%= dgettext "data_sources", "list" %></h1>
+  <hr />
+</div>
+
+<div class="col-xs-4 mb-1">
+  <div class="btn-group">
+    <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <i class="fa fa-plus"></i>
+      <%= gettext "create" %>
+    </button>
+    <div class="dropdown-menu">
+      <a href="<%= data_source_path(@conn, :new, "rates") %>" class="dropdown-item"><%= dgettext "data_sources", "rates" %></a>
+      <a href="<%= data_source_path(@conn, :new, "pomadorro") %>" class="dropdown-item"><%= dgettext "data_sources", "pomadorro" %></a>
+      <a href="<%= data_source_path(@conn, :new, "one_gamepay_request") %>" class="dropdown-item"><%= dgettext "data_sources", "one_gamepay_request" %></a>
+      <a href="<%= data_source_path(@conn, :new, "one_gamepay") %>" class="dropdown-item"><%= dgettext "data_sources", "one_gamepay" %></a>
+    </div>
+  </div>
+</div>
+
+<div class="col-xs-12">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th><%= dgettext "data_sources", "name" %></th>
+        <th><%= dgettext "data_sources", "type" %></th>
+        <th><%= dgettext "data_sources", "subtypes"%></th>
+        <th><%= dgettext "data_sources", "projects"%></th>
+        <th><%= dgettext "data_sources", "interval" %></th>
+        <th><%= dgettext "data_sources", "period" %></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= for {data_source, i} <- Enum.with_index(@data_sources) do %>
+        <tr>
+          <td><%= (@page.page - 1) * @page.per_page + i + 1 %></td>
+          <td><%= data_source.name %></td>
+          <td><%= render "type_badge.html", type: data_source.type %></td>
+          <td>
+            <%= if data_source.subtypes do %>
+              <%= for subtype <- data_source.subtypes do %>
+                <span class="tag tag-default"><%= subtype %></span>
+              <%= end %>
+            <%= end %>
+          <td><%= render Gt.LayoutView, "project_tags.html", projects: [data_source.project] %></td>
+          <td><%= data_source.interval %></td>
+          <td><%= data_source.start_at |> Gt.Date.format(:date) %> - <%= data_source.end_at |> Gt.Date.format(:date) %></td>
+          <td class="text-right">
+            <%= link gettext("edit"), to: data_source_path(@conn, :edit, data_source), class: "btn btn-outline-primary btn-sm" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <%= paginate @conn, @page %>
+</div>

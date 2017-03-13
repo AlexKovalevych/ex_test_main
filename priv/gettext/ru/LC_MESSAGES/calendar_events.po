@@ -1,0 +1,61 @@
+## `msgid`s in this file come from POT (.pot) files.
+##
+## Do not add, change, or remove `msgid`s manually here as
+## they're tied to the ones in the corresponding POT file
+## (with the same domain).
+##
+## Use `mix gettext.extract --merge` or `mix gettext.merge`
+## to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: ru\n"
+
+#: web/templates/calendar_event/index.html.eex:54
+msgid "confirm_delete"
+msgstr "Вы уверены что хотите удалить это событие?"
+
+#: web/templates/calendar_event/form.html.eex:32
+msgid "description"
+msgstr "Описание"
+
+#: web/controllers/calendar_event_controller.ex:156
+msgid "event_deleted"
+msgstr "Событие удалено"
+
+#: web/controllers/calendar_event_controller.ex:75
+#: web/controllers/calendar_event_controller.ex:128
+msgid "event_updated"
+msgstr "Событие \"%{title}\" сохранено"
+
+#: web/templates/calendar_event/index.html.eex:35
+msgid "inserted_at"
+msgstr "Время создания"
+
+#: web/templates/calendar_event/index.html.eex:2
+msgid "list"
+msgstr "События"
+
+#: web/templates/calendar_event/form.html.eex:24
+#: web/templates/calendar_event/index.html.eex:33
+msgid "period"
+msgstr "Период"
+
+#: web/templates/calendar_event/form.html.eex:8
+#: web/templates/calendar_event/index.html.eex:16
+#: web/templates/calendar_event/index.html.eex:31
+msgid "projects"
+msgstr "Проекты"
+
+#: web/templates/calendar_event/form.html.eex:4
+#: web/templates/calendar_event/index.html.eex:34
+msgid "title"
+msgstr "Название"
+
+#: web/templates/calendar_event/form.html.eex:15
+#: web/templates/calendar_event/index.html.eex:32
+msgid "type"
+msgstr "Тип"
+
+#: web/templates/calendar_event/index.html.eex:36
+msgid "user"
+msgstr "Пользователь"

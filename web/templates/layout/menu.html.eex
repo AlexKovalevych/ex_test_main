@@ -1,0 +1,162 @@
+<nav class="navbar navbar-dark bg-inverse" style="border-radius: 0;">
+  <button class="navbar-toggler hidden-lg-up" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"></button>
+  <a class="navbar-brand" href="<%= dashboard_path(@conn, :index) %>">Globotunes</a>
+
+  <div class="collapse navbar-toggleable-md" id="navbarResponsive">
+    <ul class="nav navbar-nav">
+
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <img src="<%= static_path(@conn, "/assets/images/#{@current_user.locale}.png") %>" alt=""/>
+        </a>
+        <div class="dropdown-menu">
+          <a class="media dropdown-item" href="<%= session_path(@conn, :locale, "ru") %>">
+            <div class="media-left media-middle">
+                <img src="<%= static_path(@conn, "/assets/images/ru.png") %>" />
+            </div>
+            <div class="media-body">
+              <span style="line-height: 26px;"><%= dgettext("menu", "russian") %></span>
+            </div>
+          </a>
+          <a class="media dropdown-item" href="<%= session_path(@conn, :locale, "en") %>">
+            <div class="media-left media-middle">
+              <img src="<%= static_path(@conn, "/assets/images/en.png") %>" />
+            </div>
+            <div class="media-body">
+              <span style="line-height: 26px;"><%= dgettext("menu", "english") %></span>
+            </div>
+          </a>
+        </div>
+      </li>
+
+      <%= if Gt.Auth.Permissions.has_any(@current_user.permissions, "finance") do  %>
+        <li class="nav-item dropdown <%= if is_active(@conn, "/finance"), do: "active" %>">
+          <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fa fa-money"></i>
+            <%= dgettext "menu", "finances" %>
+          </a>
+          <div class="dropdown-menu">
+            <%= Enum.map([
+              {(dgettext "menu", "payments_check"), "payments_check", payment_check_path(@conn, :index)},
+              {(dgettext "menu", "payment_system"), "payment_systems", payment_system_path(@conn, :index)},
+              {(dgettext "menu", "funds_flow"), "funds_flow", funds_report_path(@conn, :index)},
+              {(dgettext "menu", "monthly_balances"), "monthly_balance", monthly_balances_path(@conn, :index)},
+            ], fn({title, permission, url}) ->
+              render Gt.LayoutView, "menu_item.html", %{
+                user: @current_user,
+                title: title,
+                permission: permission,
+                url: url
+              }
+            end) %>
+          </div>
+        </li>
+      <%= end %>
+
+      <%= if Gt.Auth.Permissions.has_any(@current_user.permissions, "statistics") do  %>
+        <li class="nav-item dropdown <%= if is_active(@conn, "/statistics"), do: "active" %>">
+          <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fa fa-area-chart"></i>
+            <%= dgettext "menu", "statistics" %>
+          </a>
+          <div class="dropdown-menu">
+            <%= Enum.map([
+              {(dgettext "menu", "consolidated_report"), "consolidated_report", consolidated_report_path(@conn, :index)},
+              {(dgettext "menu", "ltv_report"), "ltv_report", ltv_report_path(@conn, :index)},
+              {(dgettext "menu", "segments_report"), "segments_report", segments_report_path(@conn, :index)},
+              {(dgettext "menu", "retentions_report"), "retentions_report", retentions_report_path(@conn, :index)},
+              {(dgettext "menu", "timeline_report"), "timeline_report", timeline_report_path(@conn, :index)},
+              {(dgettext "menu", "cohorts_report"), "cohorts_report", cohorts_report_path(@conn, :index)},
+              {(dgettext "menu", "universal_report"), "universal_report", universal_report_path(@conn, :index)},
+            ], fn({title, permission, url}) ->
+              render Gt.LayoutView, "menu_item.html", %{
+                user: @current_user,
+                title: title,
+                permission: permission,
+                url: url
+              }
+            end) %>
+          </div>
+        </li>
+      <%= end %>
+
+      <%= if Gt.Auth.Permissions.has_any(@current_user.permissions, "calendar_events") do  %>
+        <li class="nav-item dropdown <%= if is_active(@conn, "/calendar"), do: "active" %>">
+          <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fa fa-th"></i>
+            <%= dgettext "menu", "calendar_events" %>
+          </a>
+          <div class="dropdown-menu">
+            <%= Enum.map([
+              {(dgettext "menu", "events_list"), "events_list", calendar_event_path(@conn, :index)},
+              {(dgettext "menu", "event_types"), "events_types_list", calendar_type_path(@conn, :index)},
+              {(dgettext "menu", "event_groups"), "events_groups_list", calendar_group_path(@conn, :index)},
+            ], fn({title, permission, url}) ->
+              render Gt.LayoutView, "menu_item.html", %{
+                user: @current_user,
+                title: title,
+                permission: permission,
+                url: url
+              }
+            end) %>
+          </div>
+        </li>
+      <%= end %>
+
+      <%= if Gt.Auth.Permissions.has_any(@current_user.permissions, "players") do  %>
+        <li class="nav-item dropdown <%= if is_active(@conn, "/players"), do: "active" %>">
+          <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fa fa-users"></i>
+            <%= dgettext "menu", "players" %>
+          </a>
+          <div class="dropdown-menu">
+            <%= Enum.map([
+              {(dgettext "menu", "multiaccounts"), "multiaccounts", multiaccounts_path(@conn, :index)},
+              {(dgettext "menu", "signup_channels"), "signup_channels", signup_channel_path(@conn, :index)},
+            ], fn({title, permission, url}) ->
+              render Gt.LayoutView, "menu_item.html", %{
+                user: @current_user,
+                title: title,
+                permission: permission,
+                url: url
+              }
+            end) %>
+          </div>
+        </li>
+      <%= end %>
+
+      <%= if @current_user.is_admin do  %>
+        <li class="nav-item dropdown <%= if is_active(@conn, "/settings"), do: "active" %>">
+          <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fa fa-cogs"></i>
+            <%= dgettext "menu", "settings" %>
+          </a>
+          <div class="dropdown-menu">
+            <%= Enum.map([
+              {(dgettext "menu", "users"), user_path(@conn, :index)},
+              {(dgettext "menu", "projects"), project_path(@conn, :index)},
+              {(dgettext "menu", "permissions"), permissions_path(@conn, :index)},
+              {(dgettext "menu", "data_sources"), data_source_path(@conn, :index)},
+              {(dgettext "menu", "cache"), cache_path(@conn, :index)},
+              {(dgettext "menu", "smtp_servers"), smtp_server_path(@conn, :index)},
+            ], fn({title, url}) -> %>
+              <a class="dropdown-item" href="<%= url %>"><%= title %></a>
+            <%= end) %>
+          </div>
+        </li>
+      <%= end %>
+
+    </ul>
+
+    <ul class="nav navbar-nav float-lg-right">
+      <li class="nav-item">
+        <a class="nav-link" href="<%= session_path(@conn, :logout) %>">
+          <i class='fa fa-sign-out'></i>
+          <%= gettext("logout") %> (<%= @current_user.email %>)
+        </a>
+      </li>
+    </ul>
+
+  </div>
+</nav>
+

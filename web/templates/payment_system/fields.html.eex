@@ -1,0 +1,231 @@
+<div class="col-sm-12 col-md-12 col-lg-6">
+  <div class="card">
+    <div class="card-header"><%= dgettext "payment_systems", "general_parameters" %></div>
+    <div class="card-block">
+      <p class="card-text">
+        <%= render(Gt.LayoutView, "text_field.html",
+                  form: @form,
+                  field: :name,
+                  label: dgettext("payment_systems", "name")
+                  ) %>
+        <%= render(Gt.LayoutView, "select_field.html",
+                  form: @form,
+                  field: :script,
+                  label: dgettext("payment_systems", "script"),
+                  options: [nil | Gt.PaymentSystem.scripts()]
+                  ) %>
+      </p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><%= dgettext "payment_systems", "one_gamepay_parameters" %></div>
+    <div class="card-block">
+      <p class="card-text">
+        <%= inputs_for @form, :one_gamepay, fn f_1gp -> %>
+          <%= render(Gt.LayoutView, "tags_field.html",
+                    form: f_1gp,
+                    field: :map_id,
+                    label: dgettext("payment_systems", "id")
+                    ) %>
+          <%= render(Gt.LayoutView, "tags_field.html",
+                    form: f_1gp,
+                    field: :payment_system,
+                    label: dgettext("payment_systems", "payment_system")
+                    ) %>
+        <% end %>
+      </p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><%= dgettext "payment_systems", "fee_parameters" %></div>
+    <div class="card-block">
+      <p class="card-text">
+        <%= inputs_for @form, :fee, fn f_fee -> %>
+          <%= render(Gt.LayoutView, "tags_field.html",
+                    form: f_fee,
+                    field: :map_id,
+                    label: dgettext("payment_systems", "id")
+                    ) %>
+          <%= render(Gt.LayoutView, "tags_field.html",
+                    form: f_fee,
+                    field: :currency,
+                    label: dgettext("payment_systems", "currency")
+                    ) %>
+          <%= render(Gt.LayoutView, "text_field.html",
+                    form: f_fee,
+                    field: :sum,
+                    label: dgettext("payment_systems", "fee_sum")
+                    ) %>
+          <%= render(Gt.LayoutView, "text_field.html",
+                    form: f_fee,
+                    field: :percent,
+                    label: dgettext("payment_systems", "fee_percent")
+                    ) %>
+          <%= render(Gt.LayoutView, "text_field.html",
+                    form: f_fee,
+                    field: :default_account_id,
+                    label: dgettext("payment_systems", "default_account_id")
+                    ) %>
+          <%= render(Gt.LayoutView, "text_field.html",
+                    form: f_fee,
+                    field: :max_fee,
+                    label: dgettext("payment_systems", "max_fee")
+                    ) %>
+          <%= render(Gt.LayoutView, "checkbox_field.html",
+                    form: f_fee,
+                    field: :fee_report,
+                    label: dgettext("payment_systems", "fee_report")
+                    ) %>
+          <%= render(Gt.LayoutView, "checkbox_field.html",
+                    form: f_fee,
+                    field: :divide_100,
+                    label: dgettext("payment_systems", "divide_100")
+                    ) %>
+          <%= render(Gt.LayoutView, "select_field.html",
+                    form: f_fee,
+                    field: :types,
+                    label: dgettext("payment_systems", "fee_types"),
+                    multiple: true,
+                    options: payment_types()
+                    ) %>
+        <% end %>
+      </p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><%= dgettext "payment_systems", "report_parameters" %></div>
+    <div class="card-block">
+      <p class="card-text">
+        <%= inputs_for @form, :report, fn f_report -> %>
+          <%= render(Gt.LayoutView, "tags_field.html",
+                    form: f_report,
+                    field: :sum,
+                    label: dgettext("payment_systems", "sum")
+                    ) %>
+          <%= render(Gt.LayoutView, "tags_field.html",
+                    form: f_report,
+                    field: :currency,
+                    label: dgettext("payment_systems", "currency")
+                    ) %>
+          <%= render(Gt.LayoutView, "checkbox_field.html",
+                    form: f_report,
+                    field: :divide_100,
+                    label: dgettext("payment_systems", "divide_100")
+                    ) %>
+        <% end %>
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<div class="col-sm-12 col-md-12 col-lg-6">
+
+  <div class="card">
+    <div class="card-header"><%= dgettext "payment_systems", "csv_parameters" %></div>
+    <div class="card-block">
+      <p class="card-text">
+        <%= inputs_for @form, :csv, fn f_csv -> %>
+          <%= render(Gt.LayoutView, "select_field.html",
+                    form: f_csv,
+                    label: dgettext("payment_systems", "separator"),
+                    field: :separator,
+                    options: separators(),
+                    ) %>
+
+          <%= render(Gt.LayoutView, "select_field.html",
+                    form: f_csv,
+                    label: dgettext("payment_systems", "double_qoute"),
+                    field: :double_qoute,
+                    options: double_qoutes(),
+                    ) %>
+        <% end %>
+      </p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><%= dgettext "payment_systems", "field_parameters" %></div>
+    <div class="card-block">
+      <p class="card-text">
+        <%= inputs_for @form, :fields, fn f_field -> %>
+          <%= render(Gt.LayoutView, "tags_field.html",
+                    form: f_field,
+                    field: :map_id,
+                    label: dgettext("payment_systems", "id")
+                    ) %>
+          <%= render(Gt.LayoutView, "tags_field.html",
+                    form: f_field,
+                    field: :date,
+                    label: dgettext("payment_systems", "date")
+                    ) %>
+          <%= render(Gt.LayoutView, "tags_field.html",
+                    form: f_field,
+                    field: :sum,
+                    label: dgettext("payment_systems", "sum")
+                    ) %>
+          <%= render(Gt.LayoutView, "tags_field.html",
+                    form: f_field,
+                    field: :currency,
+                    label: dgettext("payment_systems", "currency")
+                    ) %>
+          <%= render(Gt.LayoutView, "tags_field.html",
+                    form: f_field,
+                    field: :type,
+                    label: dgettext("payment_systems", "payment_type")
+                    ) %>
+          <%= render(Gt.LayoutView, "select_field.html",
+                    form: f_field,
+                    field: :default_payment_type,
+                    label: dgettext("payment_systems", "default_payment_type"),
+                    options: payment_types()
+                    ) %>
+          <%= render(Gt.LayoutView, "tags_field.html",
+                    form: f_field,
+                    field: :type_in,
+                    label: dgettext("payment_systems", "payment_type_in")
+                    ) %>
+          <%= render(Gt.LayoutView, "tags_field.html",
+                    form: f_field,
+                    field: :type_out,
+                    label: dgettext("payment_systems", "payment_type_out")
+                    ) %>
+          <%= render(Gt.LayoutView, "tags_field.html",
+                    form: f_field,
+                    field: :state,
+                    label: dgettext("payment_systems", "status")
+                    ) %>
+          <%= render(Gt.LayoutView, "tags_field.html",
+                    form: f_field,
+                    field: :account_id,
+                    label: dgettext("payment_systems", "account_id")
+                    ) %>
+          <%= render(Gt.LayoutView, "text_field.html",
+                    form: f_field,
+                    field: :default_account_id,
+                    label: dgettext("payment_systems", "default_account_id")
+                    ) %>
+          <%= render(Gt.LayoutView, "tags_field.html",
+                    form: f_field,
+                    field: :player_purse,
+                    label: dgettext("payment_systems", "player_purse")
+                    ) %>
+          <%= render(Gt.LayoutView, "tags_field.html",
+                    form: f_field,
+                    field: :comment,
+                    label: dgettext("payment_systems", "comment")
+                    ) %>
+          <%= render(Gt.LayoutView, "tags_field.html",
+                    form: f_field,
+                    field: :state_ok,
+                    label: dgettext("payment_systems", "status_ok")
+                    ) %>
+        <% end %>
+      </p>
+    </div>
+  </div>
+
+</div>

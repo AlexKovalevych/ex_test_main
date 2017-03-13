@@ -1,0 +1,12 @@
+<div>
+  <div class="pull-left text-xs-left">
+    <%= @period %>
+  </div>
+  <div class="text-xs-right">
+    <%= Money.new(abs @value) %>
+  </div>
+</div>
+<% width = progress_width(@max_value, @value) %>
+<div class="progress" style="<%= if !Map.get(assigns, :margin, true), do: "margin-bottom: 0;" %>">
+  <div class="determinate <%= metrics_color(@sort_metrics) %>" style="width: <%= width %>%"></div>
+</div>

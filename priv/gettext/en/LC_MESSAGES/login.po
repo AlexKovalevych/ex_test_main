@@ -1,0 +1,66 @@
+## `msgid`s in this file come from POT (.pot) files.
+##
+## Do not add, change, or remove `msgid`s manually here as
+## they're tied to the ones in the corresponding POT file
+## (with the same domain).
+##
+## Use `mix gettext.extract --merge` or `mix gettext.merge`
+## to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: en\n"
+
+#: web/templates/session/google.html.eex:15
+#: web/templates/session/new.html.eex:17 web/templates/session/sms.html.eex:18
+msgid "login"
+msgstr "Login"
+
+#: web/templates/session/google.html.eex:8
+msgid "google_code"
+msgstr "Google code"
+
+#: web/controllers/session_controller.ex:93
+#: web/controllers/session_controller.ex:122
+msgid "invalid_code"
+msgstr "Wrong code"
+
+#: web/models/user.ex:151 web/models/user.ex:161
+msgid "invalid_credentials"
+msgstr "Invalid credentials"
+
+#: web/templates/session/sms.html.eex:5
+msgid "sms_code"
+msgstr "Code from SMS"
+
+#: web/auth/ensure_authenticated.ex:27 web/controllers/session_controller.ex:81
+#: web/controllers/session_controller.ex:106 web/models/user.ex:158
+msgid "user_disabled"
+msgstr "User disabled. Contact your administrator"
+
+#: web/templates/session/google.html.eex:3
+msgid "server_time"
+msgstr "Warning! Generated code is sensitive to the time set at your phone. Maximum difference with server time may be ± 1 minute. Server time:"
+
+#: web/templates/session/sms.html.eex:2
+msgid "sms_sent"
+msgstr "SMS with confirmation code was sent to your phone number (%{phone}). Please contact site administration if you didn't receive it"
+
+#: web/templates/session/sms.html.eex:19
+msgid "sms_resend"
+msgstr "Send SMS again"
+
+#: web/templates/session/sms.html.eex:21
+msgid "sms_send_failed"
+msgstr "Could not send SMS again"
+
+#: web/templates/session/sms.html.eex:20
+msgid "sms_was_sent"
+msgstr "SMS was sent"
+
+#: web/auth/ensure_authenticated.ex:29 web/controllers/session_controller.ex:135
+msgid "not_authenticated"
+msgstr "You should be logged in to access the system"
+
+#: web/auth/ensure_authenticated.ex:38
+msgid "permision_denied"
+msgstr "Permission denied"

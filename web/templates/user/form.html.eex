@@ -1,0 +1,60 @@
+<div class="row">
+  <%= form_for @changeset, @action, fn f -> %>
+
+    <div class="col-sm-12 col-md-12 col-lg-6">
+      <%= render(Gt.LayoutView, "text_field.html", form: f, field: :email, label: dgettext("users", "email")) %>
+      <%= render(Gt.LayoutView, "checkbox_field.html", form: f, field: :is_admin, label: dgettext("users", "is_admin")) %>
+      <%= render(Gt.LayoutView, "password_field.html", form: f, field: :password, label: dgettext("users", "password")) %>
+
+      <%= render(Gt.LayoutView, "radio_field.html", form: f, field: :locale,
+                label: dgettext("users", "locale"),
+                options: [
+                  ["ru", dgettext("users", "ru")],
+                  ["en", dgettext("users", "en")]
+                ] ) %>
+
+      <%= render(Gt.LayoutView, "radio_field.html", form: f, field: :auth,
+                label: dgettext("users", "auth"),
+                options: [
+                  ["none", dgettext("users", "password")],
+                  ["sms", dgettext("users", "sms")],
+                  ["google", dgettext("users", "google")]
+                ] ) %>
+
+      <%= render(Gt.LayoutView, "text_field.html", form: f, field: :phone, label: dgettext("users", "phone")) %>
+
+      <%= render(Gt.LayoutView, "checkbox_field.html", form: f, field: :enabled, label: dgettext("users", "enabled")) %>
+
+      <%= render(Gt.LayoutView, "text_field.html", form: f, field: :description, label: dgettext("users", "description")) %>
+
+    </div>
+
+    <div class="col-sm-12 col-md-12 col-lg-6 noselect" id="permissions"></div>
+    <%= hidden_input f, :permissions, value: Poison.encode!(hd @permissions.users) %>
+
+    <div class="col-sm-12"></div>
+    <div class="col-sm-12 col-md-12 col-lg-6">
+      <%= render(Gt.LayoutView, "submit_button.html") %>
+    </div>
+
+  <% end %>
+
+  <script src="<%= static_path(@conn, "/js/user_permissions.js") %>"></script>
+  <script type="text/javascript">
+    var app = Elm.UserPermissions.embed(document.getElementById('permissions'));
+    app.ports.availableUsers.send(<%= raw Poison.encode!(@permissions.users) %>);
+    app.ports.availableProjects.send(<%= raw Poison.encode!(@permissions.projects) %>);
+    app.ports.availableRoles.send(<%= raw Poison.encode!(@permissions.roles) %>);
+    app.ports.translations.send({
+      projects: "<%= dgettext "permissions", "projects" %>",
+      roles: "<%= dgettext "permissions", "roles" %>",
+      users: "<%= dgettext "permissions", "users" %>",
+      selectAll : "<%= dgettext "permissions", "select_all" %>"
+    });
+    app.ports.permissions.subscribe(function(permissions) {
+      document.getElementById("user_permissions").value = permissions;
+    });
+  </script>
+
+</div>
+

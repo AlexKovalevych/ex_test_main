@@ -1,0 +1,5 @@
+<%= case @type do %>
+  <%= "consolidated" -> %><span class="tag tag-danger"><%= dgettext "cache", "consolidated" %></span>
+  <%= "vip" -> %><span class="tag tag-info"><%= dgettext "cache", "vip" %></span>
+  <%= "stats" -> %><span class="tag tag-warning"><%= dgettext "cache", "stats" %></span>
+<%= end %>

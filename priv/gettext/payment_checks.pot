@@ -1,0 +1,170 @@
+## This file is a PO Template file.
+##
+## `msgid`s here are often extracted from source code.
+## Add new translations manually only if they're dynamic
+## translations that can't be statically extracted.
+##
+## Run `mix gettext.extract` to bring this file up to
+## date. Leave `msgstr`s empty as changing them here as no
+## effect: edit them in PO (`.po`) files instead.
+msgid ""
+msgstr ""
+
+#: lib/gt/report/payment_check.ex:40
+#: web/templates/payment_check/one_gamepay_errors.html.eex:17
+msgid "1gp_channel_currency"
+msgstr ""
+
+#: lib/gt/report/payment_check.ex:41
+#: web/templates/payment_check/one_gamepay_errors.html.eex:18
+msgid "1gp_channel_sum"
+msgstr ""
+
+#: lib/gt/report/payment_check.ex:39
+#: web/templates/payment_check/one_gamepay_errors.html.eex:16
+msgid "1gp_currency"
+msgstr ""
+
+#: web/templates/payment_check/show.html.eex:45
+msgid "1gp_errors"
+msgstr ""
+
+#: lib/gt/report/payment_check.ex:30
+#: web/templates/payment_check/one_gamepay_errors.html.eex:7
+msgid "1gp_id"
+msgstr ""
+
+#: lib/gt/report/payment_check.ex:38
+#: web/templates/payment_check/one_gamepay_errors.html.eex:15
+msgid "1gp_sum"
+msgstr ""
+
+#: lib/gt/report/payment_check.ex:31
+#: web/templates/payment_check/one_gamepay_errors.html.eex:8
+msgid "account_id"
+msgstr ""
+
+#: lib/gt/report/payment_check.ex:37
+#: web/templates/payment_check/one_gamepay_errors.html.eex:14
+msgid "comment"
+msgstr ""
+
+#: web/templates/payment_check/index.html.eex:37
+msgid "confirm_delete"
+msgstr ""
+
+#: lib/gt/report/payment_check.ex:35
+#: web/templates/payment_check/one_gamepay_errors.html.eex:12
+msgid "currency"
+msgstr ""
+
+#: lib/gt/report/payment_check.ex:32
+#: web/templates/payment_check/one_gamepay_errors.html.eex:9
+msgid "date"
+msgstr ""
+
+#: web/templates/payment_check/download_button.html.eex:4
+#: web/templates/payment_check/show.html.eex:74
+msgid "download"
+msgstr ""
+
+#: web/views/payment_check_view.ex:15
+msgid "duplicate"
+msgstr ""
+
+#: lib/gt/report/payment_check.ex:42
+#: web/templates/payment_check/one_gamepay_errors.html.eex:19
+msgid "errors"
+msgstr ""
+
+#: web/templates/payment_check/form.html.eex:16
+msgid "file"
+msgstr ""
+
+#: web/templates/payment_check/index.html.eex:21
+msgid "inserted_at"
+msgstr ""
+
+#: web/views/payment_check_view.ex:17
+msgid "invalid_currency"
+msgstr ""
+
+#: web/views/payment_check_view.ex:18
+msgid "invalid_date"
+msgstr ""
+
+#: web/views/payment_check_view.ex:16
+msgid "invalid_sum"
+msgstr ""
+
+#: web/templates/payment_check/index.html.eex:2
+msgid "list"
+msgstr ""
+
+#: web/views/payment_check_view.ex:14
+msgid "not_found"
+msgstr ""
+
+#: web/templates/payment_check/show.html.eex:15
+msgid "one_gamepay_errors"
+msgstr ""
+
+#: web/templates/payment_check/show.html.eex:2
+msgid "payment_check"
+msgstr ""
+
+#: web/templates/payment_check/form.html.eex:8
+#: web/templates/payment_check/index.html.eex:18
+#: web/templates/payment_check/show.html.eex:29
+msgid "payment_system"
+msgstr ""
+
+#: web/templates/payment_check/show.html.eex:36
+#: web/templates/payment_check/show.html.eex:66
+msgid "period"
+msgstr ""
+
+#: lib/gt/report/payment_check.ex:29
+#: web/templates/payment_check/one_gamepay_errors.html.eex:6
+msgid "ps_id"
+msgstr ""
+
+#: lib/gt/report/payment_check.ex:33
+#: web/templates/payment_check/one_gamepay_errors.html.eex:10
+msgid "site"
+msgstr ""
+
+#: web/templates/payment_check/show.html.eex:42
+msgid "skipped_transactions"
+msgstr ""
+
+#: web/templates/payment_check/show.html.eex:10
+msgid "state"
+msgstr ""
+
+#: web/templates/payment_check/index.html.eex:19
+msgid "status"
+msgstr ""
+
+#: lib/gt/report/payment_check.ex:36
+#: web/templates/payment_check/one_gamepay_errors.html.eex:13
+msgid "sum"
+msgstr ""
+
+#: web/templates/payment_check/show.html.eex:39
+msgid "total_transactions"
+msgstr ""
+
+#: lib/gt/report/payment_check.ex:34
+#: web/templates/payment_check/one_gamepay_errors.html.eex:11
+msgid "type"
+msgstr ""
+
+#: web/templates/payment_check/index.html.eex:20
+#: web/templates/payment_check/show.html.eex:32
+msgid "user"
+msgstr ""
+
+#: web/templates/payment_check/show.html.eex:51
+msgid "one_s_report"
+msgstr ""

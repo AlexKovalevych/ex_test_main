@@ -1,0 +1,159 @@
+## `msgid`s in this file come from POT (.pot) files.
+##
+## Do not add, change, or remove `msgid`s manually here as
+## they're tied to the ones in the corresponding POT file
+## (with the same domain).
+##
+## Use `mix gettext.extract --merge` or `mix gettext.merge`
+## to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: en\n"
+
+#: web/controllers/data_source_controller.ex:47
+#: web/controllers/data_source_controller.ex:86
+msgid "data_source_created"
+msgstr "Data source was created"
+
+#: web/templates/data_source/one_gamepay_api.html.eex:47
+#: web/templates/data_source/one_gamepay_file.html.eex:22
+msgid "double_qoute"
+msgstr "Double qoute"
+
+#: web/templates/data_source/one_gamepay_api.html.eex:19
+msgid "encryption"
+msgstr "Encryption"
+
+#: web/templates/data_source/form_one_gamepay.html.eex:4
+#: web/templates/data_source/form_pomadorro.html.eex:4
+#: web/templates/data_source/form_rates.html.eex:4
+msgid "external"
+msgstr "External source"
+
+#: web/templates/data_source/form_one_gamepay.html.eex:7
+#: web/templates/data_source/form_pomadorro.html.eex:7
+#: web/templates/data_source/form_rates.html.eex:7
+#: web/templates/data_source/one_gamepay_file.html.eex:31
+#: web/templates/data_source/pomadorro_file.html.eex:31
+#: web/templates/data_source/rates_file.html.eex:15
+msgid "file"
+msgstr "Local source"
+
+#: web/templates/data_source/one_gamepay_api.html.eex:14
+#: web/templates/data_source/one_gamepay_request_api.html.eex:22
+#: web/templates/data_source/pomadorro_api.html.eex:39
+#: web/templates/data_source/rates_api.html.eex:30
+msgid "host"
+msgstr "Host"
+
+#: web/templates/data_source/index.html.eex:30
+#: web/templates/data_source/one_gamepay_api.html.eex:55
+#: web/templates/data_source/one_gamepay_request_api.html.eex:37
+#: web/templates/data_source/pomadorro_api.html.eex:44
+#: web/templates/data_source/rates_api.html.eex:35
+msgid "interval"
+msgstr "Interval"
+
+#: web/templates/data_source/one_gamepay_api.html.eex:56
+#: web/templates/data_source/one_gamepay_request_api.html.eex:38
+#: web/templates/data_source/pomadorro_api.html.eex:45
+#: web/templates/data_source/rates_api.html.eex:36
+msgid "interval_help"
+msgstr "Interval in minutes"
+
+#: web/templates/data_source/index.html.eex:2
+msgid "list"
+msgstr "Data sources"
+
+#: web/templates/data_source/one_gamepay_request_api.html.eex:27
+msgid "login"
+msgstr "Login"
+
+#: web/templates/data_source/one_gamepay_api.html.eex:24
+msgid "mailbox"
+msgstr "Mailbox"
+
+#: web/templates/data_source/index.html.eex:26
+#: web/templates/data_source/one_gamepay_api.html.eex:9
+#: web/templates/data_source/one_gamepay_file.html.eex:9
+#: web/templates/data_source/one_gamepay_request_api.html.eex:9
+#: web/templates/data_source/pomadorro_api.html.eex:9
+#: web/templates/data_source/pomadorro_file.html.eex:9
+#: web/templates/data_source/rates_api.html.eex:9
+#: web/templates/data_source/rates_file.html.eex:9
+msgid "name"
+msgstr "Name"
+
+#: web/templates/data_source/index.html.eex:16
+#: web/templates/data_source/type_badge.html.eex:5
+msgid "one_gamepay"
+msgstr "1Gamepay"
+
+#: web/templates/data_source/index.html.eex:15
+#: web/templates/data_source/type_badge.html.eex:4
+msgid "one_gamepay_request"
+msgstr "1Gamepay request"
+
+#: web/templates/data_source/one_gamepay_api.html.eex:34
+#: web/templates/data_source/one_gamepay_request_api.html.eex:32
+msgid "password"
+msgstr "Password"
+
+#: web/templates/data_source/index.html.eex:31
+#: web/templates/data_source/one_gamepay_request_api.html.eex:15
+#: web/templates/data_source/pomadorro_api.html.eex:32
+#: web/templates/data_source/rates_api.html.eex:23
+msgid "period"
+msgstr "Period"
+
+#: web/templates/data_source/index.html.eex:14
+#: web/templates/data_source/type_badge.html.eex:3
+msgid "pomadorro"
+msgstr "Pomadorro"
+
+#: web/templates/data_source/pomadorro_file.html.eex:22
+msgid "pomadorro_type"
+msgstr "Type"
+
+#: web/templates/data_source/pomadorro_api.html.eex:22
+msgid "pomadorro_types"
+msgstr "Types"
+
+#: web/templates/data_source/one_gamepay_api.html.eex:29
+msgid "port"
+msgstr "Port"
+
+#: web/templates/data_source/pomadorro_api.html.eex:14
+#: web/templates/data_source/pomadorro_file.html.eex:14
+msgid "project"
+msgstr "Project"
+
+#: web/templates/data_source/index.html.eex:13
+#: web/templates/data_source/type_badge.html.eex:2
+msgid "rates"
+msgstr "Currency rates"
+
+#: web/templates/data_source/rates_api.html.eex:14
+msgid "rates_type"
+msgstr "Type"
+
+#: web/templates/data_source/one_gamepay_api.html.eex:39
+#: web/templates/data_source/one_gamepay_file.html.eex:14
+msgid "separator"
+msgstr "Separator"
+
+#: web/templates/data_source/index.html.eex:28
+msgid "subtypes"
+msgstr "Subtypes"
+
+#: web/templates/data_source/index.html.eex:27
+msgid "type"
+msgstr "Type"
+
+#: web/controllers/data_source_controller.ex:160
+msgid "data_source_worker_update"
+msgstr "Data source \"#{id}\" was updated"
+
+#: web/templates/data_source/index.html.eex:29
+msgid "projects"
+msgstr "Projects"

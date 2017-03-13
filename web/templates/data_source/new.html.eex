@@ -1,0 +1,19 @@
+<div class="col-xs-12">
+  <h1 class="mt-1"><%= dgettext "menu", "new_data_source" %></h1>
+  <hr />
+
+  <div class="mb-1">
+    <%= render "type_badge.html", type: @changeset.data.type %>
+  </div>
+
+  <% assigns = Map.put(assigns, :action, data_source_path(@conn, :create, @changeset.data.type)) %>
+  <%= if @changeset.action do %>
+    <%= if Map.get(assigns, :is_files, false) || !Enum.empty?(@changeset.data.files) do %>
+      <%= render "#{@changeset.data.type}_file.html", assigns %>
+    <%= else %>
+      <%= render "#{@changeset.data.type}_api.html", assigns %>
+    <% end %>
+  <%= else %>
+    <%= render "form_#{@changeset.data.type}.html", assigns %>
+  <% end %>
+</div>

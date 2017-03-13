@@ -1,0 +1,170 @@
+## `msgid`s in this file come from POT (.pot) files.
+##
+## Do not add, change, or remove `msgid`s manually here as
+## they're tied to the ones in the corresponding POT file
+## (with the same domain).
+##
+## Use `mix gettext.extract --merge` or `mix gettext.merge`
+## to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: en\n"
+
+#: lib/gt/report/payment_check.ex:40
+#: web/templates/payment_check/one_gamepay_errors.html.eex:17
+msgid "1gp_channel_currency"
+msgstr "1Gamepay channel currency"
+
+#: lib/gt/report/payment_check.ex:41
+#: web/templates/payment_check/one_gamepay_errors.html.eex:18
+msgid "1gp_channel_sum"
+msgstr "1Gamepay channel sum"
+
+#: lib/gt/report/payment_check.ex:39
+#: web/templates/payment_check/one_gamepay_errors.html.eex:16
+msgid "1gp_currency"
+msgstr "1Gamepay currency"
+
+#: web/templates/payment_check/show.html.eex:45
+msgid "1gp_errors"
+msgstr "1Gamepay errors"
+
+#: lib/gt/report/payment_check.ex:30
+#: web/templates/payment_check/one_gamepay_errors.html.eex:7
+msgid "1gp_id"
+msgstr "1Gamepay Id"
+
+#: lib/gt/report/payment_check.ex:38
+#: web/templates/payment_check/one_gamepay_errors.html.eex:15
+msgid "1gp_sum"
+msgstr "1Gamepay sum"
+
+#: lib/gt/report/payment_check.ex:31
+#: web/templates/payment_check/one_gamepay_errors.html.eex:8
+msgid "account_id"
+msgstr "Account id"
+
+#: lib/gt/report/payment_check.ex:37
+#: web/templates/payment_check/one_gamepay_errors.html.eex:14
+msgid "comment"
+msgstr "Comment"
+
+#: web/templates/payment_check/index.html.eex:37
+msgid "confirm_delete"
+msgstr "Are you sure you want to delete this payment check?"
+
+#: lib/gt/report/payment_check.ex:35
+#: web/templates/payment_check/one_gamepay_errors.html.eex:12
+msgid "currency"
+msgstr "Currency"
+
+#: lib/gt/report/payment_check.ex:32
+#: web/templates/payment_check/one_gamepay_errors.html.eex:9
+msgid "date"
+msgstr "Date"
+
+#: web/templates/payment_check/download_button.html.eex:4
+#: web/templates/payment_check/show.html.eex:74
+msgid "download"
+msgstr "Download"
+
+#: web/views/payment_check_view.ex:15
+msgid "duplicate"
+msgstr "Duplicate"
+
+#: lib/gt/report/payment_check.ex:42
+#: web/templates/payment_check/one_gamepay_errors.html.eex:19
+msgid "errors"
+msgstr "Errors"
+
+#: web/templates/payment_check/form.html.eex:16
+msgid "file"
+msgstr "Files"
+
+#: web/templates/payment_check/index.html.eex:21
+msgid "inserted_at"
+msgstr "Inserted at"
+
+#: web/views/payment_check_view.ex:17
+msgid "invalid_currency"
+msgstr "Currency doesn't match"
+
+#: web/views/payment_check_view.ex:18
+msgid "invalid_date"
+msgstr "Date doesn't match"
+
+#: web/views/payment_check_view.ex:16
+msgid "invalid_sum"
+msgstr "Sum doesn't match"
+
+#: web/templates/payment_check/index.html.eex:2
+msgid "list"
+msgstr "Payment checks"
+
+#: web/views/payment_check_view.ex:14
+msgid "not_found"
+msgstr "Not found"
+
+#: web/templates/payment_check/show.html.eex:15
+msgid "one_gamepay_errors"
+msgstr "1Gamepay errors"
+
+#: web/templates/payment_check/show.html.eex:2
+msgid "payment_check"
+msgstr "Payment check"
+
+#: web/templates/payment_check/form.html.eex:8
+#: web/templates/payment_check/index.html.eex:18
+#: web/templates/payment_check/show.html.eex:29
+msgid "payment_system"
+msgstr "Payment system"
+
+#: web/templates/payment_check/show.html.eex:36
+#: web/templates/payment_check/show.html.eex:66
+msgid "period"
+msgstr "Period"
+
+#: lib/gt/report/payment_check.ex:29
+#: web/templates/payment_check/one_gamepay_errors.html.eex:6
+msgid "ps_id"
+msgstr "Payment system Id"
+
+#: lib/gt/report/payment_check.ex:33
+#: web/templates/payment_check/one_gamepay_errors.html.eex:10
+msgid "site"
+msgstr "Site url"
+
+#: web/templates/payment_check/show.html.eex:42
+msgid "skipped_transactions"
+msgstr "Skipped transactions"
+
+#: web/templates/payment_check/show.html.eex:10
+msgid "state"
+msgstr "Status"
+
+#: web/templates/payment_check/index.html.eex:19
+msgid "status"
+msgstr "Status"
+
+#: lib/gt/report/payment_check.ex:36
+#: web/templates/payment_check/one_gamepay_errors.html.eex:13
+msgid "sum"
+msgstr "Sum"
+
+#: web/templates/payment_check/show.html.eex:39
+msgid "total_transactions"
+msgstr "Total transactions"
+
+#: lib/gt/report/payment_check.ex:34
+#: web/templates/payment_check/one_gamepay_errors.html.eex:11
+msgid "type"
+msgstr "Type"
+
+#: web/templates/payment_check/index.html.eex:20
+#: web/templates/payment_check/show.html.eex:32
+msgid "user"
+msgstr "User"
+
+#: web/templates/payment_check/show.html.eex:51
+msgid "one_s_report"
+msgstr "1C report"

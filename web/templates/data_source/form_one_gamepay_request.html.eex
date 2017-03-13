@@ -1,0 +1,1 @@
+<%= render Gt.DataSourceView, "one_gamepay_request_api.html", assigns %>

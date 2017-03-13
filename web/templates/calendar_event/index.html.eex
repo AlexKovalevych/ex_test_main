@@ -1,0 +1,67 @@
+<div class="col-xs-12">
+  <h1 class="mt-1"><%= dgettext "calendar_events", "list" %></h1>
+  <hr />
+</div>
+
+<p class="col-xs-12">
+  <a href="<%= calendar_event_path(@conn, :new) %>" class="btn btn-success">
+    <i class="fa fa-plus"></i>
+    <%= gettext "create" %>
+  </a>
+</p>
+
+<%= form_for @conn, calendar_event_path(@conn, :search), [method: "get", as: :search, class: "col-xs-12 col-md-6 col-lg-4"], fn f -> %>
+  <%= render(Gt.LayoutView, "select_field.html",
+            form: f,
+            label: dgettext("calendar_events", "projects"),
+            field: :projects,
+            options: @projects,
+            multiple: true
+            ) %>
+
+  <%= render(Gt.LayoutView, "search_button.html") %>
+
+<%= end %>
+
+<div class="col-xs-12">
+  <table class="table table-striped small">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th><%= dgettext "calendar_events", "projects" %></th>
+        <th><%= dgettext "calendar_events", "type" %></th>
+        <th><%= dgettext "calendar_events", "period" %></th>
+        <th><%= dgettext "calendar_events", "title" %></th>
+        <th><%= dgettext "calendar_events", "inserted_at" %></th>
+        <th><%= dgettext "calendar_events", "user" %></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= for {event, i} <- Enum.with_index(@calendar_events) do %>
+        <tr>
+          <td><%= (@page.page - 1) * @page.per_page + i + 1 %></td>
+          <td><%= render Gt.LayoutView, "project_tags.html", projects: event.projects %></td>
+          <td><%= event.type %></td>
+          <td><%= event.start_at |> Gt.Date.format(:gt_datetime_no_sec) %> - <%= event.end_at |> Gt.Date.format(:gt_datetime_no_sec) %></td>
+          <td><%= event.title %></td>
+          <td><%= event.inserted_at |> Gt.Date.format(:datetime) %></td>
+          <td><%= event.user %></td>
+          <td class="text-nowrap">
+            <%= link gettext("edit"), to: calendar_event_path(@conn, :edit, event), class: "btn btn-outline-primary btn-sm" %>
+            <%= render Gt.LayoutView, "confirm_delete.html",
+              id: event.id,
+              title: dgettext("calendar_events", "confirm_delete", id: event.id),
+              link: link(gettext("delete"), to: calendar_event_path(@conn, :delete, event), class: "btn btn-danger", method: :delete)
+            %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <%= paginate @conn, @page %>
+</div>
+
+<script type="text/javascript">
+  $("#search[name=projects]").selectize();
+</script>

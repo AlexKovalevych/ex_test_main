@@ -1,0 +1,6 @@
+<div class="col-xs-12">
+  <h1 class="mt-1"><%= @calendar_type.name %></h1>
+  <hr />
+
+  <%= render "form.html", Map.put(assigns, :action, calendar_type_path(@conn, :update, @calendar_type)) %>
+</div>

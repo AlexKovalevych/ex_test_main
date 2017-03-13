@@ -1,0 +1,29 @@
+<div class="col-xs-12">
+  <h1 class="mt-1"><%= @data_source.name %></h1>
+  <div class="my-1">
+    <%= render "type_badge.html", type: @changeset.data.type %>
+  </div>
+
+  <div class="row">
+    <%= render Gt.DataSourceView, "control_buttons.html", assigns %>
+    <% assigns = Map.put(assigns, :action, data_source_path(@conn, :update, @data_source.id)) %>
+    <%= if Enum.empty?(@data_source.files) do %>
+      <%= render "#{@changeset.data.type}_api.html", assigns %>
+    <%= else %>
+      <%= render "#{@changeset.data.type}_file.html", Map.put(assigns, :form_name, :data_source) %>
+    <% end %>
+  </div>
+</div>
+
+<script src="<%= static_path(@conn, "/js/data_source_edit.js") %>"></script>
+<script type="text/javascript">
+  var app = Elm.DataSourceEdit.embed(document.getElementById('status'), {
+    dataSource: <%= raw Poison.encode!(@changeset.data) %>
+  });
+  // reload the page when data_source processing is done, to make form fields active again
+  app.ports.reload.subscribe(function(value) {
+    if (value) {
+      document.location.reload();
+    }
+  });
+</script>

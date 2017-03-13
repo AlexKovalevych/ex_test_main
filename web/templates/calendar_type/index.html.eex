@@ -1,0 +1,43 @@
+<div class="col-xs-12">
+  <h1 class="mt-1"><%= dgettext "calendar_types", "list" %></h1>
+  <hr />
+</div>
+
+<p class="col-xs-4">
+  <a href="<%= calendar_type_path(@conn, :new) %>" class="btn btn-success">
+    <i class="fa fa-plus"></i>
+    <%= gettext "create" %>
+  </a>
+</p>
+
+<div class="col-xs-12">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th><%= dgettext "calendar_types", "name" %></th>
+        <th><%= dgettext "calendar_types", "group" %></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= for {type, i} <- Enum.with_index(@calendar_types) do %>
+        <tr>
+          <td><%= (@page.page - 1) * @page.per_page + i + 1 %></td>
+          <td><%= type.name %></td>
+          <td><%= type.group.name %></td>
+          <td>
+            <%= link gettext("edit"), to: calendar_type_path(@conn, :edit, type), class: "btn btn-outline-primary btn-sm" %>
+            <%= render Gt.LayoutView, "confirm_delete.html",
+              id: type.id,
+              title: dgettext("calendar_types", "confirm_delete", name: type.name),
+              link: link(gettext("delete"), to: calendar_type_path(@conn, :delete, type), class: "btn btn-danger", method: :delete)
+            %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <%= paginate @conn, @page %>
+</div>
+

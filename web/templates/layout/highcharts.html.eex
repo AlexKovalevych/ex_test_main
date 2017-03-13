@@ -1,0 +1,46 @@
+<script type="text/javascript">
+  Highcharts.setOptions({
+    lang: {
+      months: [
+        "<%= dgettext "highstock", "january" %>",
+        "<%= dgettext "highstock", "february" %>",
+        "<%= dgettext "highstock", "march" %>",
+        "<%= dgettext "highstock", "april" %>",
+        "<%= dgettext "highstock", "may" %>",
+        "<%= dgettext "highstock", "june" %>",
+        "<%= dgettext "highstock", "july" %>",
+        "<%= dgettext "highstock", "august" %>",
+        "<%= dgettext "highstock", "september" %>",
+        "<%= dgettext "highstock", "october" %>",
+        "<%= dgettext "highstock", "november" %>",
+        "<%= dgettext "highstock", "december" %>"
+      ],
+      weekdays: [
+        "<%= dgettext "highstock", "sunday" %>",
+        "<%= dgettext "highstock", "monday" %>",
+        "<%= dgettext "highstock", "tuesday" %>",
+        "<%= dgettext "highstock", "wednesday" %>",
+        "<%= dgettext "highstock", "thursday" %>",
+        "<%= dgettext "highstock", "friday" %>",
+        "<%= dgettext "highstock", "saturday" %>"
+      ],
+      shortMonths: [
+        "<%= dgettext "highstock", "Jan" %>",
+        "<%= dgettext "highstock", "Feb" %>",
+        "<%= dgettext "highstock", "Mar" %>",
+        "<%= dgettext "highstock", "Apr" %>",
+        "<%= dgettext "highstock", "May" %>",
+        "<%= dgettext "highstock", "Jun" %>",
+        "<%= dgettext "highstock", "Jul" %>",
+        "<%= dgettext "highstock", "Aug" %>",
+        "<%= dgettext "highstock", "Sep" %>",
+        "<%= dgettext "highstock", "Oct" %>",
+        "<%= dgettext "highstock", "Nov" %>",
+        "<%= dgettext "highstock", "Dec" %>"
+      ],
+      rangeSelectorFrom: "<% dgettext "highstock", "from" %>",
+      rangeSelectorTo: "<% dgettext "highstock", "to" %>",
+      rangeSelectorZoom: "<% dgettext "highstock", "zoom" %>"
+    }
+  });
+</script>

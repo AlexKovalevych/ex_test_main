@@ -1,0 +1,43 @@
+<div>
+  <h4><%= dgettext "dashboard", "events" %></h4>
+  <%= if Enum.empty?(@events) do %>
+    <div>
+      <%= dgettext "dashboard", "no_events_found" %>
+    </div>
+  <%= else %>
+    <table class="table narrow table-hover table-bordered table-sm mb-0">
+      <tbody>
+        <%= for event <- @events do %>
+        <tr>
+          <td>
+            <% modal_id = "#{@id}#{event.id}" %>
+            <a data-toggle="modal" data-target="#<%= modal_id %>" class="pointer">
+              <%= "#{event.title} (#{event.type.name}) - #{format_event_date(event.start_at)}" %>
+            </a>
+            <div class="modal fade" id="<%= modal_id %>">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title pull-left"><%= "#{event.title} / #{event.type.name} (#{format_event_date(event.start_at)} - #{format_event_date(event.end_at)})" %></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <%= raw event.description %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <%= end %>
+      </tbody>
+    </table>
+    <%= if @id == "total" do %>
+      <a href="<%= calendar_event_path(@conn, :search) %>" target="_blank"><%= dgettext "dashboard", "show_all_events" %></a>
+    <%= else %>
+      <a href="<%= calendar_event_path(@conn, :search) <> "?search[projects][]=#{@id}" %>" target="_blank"><%= dgettext "dashboard", "show_all_events" %></a>
+    <%= end %>
+  <%= end %>
+</div>

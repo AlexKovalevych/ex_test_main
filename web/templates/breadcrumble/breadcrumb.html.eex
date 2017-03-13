@@ -1,0 +1,11 @@
+<%= if not Enum.empty?(@breadcrumbs) do %>
+  <nav class="breadcrumb mb-0">
+    <%= for breadcrumb <- @breadcrumbs do %>
+      <%= if breadcrumb[:url] do %>
+        <a class="breadcrumb-item" href="<%= breadcrumb[:url] %>"><%= breadcrumb[:name] %></a>
+      <% else %>
+        <span class="breadcrumb-item active"><%= breadcrumb[:name] %></span>
+      <% end %>
+    <%= end %>
+  </nav>
+<%= end %>

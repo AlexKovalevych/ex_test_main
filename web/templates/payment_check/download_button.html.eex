@@ -1,0 +1,6 @@
+<%= form_for @conn,  payment_check_path(@conn, :one_gamepay_errors, @payment_check), [method: "POST", as: :one_gamepay_errors], fn _ -> %>
+  <button type="submit" class="btn btn-secondary">
+    <i class="fa fa-download"></i>
+    <%= "#{dgettext("payment_checks", "download")} (#{@errors_number})" %>
+  </button>
+<%= end %>

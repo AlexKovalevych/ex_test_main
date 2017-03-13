@@ -1,0 +1,8 @@
+<div class="col-xs-12">
+  <h1 class="mt-1"><%= @payment_system.name %></h1>
+  <hr />
+
+  <%= render "form.html", conn: @conn,
+                          changeset: @changeset,
+                          action: payment_system_path(@conn, :update, @payment_system) %>
+</div>

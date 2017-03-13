@@ -1,0 +1,63 @@
+## `msgid`s in this file come from POT (.pot) files.
+##
+## Do not add, change, or remove `msgid`s manually here as
+## they're tied to the ones in the corresponding POT file
+## (with the same domain).
+##
+## Use `mix gettext.extract --merge` or `mix gettext.merge`
+## to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: en\n"
+
+#: web/templates/cache/index.html.eex:13
+#: web/templates/cache/type_badge.html.eex:2
+msgid "consolidated"
+msgstr "Consolidated"
+
+#: web/templates/cache/form_consolidated.html.eex:16
+#: web/templates/cache/index.html.eex:28
+msgid "interval"
+msgstr "Interval"
+
+#: web/templates/cache/form_consolidated.html.eex:16
+msgid "interval_help"
+msgstr "Start interval in minutes"
+
+#: web/templates/cache/form_consolidated.html.eex:10
+#: web/templates/cache/form_stats.html.eex:10
+#: web/templates/cache/index.html.eex:25
+msgid "period"
+msgstr "Period"
+
+#: web/templates/cache/form_consolidated.html.eex:15
+#: web/templates/cache/form_stats.html.eex:15
+#: web/templates/cache/form_vip.html.eex:6 web/templates/cache/index.html.eex:27
+msgid "projects"
+msgstr "Projects"
+
+#: web/templates/cache/index.html.eex:14
+#: web/templates/cache/type_badge.html.eex:4
+msgid "stats"
+msgstr "Stats"
+
+#: web/templates/cache/index.html.eex:26
+msgid "type"
+msgstr "Type"
+
+#: web/templates/cache/index.html.eex:15
+#: web/templates/cache/type_badge.html.eex:3
+msgid "vip"
+msgstr "Vip levels"
+
+#: web/controllers/cache_controller.ex:53
+msgid "cache_worker_created"
+msgstr "Cache worker was created"
+
+#: web/controllers/cache_controller.ex:129
+msgid "cache_worker_update"
+msgstr "Cache worker \"#{id}\" was updated"
+
+#: web/templates/cache/index.html.eex:2
+msgid "list"
+msgstr "Cache workers"

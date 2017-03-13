@@ -1,0 +1,61 @@
+## This file is a PO Template file.
+##
+## `msgid`s here are often extracted from source code.
+## Add new translations manually only if they're dynamic
+## translations that can't be statically extracted.
+##
+## Run `mix gettext.extract` to bring this file up to
+## date. Leave `msgstr`s empty as changing them here as no
+## effect: edit them in PO (`.po`) files instead.
+msgid ""
+msgstr ""
+
+#: web/templates/calendar_event/index.html.eex:54
+msgid "confirm_delete"
+msgstr ""
+
+#: web/templates/calendar_event/form.html.eex:32
+msgid "description"
+msgstr ""
+
+#: web/controllers/calendar_event_controller.ex:156
+msgid "event_deleted"
+msgstr ""
+
+#: web/controllers/calendar_event_controller.ex:75
+#: web/controllers/calendar_event_controller.ex:128
+msgid "event_updated"
+msgstr ""
+
+#: web/templates/calendar_event/index.html.eex:35
+msgid "inserted_at"
+msgstr ""
+
+#: web/templates/calendar_event/index.html.eex:2
+msgid "list"
+msgstr ""
+
+#: web/templates/calendar_event/form.html.eex:24
+#: web/templates/calendar_event/index.html.eex:33
+msgid "period"
+msgstr ""
+
+#: web/templates/calendar_event/form.html.eex:8
+#: web/templates/calendar_event/index.html.eex:16
+#: web/templates/calendar_event/index.html.eex:31
+msgid "projects"
+msgstr ""
+
+#: web/templates/calendar_event/form.html.eex:4
+#: web/templates/calendar_event/index.html.eex:34
+msgid "title"
+msgstr ""
+
+#: web/templates/calendar_event/form.html.eex:15
+#: web/templates/calendar_event/index.html.eex:32
+msgid "type"
+msgstr ""
+
+#: web/templates/calendar_event/index.html.eex:36
+msgid "user"
+msgstr ""

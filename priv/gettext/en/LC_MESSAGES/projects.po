@@ -1,0 +1,61 @@
+## `msgid`s in this file come from POT (.pot) files.
+##
+## Do not add, change, or remove `msgid`s manually here as
+## they're tied to the ones in the corresponding POT file
+## (with the same domain).
+##
+## Use `mix gettext.extract --merge` or `mix gettext.merge`
+## to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: en\n"
+
+#: web/templates/project/form.html.eex:10
+#: web/templates/project/index.html.eex:31
+msgid "enabled"
+msgstr "Enabled"
+
+#: web/templates/project/form.html.eex:7
+msgid "external_id"
+msgstr "External id"
+
+#: web/templates/project/form.html.eex:12
+msgid "is_partner"
+msgstr "Partner project"
+
+#: web/templates/project/form.html.eex:11
+msgid "is_poker"
+msgstr "Poker project"
+
+#: web/templates/project/form.html.eex:6 web/templates/project/index.html.eex:30
+msgid "item_id"
+msgstr "Item id"
+
+#: web/templates/project/index.html.eex:2
+msgid "list"
+msgstr "Projects"
+
+#: web/templates/project/form.html.eex:9
+msgid "logo_url"
+msgstr "Logo url"
+
+#: web/templates/project/form.html.eex:5 web/templates/project/index.html.eex:29
+msgid "prefix"
+msgstr "Prefix"
+
+#: web/controllers/project_controller.ex:56
+#: web/controllers/project_controller.ex:94
+msgid "project_updated"
+msgstr "Project \"%{title}\" saved"
+
+#: web/templates/project/form.html.eex:4 web/templates/project/index.html.eex:28
+msgid "title"
+msgstr "Title"
+
+#: web/templates/project/index.html.eex:15
+msgid "title_search"
+msgstr "TItle"
+
+#: web/templates/project/form.html.eex:8 web/templates/project/index.html.eex:32
+msgid "url"
+msgstr "Url"

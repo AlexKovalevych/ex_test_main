@@ -1,0 +1,296 @@
+## `msgid`s in this file come from POT (.pot) files.
+##
+## Do not add, change, or remove `msgid`s manually here as
+## they're tied to the ones in the corresponding POT file
+## (with the same domain).
+##
+## Use `mix gettext.extract --merge` or `mix gettext.merge`
+## to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: en\n"
+
+#: web/controllers/dashboard_controller.ex:62
+msgid "12_months"
+msgstr "Last 12 months"
+
+#: web/controllers/dashboard_controller.ex:61
+msgid "30_days"
+msgstr "Last 30 days"
+
+#: web/templates/dashboard/stats_block.html.eex:225
+msgid "authorizations"
+msgstr "Authorizations number"
+
+#: web/templates/dashboard/stats_block.html.eex:237
+msgid "authorizations_by_period_daily"
+msgstr "Authorizations number by the period from %{from} to %{to} daily"
+
+#: web/templates/dashboard/stats_block.html.eex:241
+msgid "authorizations_by_period_monthly"
+msgstr "Authorizations number by the period from %{from} to %{to} monthly"
+
+#: web/templates/dashboard/stats_block.html.eex:78
+msgid "avg_arpu"
+msgstr "ARPU"
+
+#: web/templates/dashboard/stats_block.html.eex:90
+msgid "avg_arpu_by_period_daily"
+msgstr "ARPU by the period from %{from} to %{to} daily"
+
+#: web/templates/dashboard/stats_block.html.eex:94
+msgid "avg_arpu_by_period_monthly"
+msgstr "ARPU by the period from %{from} to %{to} monthly"
+
+#: web/templates/dashboard/stats_block.html.eex:57
+msgid "avg_dep"
+msgstr "Average deposit"
+
+#: web/templates/dashboard/stats_block.html.eex:69
+msgid "avg_dep_by_period_daily"
+msgstr "Average deposit by the period from %{from} to %{to} daily"
+
+#: web/templates/dashboard/stats_block.html.eex:73
+msgid "avg_dep_by_period_monthly"
+msgstr "Average deposit by the period from %{from} to %{to} monthly"
+
+#: web/templates/dashboard/stats_block.html.eex:99
+msgid "avg_first_dep"
+msgstr "Average first deposit"
+
+#: web/templates/dashboard/stats_block.html.eex:111
+msgid "avg_first_dep_by_period_daily"
+msgstr "Average first deposit by the period from %{from} to %{to} daily"
+
+#: web/templates/dashboard/stats_block.html.eex:115
+msgid "avg_first_dep_by_period_monthly"
+msgstr "Average first deposit by the period from %{from} to %{to} monthly"
+
+#: web/templates/dashboard/netgaming_charts.html.eex:19
+msgid "bets"
+msgstr "Bets amount"
+
+#: web/templates/dashboard/netgaming_charts.html.eex:20
+msgid "bets_by_period_daily"
+msgstr "Bets by the period from %{from} to %{to} daily"
+
+#: web/templates/dashboard/netgaming_charts.html.eex:21
+msgid "bets_by_period_monthly"
+msgstr "Bets by the period from %{from} to %{to} monthly"
+
+#: web/templates/dashboard/stats_block.html.eex:51
+msgid "charts"
+msgstr "Charts"
+
+#: web/views/dashboard_view.ex:24
+msgid "current"
+msgstr "Current"
+
+#: web/templates/dashboard/stats_block.html.eex:141
+msgid "depositors"
+msgstr "Depositors number"
+
+#: web/templates/dashboard/stats_block.html.eex:153
+msgid "depositors_by_period_daily"
+msgstr "Depositors number by the period from %{from} to %{to} daily"
+
+#: web/templates/dashboard/stats_block.html.eex:157
+msgid "depositors_by_period_monthly"
+msgstr "Depositors number by the period from %{from} to %{to} monthly"
+
+#: web/templates/dashboard/stats_block.html.eex:120
+msgid "deps_num"
+msgstr "Deposits number"
+
+#: web/templates/dashboard/stats_block.html.eex:132
+msgid "deps_num_by_period_daily"
+msgstr "Deposits number by the period from %{from} to %{to} daily"
+
+#: web/templates/dashboard/stats_block.html.eex:136
+msgid "deps_num_by_period_monthly"
+msgstr "Deposits number by the period from %{from} to %{to} monthly"
+
+#: web/templates/dashboard/stats_block.html.eex:50
+msgid "difference"
+msgstr "Difference"
+
+#: web/templates/dashboard/stats_block.html.eex:162
+msgid "first_depositors"
+msgstr "First depositors number"
+
+#: web/templates/dashboard/stats_block.html.eex:174
+msgid "first_depositors_by_period_daily"
+msgstr "First depositors number by the period from %{from} to %{to} daily"
+
+#: web/templates/dashboard/stats_block.html.eex:178
+msgid "first_depositors_by_period_monthly"
+msgstr "First depositors number by the period from %{from} to %{to} monthly"
+
+#: web/templates/dashboard/stats_block.html.eex:204
+msgid "first_deps_sum"
+msgstr "First deposits amount"
+
+#: web/templates/dashboard/stats_block.html.eex:216
+msgid "first_deps_sum_by_period_daily"
+msgstr "First deposits amount by the period from %{from} to %{to} daily"
+
+#: web/templates/dashboard/stats_block.html.eex:220
+msgid "first_deps_sum_by_period_monthly"
+msgstr "First deposits amount by the period from %{from} to %{to} monthly"
+
+#: web/templates/dashboard/inout_charts.html.eex:12
+msgid "inout"
+msgstr "Inout"
+
+#: web/templates/dashboard/inout_charts.html.eex:13
+msgid "inout_by_period_daily"
+msgstr "InOut by the period from %{from} to %{to} daily"
+
+#: web/templates/dashboard/inout_charts.html.eex:14
+msgid "inout_by_period_monthly"
+msgstr "InOut by the period from %{from} to %{to} monthly"
+
+#: web/controllers/dashboard_controller.ex:59
+msgid "month"
+msgstr "Month to date:"
+
+#: web/templates/dashboard/netgaming_charts.html.eex:13
+msgid "netgaming"
+msgstr "Netgaming"
+
+#: web/templates/dashboard/netgaming_charts.html.eex:14
+msgid "netgaming_by_period_daily"
+msgstr "Netgaming by the period from %{from} to %{to} daily"
+
+#: web/templates/dashboard/netgaming_charts.html.eex:15
+msgid "netgaming_by_period_monthly"
+msgstr "Netgaming by the period from %{from} to %{to} monthly"
+
+#: web/templates/dashboard/form.html.eex:3
+msgid "our_projects"
+msgstr "Our"
+
+#: web/templates/dashboard/form.html.eex:4
+msgid "partner_projects"
+msgstr "Partner"
+
+#: web/templates/dashboard/form.html.eex:16
+msgid "period"
+msgstr "Period:"
+
+#: web/views/dashboard_view.ex:26
+msgid "previous"
+msgstr "Previous"
+
+#: web/templates/dashboard/form.html.eex:8
+msgid "projects_type"
+msgstr "Projects:"
+
+#: web/templates/dashboard/netgaming_charts.html.eex:8
+msgid "rake"
+msgstr "Rake"
+
+#: web/templates/dashboard/stats_block.html.eex:183
+msgid "signups"
+msgstr "Signups number"
+
+#: web/templates/dashboard/stats_block.html.eex:195
+msgid "signups_by_period_daily"
+msgstr "Signups number by the period from %{from} to %{to} daily"
+
+#: web/templates/dashboard/stats_block.html.eex:199
+msgid "signups_by_period_monthly"
+msgstr "Signups number by the period from %{from} to %{to} monthly"
+
+#: web/templates/dashboard/form.html.eex:12
+msgid "sort_by"
+msgstr "Sort by metrics:"
+
+#: web/controllers/dashboard_controller.ex:54
+msgid "sort_by_bets_sum"
+msgstr "Bets amount"
+
+#: web/controllers/dashboard_controller.ex:51
+msgid "sort_by_deps_sum"
+msgstr "Deposits amount"
+
+#: web/controllers/dashboard_controller.ex:56
+msgid "sort_by_first_deps_sum"
+msgstr "First deposits amount"
+
+#: web/controllers/dashboard_controller.ex:50
+msgid "sort_by_inout_sum"
+msgstr "Inout amount"
+
+#: web/controllers/dashboard_controller.ex:53
+msgid "sort_by_netgaming_sum"
+msgstr "Netgaming"
+
+#: web/controllers/dashboard_controller.ex:52
+msgid "sort_by_wdrs_sum"
+msgstr "Withdrawals amount"
+
+#: web/controllers/dashboard_controller.ex:55
+msgid "sort_by_wins_sum"
+msgstr "Wins amount"
+
+#: web/templates/dashboard/index.html.eex:292
+msgid "title"
+msgstr "Project indicators"
+
+#: web/templates/dashboard/index.html.eex:301
+msgid "total"
+msgstr "Total"
+
+#: web/templates/dashboard/netgaming_charts.html.eex:25
+msgid "wins"
+msgstr "Wins amount"
+
+#: web/templates/dashboard/netgaming_charts.html.eex:26
+msgid "wins_by_period_daily"
+msgstr "Wins by the period from %{from} to %{to} daily"
+
+#: web/templates/dashboard/netgaming_charts.html.eex:27
+msgid "wins_by_period_monthly"
+msgstr "Wins by the period from %{from} to %{to} monthly"
+
+#: web/controllers/dashboard_controller.ex:60
+msgid "year"
+msgstr "Year to date"
+
+#: web/templates/dashboard/inout_charts.html.eex:18
+msgid "deps_sum"
+msgstr "Deposits amount"
+
+#: web/templates/dashboard/inout_charts.html.eex:19
+msgid "deps_sum_by_period_daily"
+msgstr "Deposits amount by the period from %{from} to %{to} daily"
+
+#: web/templates/dashboard/inout_charts.html.eex:20
+msgid "deps_sum_by_period_monthly"
+msgstr "Deposits amount by the period from %{from} to %{to} monthly"
+
+#: web/templates/dashboard/inout_charts.html.eex:24
+msgid "wdrs_sum"
+msgstr "Withdrawals amount"
+
+#: web/templates/dashboard/inout_charts.html.eex:25
+msgid "wdrs_sum_by_period_daily"
+msgstr "Withdrawals by the period from %{from} to %{to} daily"
+
+#: web/templates/dashboard/inout_charts.html.eex:26
+msgid "wdrs_sum_by_period_monthly"
+msgstr "Withdrawals by the period from %{from} to %{to} monthly"
+
+#: web/templates/dashboard/events.html.eex:2
+msgid "events"
+msgstr "Last events"
+
+#: web/templates/dashboard/events.html.eex:5
+msgid "no_events_found"
+msgstr "No events found"
+
+#: web/templates/dashboard/events.html.eex:38
+#: web/templates/dashboard/events.html.eex:40
+msgid "show_all_events"
+msgstr "Show all events"

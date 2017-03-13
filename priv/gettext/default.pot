@@ -1,0 +1,255 @@
+## This file is a PO Template file.
+##
+## `msgid`s here are often extracted from source code.
+## Add new translations manually only if they're dynamic
+## translations that can't be statically extracted.
+##
+## Run `mix gettext.extract` to bring this file up to
+## date. Leave `msgstr`s empty as changing them here as no
+## effect: edit them in PO (`.po`) files instead.
+msgid ""
+msgstr ""
+
+#: web/controllers/session_controller.ex:58
+#: web/controllers/session_controller.ex:98
+#: web/controllers/session_controller.ex:118
+msgid "internal_error"
+msgstr ""
+
+#: web/templates/layout/menu.html.eex:155
+msgid "logout"
+msgstr ""
+
+#: web/views/view_helper.ex:13
+msgid "next"
+msgstr ""
+
+#: web/views/view_helper.ex:14
+msgid "previous"
+msgstr ""
+
+#: web/templates/layout/submit_button.html.eex:5
+msgid "submit"
+msgstr ""
+
+#: web/controllers/cache_controller.ex:57
+#: web/controllers/cache_controller.ex:133
+#: web/controllers/calendar_event_controller.ex:79
+#: web/controllers/calendar_group_controller.ex:43
+#: web/controllers/calendar_group_controller.ex:81
+#: web/controllers/calendar_type_controller.ex:47
+#: web/controllers/data_source_controller.ex:51
+#: web/controllers/data_source_controller.ex:90
+#: web/controllers/data_source_controller.ex:164
+#: web/controllers/payment_check_controller.ex:86
+#: web/controllers/payment_system_controller.ex:46
+#: web/controllers/payment_system_controller.ex:84
+#: web/controllers/permissions_controller.ex:27
+#: web/controllers/project_controller.ex:60
+#: web/controllers/project_controller.ex:98
+#: web/controllers/user_controller.ex:66 web/controllers/user_controller.ex:107
+msgid "validation_failed"
+msgstr ""
+
+#: web/templates/layout/period_field.html.eex:8
+msgid "to"
+msgstr ""
+
+#: web/controllers/cache_controller.ex:102
+#: web/controllers/consolidated_report_controller.ex:38
+#: web/controllers/data_source_controller.ex:133
+#: web/controllers/payment_check_controller.ex:81
+#: web/controllers/payment_check_controller.ex:113
+msgid "unexpected_error"
+msgstr ""
+
+#: lib/gt/date.ex:32 web/templates/dashboard/index.html.eex:13
+msgid "apr"
+msgstr ""
+
+#: lib/gt/date.ex:36 web/templates/dashboard/index.html.eex:17
+msgid "aug"
+msgstr ""
+
+#: lib/gt/date.ex:40 web/templates/dashboard/index.html.eex:21
+msgid "dec"
+msgstr ""
+
+#: lib/gt/date.ex:30 web/templates/dashboard/index.html.eex:11
+msgid "feb"
+msgstr ""
+
+#: lib/gt/date.ex:29 web/templates/dashboard/index.html.eex:10
+msgid "jan"
+msgstr ""
+
+#: lib/gt/date.ex:35 web/templates/dashboard/index.html.eex:16
+msgid "jul"
+msgstr ""
+
+#: lib/gt/date.ex:34 web/templates/dashboard/index.html.eex:15
+msgid "jun"
+msgstr ""
+
+#: lib/gt/date.ex:31 web/templates/dashboard/index.html.eex:12
+msgid "mar"
+msgstr ""
+
+#: lib/gt/date.ex:33 web/templates/dashboard/index.html.eex:14
+msgid "may"
+msgstr ""
+
+#: lib/gt/date.ex:39 web/templates/dashboard/index.html.eex:20
+msgid "nov"
+msgstr ""
+
+#: lib/gt/date.ex:38 web/templates/dashboard/index.html.eex:19
+msgid "oct"
+msgstr ""
+
+#: lib/gt/date.ex:37 web/templates/dashboard/index.html.eex:18
+msgid "sep"
+msgstr ""
+
+#: web/templates/layout/confirm_delete.html.eex:14
+msgid "cancel"
+msgstr ""
+
+#: web/templates/calendar_event/index.html.eex:55
+#: web/templates/calendar_group/index.html.eex:36
+#: web/templates/calendar_type/index.html.eex:34
+#: web/templates/layout/confirm_delete.html.eex:2
+#: web/templates/payment_check/index.html.eex:38
+#: web/templates/payment_system/index.html.eex:38
+msgid "delete"
+msgstr ""
+
+#: web/templates/layout/search_button.html.eex:5
+#: web/templates/project/index.html.eex:19 web/templates/user/index.html.eex:19
+msgid "search"
+msgstr ""
+
+#: web/templates/cache/index.html.eex:42
+#: web/templates/calendar_event/index.html.eex:51
+#: web/templates/calendar_group/index.html.eex:32
+#: web/templates/calendar_type/index.html.eex:30
+#: web/templates/data_source/index.html.eex:51
+#: web/templates/payment_system/index.html.eex:34
+#: web/templates/project/index.html.eex:52 web/templates/user/index.html.eex:52
+msgid "edit"
+msgstr ""
+
+#: web/templates/cache/index.html.eex:10
+#: web/templates/calendar_event/index.html.eex:9
+#: web/templates/calendar_group/index.html.eex:9
+#: web/templates/calendar_type/index.html.eex:9
+#: web/templates/data_source/index.html.eex:10
+#: web/templates/payment_check/index.html.eex:9
+#: web/templates/payment_system/index.html.eex:9
+#: web/templates/project/index.html.eex:9 web/templates/user/index.html.eex:9
+msgid "create"
+msgstr ""
+
+#: web/templates/layout/file_field.html.eex:13
+msgid "choose_file"
+msgstr ""
+
+#: web/models/worker_status.ex:14
+msgid "process_completed"
+msgstr ""
+
+#: web/controllers/cache_controller.ex:112
+#: web/controllers/cache_controller.ex:117
+#: web/controllers/data_source_controller.ex:143
+#: web/controllers/data_source_controller.ex:148
+#: web/controllers/payment_check_controller.ex:123
+#: web/controllers/payment_check_controller.ex:128
+#: web/models/worker_status.ex:15
+msgid "worker_stopped"
+msgstr ""
+
+#: web/templates/layout/file_field.html.eex:13
+msgid "choose_files"
+msgstr ""
+
+#: web/controllers/cache_controller.ex:151
+#: web/controllers/data_source_controller.ex:182
+#: web/controllers/payment_check_controller.ex:164
+msgid "cant_delete_active_worker"
+msgstr ""
+
+#: web/controllers/cache_controller.ex:156
+#: web/controllers/data_source_controller.ex:187
+#: web/controllers/payment_check_controller.ex:169
+msgid "worker_deleted"
+msgstr ""
+
+#: web/controllers/cache_controller.ex:95
+#: web/controllers/data_source_controller.ex:126
+#: web/controllers/payment_check_controller.ex:74
+#: web/controllers/payment_check_controller.ex:106
+msgid "worker_started"
+msgstr ""
+
+#: web/templates/cache/control_buttons.html.eex:15
+#: web/templates/data_source/control_buttons.html.eex:15
+#: web/templates/payment_check/control_buttons.html.eex:15
+msgid "delete_worker"
+msgstr ""
+
+#: web/templates/cache/control_buttons.html.eex:21
+#: web/templates/data_source/control_buttons.html.eex:21
+#: web/templates/payment_check/control_buttons.html.eex:21
+msgid "start_worker"
+msgstr ""
+
+#: web/templates/cache/control_buttons.html.eex:8
+#: web/templates/data_source/control_buttons.html.eex:8
+#: web/templates/payment_check/control_buttons.html.eex:8
+msgid "stop_worker"
+msgstr ""
+
+#: web/views/data_source_view.ex:30 web/views/payment_system_view.ex:22
+msgid "colon"
+msgstr ""
+
+#: web/views/data_source_view.ex:28 web/views/payment_system_view.ex:20
+msgid "comma"
+msgstr ""
+
+#: web/views/data_source_view.ex:39 web/views/payment_system_view.ex:31
+msgid "double_qoute"
+msgstr ""
+
+#: web/views/data_source_view.ex:31 web/views/payment_system_view.ex:23
+msgid "pipe"
+msgstr ""
+
+#: web/views/data_source_view.ex:33 web/views/payment_system_view.ex:25
+msgid "semicolon"
+msgstr ""
+
+#: web/views/data_source_view.ex:40 web/views/payment_system_view.ex:32
+msgid "single_qoute"
+msgstr ""
+
+#: web/views/data_source_view.ex:32 web/views/payment_system_view.ex:24
+msgid "space"
+msgstr ""
+
+#: web/views/data_source_view.ex:29 web/views/payment_system_view.ex:21
+msgid "tab"
+msgstr ""
+
+#: web/templates/layout/tags_field.html.eex:23
+msgid "add"
+msgstr ""
+
+#: web/templates/consolidated_report/index.html.eex:37
+#: web/templates/payment_check/index.html.eex:34
+msgid "show"
+msgstr ""
+
+#: web/templates/consolidated_report/index.html.eex:38
+msgid "download"
+msgstr ""

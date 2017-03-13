@@ -1,0 +1,49 @@
+<div class="col-xs-12">
+  <h1 class="mt-1"><%= dgettext "cache", "list" %></h1>
+  <hr />
+</div>
+
+<div class="col-xs-4 mb-1">
+  <div class="btn-group">
+    <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <i class="fa fa-plus"></i>
+      <%= gettext "create" %>
+    </button>
+    <div class="dropdown-menu">
+      <a href="<%= cache_path(@conn, :new, "consolidated") %>" class="dropdown-item"><%= dgettext "cache", "consolidated" %></a>
+      <a href="<%= cache_path(@conn, :new, "stats") %>" class="dropdown-item"><%= dgettext "cache", "stats" %></a>
+      <a href="<%= cache_path(@conn, :new, "vip") %>" class="dropdown-item"><%= dgettext "cache", "vip" %></a>
+    </div>
+  </div>
+</div>
+
+<div class="col-xs-12">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th><%= dgettext "cache", "period" %></th>
+        <th><%= dgettext "cache", "type" %></th>
+        <th><%= dgettext "cache", "projects" %></th>
+        <th><%= dgettext "cache", "interval" %></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= for {cache,i } <- Enum.with_index(@caches) do %>
+        <tr>
+          <td><%= (@page.page - 1) * @page.per_page + i + 1 %></td>
+          <td class="text-nowrap"><%= cache.start %> - <%= cache.end %></td>
+          <td><%= render "type_badge.html", type: cache.type %></td>
+          <td><%= render Gt.LayoutView, "project_tags.html", projects: cache.projects %></td>
+          <td><%= cache.interval %></td>
+
+          <td class="text-right">
+            <%= link gettext("edit"), to: cache_path(@conn, :edit, cache), class: "btn btn-outline-primary btn-sm" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <%= paginate @conn, @page %>
+</div>

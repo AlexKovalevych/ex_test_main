@@ -1,0 +1,113 @@
+<div class="col-xs-12">
+  <h1 class="mt-1"><%= dgettext "payment_checks", "payment_check" %></h1>
+  <hr />
+
+  <% stats = @report.stats %>
+
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+      <li class="nav-item">
+        <a data-tab="1" class="nav-link <%= if @report.tab == 1, do: "active" %>" data-toggle="tab" href="#state" role="tab"><%= dgettext "payment_checks", "state" %></a>
+      </li>
+      <%= if stats && stats.one_gamepay_errors > 0 do %>
+        <li class="nav-item">
+          <a data-tab="2" class="nav-link <%= if @report.tab == 2, do: "active" %>" data-toggle="tab" href="#one_gamepay_errors" role="tab">
+            <%= dgettext "payment_checks", "one_gamepay_errors" %>
+          </a>
+        </li>
+      <%= end %>
+    </ul>
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+      <div class="tab-pane <%= if @report.tab == 1, do: "active" %> pt-1" id="state" role="tabpanel">
+        <%= render "control_buttons.html", assigns %>
+        <div id="payment_check"></div>
+        <div class="col-sm-12"></div>
+
+        <%= render "status_block.html",
+            label: dgettext("payment_checks", "payment_system"),
+            value: @payment_check.payment_system.name %>
+        <%= render "status_block.html",
+            label: dgettext("payment_checks", "user"),
+            value: @payment_check.user.email %>
+        <%= if stats do %>
+          <%= render "status_block.html",
+              label: dgettext("payment_checks", "period"),
+              value: "#{Gt.Date.format(stats.from, :date)} - #{Gt.Date.format(stats.to, :date)}" %>
+          <%= render "status_block.html",
+              label: dgettext("payment_checks", "total_transactions"),
+              value: stats.total %>
+          <%= render "status_block.html",
+              label: dgettext("payment_checks", "skipped_transactions"),
+              value: stats.skipped %>
+          <%= render "status_block.html",
+              label: dgettext("payment_checks", "1gp_errors"),
+              value: render("download_button.html",
+                            conn: @conn,
+                            payment_check: @payment_check,
+                            errors_number: stats.one_gamepay_errors) %>
+          <hr class="col-sm-12 col-md-12 col-lg-8" />
+          <h3 class="col-sm-12"><%= dgettext "payment_checks", "one_s_report" %></h3>
+          <%= form_for @report.one_s_changeset, payment_check_path(@conn, :show, @payment_check), [as: :one_s], fn f -> %>
+            <div class="col-sm-12 col-md-12 col-lg-8">
+                <%= render(Gt.LayoutView, "select_field.html",
+                          form: f,
+                          field: :urls,
+                          label: dgettext("payment_systems", "urls"),
+                          options: stats.urls,
+                          multiple: true
+                          ) %>
+
+                <%= render Gt.LayoutView, "period_field.html",
+                  form: f,
+                  field_from: :from,
+                  field_to: :to,
+                  label: dgettext("payment_checks", "period"),
+                  current_user: @current_user
+                %>
+            </div>
+            <div class="col-sm-12"></div>
+            <div class="col-sm-12 col-md-12 col-lg-8">
+              <div class="form-group row">
+                <div class="offset-sm-4 col-sm-8 offset-md-3 col-md-9 offset-lg-3 col-lg-9">
+                  <%= submit dgettext("payment_checks", "download"), class: "btn btn-primary" %>
+                </div>
+              </div>
+            </div>
+          <%= end %>
+
+        <%= end %>
+      </div>
+
+      <%= if stats && stats.one_gamepay_errors > 0 do %>
+        <div class="tab-pane <%= if @report.tab == 2, do: "active" %> pt-1" id="one_gamepay_errors" role="tabpanel">
+          <%= render "one_gamepay_errors.html",
+              transactions: @report.one_gamepay_errors,
+              conn: @conn,
+              page: @report.one_gamepay_page %>
+        </div>
+      <%= end %>
+    </div>
+
+</div>
+
+<script src="<%= static_path(@conn, "/js/payment_check_edit.js") %>"></script>
+<script type="text/javascript">
+  var app = Elm.PaymentCheckEdit.embed(document.getElementById('payment_check'), {
+    paymentCheck: <%= raw Poison.encode!(@payment_check) %>
+  });
+  // reload the page when cache processing is done, to make form fields active again
+  app.ports.reload.subscribe(function(value) {
+    if (value) {
+      document.location.reload();
+    }
+  });
+
+  $('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
+    var tab = $(e.target).data("tab");
+    if (tab == 1) {
+      window.history.pushState("", "", location.pathname);
+    }
+  });
+</script>

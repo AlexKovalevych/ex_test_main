@@ -1,0 +1,27 @@
+<%= form_for @user_settings, dashboard_path(@conn, :index), [class: "settings row", method: "POST"], fn f -> %>
+  <% type_options = [
+      {dgettext("dashboard", "our_projects"), "default"},
+      {dgettext("dashboard", "partner_projects"), "partner"},
+    ]
+  %>
+  <div class="form-group col-sm-12 col-md-6 col-lg-4">
+    <%= label(f, :dashboard_projects, dgettext("dashboard", "projects_type")) %>
+    <%= select(f, :dashboard_projects, type_options, class: "form-control custom-select") %>
+  </div>
+  <div class="form-group col-sm-12 col-md-6 col-lg-4">
+    <%= label(f, :dashboard_sort, dgettext("dashboard", "sort_by")) %>
+    <%= select(f, :dashboard_sort, @sort_metrics, class: "form-control custom-select") %>
+  </div>
+  <div class="form-group col-sm-12 col-md-6 col-lg-4">
+    <%= label(f, :dashboard_period, dgettext("dashboard", "period")) %>
+    <%= select(f, :dashboard_period, @periods, class: "form-control custom-select") %>
+  </div>
+<%= end %>
+
+<script type="text/javascript" charset="utf-8">
+  var submitForm = function() {
+    $('form.settings').submit();
+  }
+  $('form input[type=radio]').on('change', submitForm);
+  $('form select').on('change', submitForm);
+</script>

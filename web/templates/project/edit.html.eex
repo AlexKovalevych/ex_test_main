@@ -1,0 +1,8 @@
+<div class="col-xs-12">
+  <h1 class="mt-1"><%= @project.title %></h1>
+  <hr />
+
+  <%= render "form.html", conn: @conn,
+                          changeset: @changeset,
+                          action: project_path(@conn, :update, @project) %>
+</div>

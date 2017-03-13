@@ -1,0 +1,38 @@
+## `msgid`s in this file come from POT (.pot) files.
+##
+## Do not add, change, or remove `msgid`s manually here as
+## they're tied to the ones in the corresponding POT file
+## (with the same domain).
+##
+## Use `mix gettext.extract --merge` or `mix gettext.merge`
+## to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: ru\n"
+
+#: web/templates/calendar_type/index.html.eex:33
+msgid "confirm_delete"
+msgstr "Вы уверены что хотите удалть этот тип?"
+
+#: web/templates/calendar_type/form.html.eex:7
+#: web/templates/calendar_type/index.html.eex:19
+msgid "group"
+msgstr "Группа"
+
+#: web/templates/calendar_type/index.html.eex:2
+msgid "list"
+msgstr "Типы событий"
+
+#: web/templates/calendar_type/form.html.eex:4
+#: web/templates/calendar_type/index.html.eex:18
+msgid "name"
+msgstr "Название"
+
+#: web/controllers/calendar_type_controller.ex:107
+msgid "type_deleted"
+msgstr "Тип был удален"
+
+#: web/controllers/calendar_type_controller.ex:43
+#: web/controllers/calendar_type_controller.ex:83
+msgid "type_updated"
+msgstr "Тип \"%{name}\" был сохранен"

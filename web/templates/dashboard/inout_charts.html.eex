@@ -1,0 +1,118 @@
+<div id="<%= @id %>inout" class="row">
+  <%
+    {daily_from, daily_to} = @daily_chart_period
+    daily_from = format_date(daily_from)
+    daily_to = format_date(daily_to)
+  %>
+  <% [monthly_from, monthly_to] = @monthly_chart_period %>
+
+  <%= for {metrics, translation, daily_title, monthly_title} <- [
+      {
+        "inout_sum",
+        (dgettext "dashboard", "inout"),
+        (dgettext "dashboard", "inout_by_period_daily", from: daily_from, to: daily_to),
+        (dgettext "dashboard", "inout_by_period_monthly", from: monthly_from, to: monthly_to)
+      },
+      {
+        "deps_sum",
+        (dgettext "dashboard", "deps_sum"),
+        (dgettext "dashboard", "deps_sum_by_period_daily", from: daily_from, to: daily_to),
+        (dgettext "dashboard", "deps_sum_by_period_monthly", from: monthly_from, to: monthly_to)
+      },
+      {
+        "wdrs_sum",
+        (dgettext "dashboard", "wdrs_sum"),
+        (dgettext "dashboard", "wdrs_sum_by_period_daily", from: daily_from, to: daily_to),
+        (dgettext "dashboard", "wdrs_sum_by_period_monthly", from: monthly_from, to: monthly_to)
+      }] do %>
+      <div class="col-sm-12 col-md-12 col-lg-4">
+        <div class="<%= metrics_color(metrics) %>-text"><%= translation %></div>
+        <div id="<%= metrics %>_daily<%= @id %>" class="dashboard-chart"></div>
+        <%= render Gt.DashboardView, "chart_modal.html",
+          id: "#{metrics}_daily#{@id}modal",
+          title: daily_title
+        %>
+        <div id="<%= metrics %>_monthly<%= @id %>" class="dashboard-chart"></div>
+        <%= render Gt.DashboardView, "chart_modal.html",
+          id: "#{metrics}_monthly#{@id}modal",
+          title: monthly_title
+        %>
+      </div>
+  <%= end %>
+</div>
+
+<script type="text/javascript">
+  (function () {
+    var inoutColor = $("#<%= @id %>inout > div > div").first().css("color");
+    var depsColor = $("#<%= @id %>inout > div > div").eq(5).css("color");
+    var wdrsColor = $("#<%= @id %>inout > div > div").eq(10).css("color");
+
+    var dailyConfig = {
+      inout_sum_daily<%= @id %>: {
+        data: [<%= raw Poison.encode!(chart_data @data.daily, :inout_sum) %>],
+        colors: [inoutColor]
+      },
+      deps_sum_daily<%= @id %>: {
+        data: [<%= raw Poison.encode!(chart_data @data.daily, :deps_sum) %>],
+        colors: [depsColor]
+      },
+      wdrs_sum_daily<%= @id %>: {
+        data: [<%= raw Poison.encode!(chart_data @data.daily, :wdrs_sum) %>],
+        colors: [wdrsColor]
+      }
+    };
+
+    var monthlyConfig = {
+      inout_sum_monthly<%= @id %>: {
+        data: [<%= raw Poison.encode!(chart_data @data.monthly, :inout_sum) %>],
+        colors: [inoutColor]
+      },
+      deps_sum_monthly<%= @id %>: {
+        data: [<%= raw Poison.encode!(chart_data @data.monthly, :deps_sum) %>],
+        colors: [depsColor]
+      },
+      wdrs_sum_monthly<%= @id %>: {
+        data: [<%= raw Poison.encode!(chart_data @data.monthly, :wdrs_sum) %>],
+        colors: [wdrsColor]
+      }
+    };
+
+    var dailyIds = ["inout_sum_daily<%= @id %>", "deps_sum_daily<%= @id %>", "wdrs_sum_daily<%= @id %>"];
+    for (var i in dailyIds) {
+      renderAreaChart(dailyIds[i],
+        dailyConfig[dailyIds[i]].colors,
+        dailyConfig[dailyIds[i]].data
+      );
+    }
+
+    var monthlyIds = ["inout_sum_monthly<%= @id %>", "deps_sum_monthly<%= @id %>", "wdrs_sum_monthly<%= @id %>"];
+    for (var i in monthlyIds) {
+      renderBarChart(monthlyIds[i],
+        monthlyConfig[monthlyIds[i]].colors,
+        monthlyConfig[monthlyIds[i]].data
+      );
+    }
+
+    $('#<%= @id %>inout .dashboard-chart').on('mouseout', function() {
+      $('.canvasjs-chart-tooltip').hide();
+    });
+
+    $('#<%= @id %>inout .dashboard-chart').on('click', function(e) {
+      var id = $(e.currentTarget).attr('id');
+      var selector = "#" + id + "modal";
+
+      $(selector).on('shown.bs.modal', function (e) {
+        $('.canvasjs-chart-tooltip').hide();
+        if (id.indexOf("daily") > -1) {
+          renderZoomAreaChart(selector + " .chart", dailyConfig[id].colors, dailyConfig[id].data, true);
+        } else {
+          renderZoomBarChart(selector + " .chart", monthlyConfig[id].colors, monthlyConfig[id].data, true);
+        }
+      });
+      $(selector).on('hidden.bs.modal', function() {
+        $(selector + " .chart > *").remove();
+      });
+      $(selector).modal('show');
+    });
+  })();
+</script>

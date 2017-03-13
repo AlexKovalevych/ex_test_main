@@ -1,0 +1,45 @@
+<div class="col-xs-12">
+  <table class="table table-striped table-sm table-bordered small">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th><%= dgettext "payment_checks", "ps_id" %></th>
+        <th><%= dgettext "payment_checks", "1gp_id" %></th>
+        <th><%= dgettext "payment_checks", "account_id" %></th>
+        <th><%= dgettext "payment_checks", "date" %></th>
+        <th><%= dgettext "payment_checks", "site" %></th>
+        <th><%= dgettext "payment_checks", "type" %></th>
+        <th><%= dgettext "payment_checks", "currency" %></th>
+        <th><%= dgettext "payment_checks", "sum" %></th>
+        <th><%= dgettext "payment_checks", "comment" %></th>
+        <th><%= dgettext "payment_checks", "1gp_sum" %></th>
+        <th><%= dgettext "payment_checks", "1gp_currency" %></th>
+        <th><%= dgettext "payment_checks", "1gp_channel_currency" %></th>
+        <th><%= dgettext "payment_checks", "1gp_channel_sum" %></th>
+        <th><%= dgettext "payment_checks", "errors" %></th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= for {transaction, i} <- Enum.with_index(@transactions) do %>
+        <tr>
+          <td><%= (@page.page - 1) * @page.per_page + i + 1 %></td>
+          <td><%= transaction.ps_trans_id %></td>
+          <td><%= transaction.one_gamepay_id %></td>
+          <td><%= transaction.account_id %></td>
+          <td><%= transaction.date %></td>
+          <td><%= transaction.site %></td>
+          <td><%= transaction.type %></td>
+          <td><%= transaction.currency %></td>
+          <td><%= transaction.sum %></td>
+          <td><%= transaction.comment %></td>
+          <td><%= transaction.one_gp_sum %></td>
+          <td><%= transaction.one_gp_currency %></td>
+          <td><%= transaction.one_gp_channel_currency %></td>
+          <td><%= transaction.one_gp_channel_sum %></td>
+          <td><%= transaction.errors %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <%= paginate @conn, @page, params: %{"tab" => 2} %>
+</div>

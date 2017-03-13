@@ -1,0 +1,42 @@
+<div class="row">
+  <%= form_for @changeset, @action, fn f -> %>
+    <div class="col-sm-12 col-md-12 col-lg-6">
+      <%= render Gt.LayoutView, "text_field.html", form: f, field: :title, label: dgettext("calendar_events", "title") %>
+
+      <%= render(Gt.LayoutView, "select_field.html",
+                form: f,
+                label: dgettext("calendar_events", "projects"),
+                field: :project_ids,
+                options: @projects,
+                multiple: true
+                ) %>
+      <%= render(Gt.LayoutView, "select_field.html",
+                form: f,
+                label: dgettext("calendar_events", "type"),
+                field: :type_id,
+                options: @types
+                ) %>
+
+      <%= render Gt.LayoutView, "period_field.html",
+        form: f,
+        field_from: :start_at,
+        field_to: :end_at,
+        label: dgettext("calendar_events", "period"),
+        current_user: @current_user,
+        period: :time
+      %>
+
+      <%= render Gt.LayoutView, "quill_field.html",
+        form: f,
+        field: :description,
+        label: dgettext("calendar_events", "description")
+      %>
+
+    </div>
+
+    <div class="col-sm-12"></div>
+    <div class="col-sm-12 col-md-12 col-lg-6">
+      <%= render(Gt.LayoutView, "submit_button.html") %>
+    </div>
+  <% end %>
+</div>

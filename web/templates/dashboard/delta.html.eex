@@ -1,0 +1,7 @@
+<%= cond do %>
+  <%= @value > 0 -> %>
+    <i class="arrow-up"></i>
+  <%= @value < 0 -> %>
+    <i class="arrow-down"></i>
+  <%= true -> %>
+<%= end %>

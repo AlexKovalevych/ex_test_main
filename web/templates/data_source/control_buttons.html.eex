@@ -1,0 +1,28 @@
+<div class="col-sm-12 col-md-12 col-lg-6">
+  <div class="form-group row">
+    <div class="offset-sm-4 col-sm-8 offset-md-3 col-md-9 offset-lg-3 col-lg-9">
+      <%= if @data_source.active do %>
+        <%= form_for @conn, data_source_path(@conn, :stop, @data_source), [method: "POST", as: :stop], fn _ -> %>
+          <button type="submit" class="btn btn-danger">
+            <i class="fa fa-stop"></i>
+            <%= gettext("stop_worker") %>
+          </button>
+        <%= end %>
+      <%= else %>
+        <%= form_for @conn, data_source_path(@conn, :delete, @data_source), [method: "DELETE", as: :delete], fn _ -> %>
+          <button type="submit" class="btn btn-danger pull-right">
+            <i class="fa fa-trash"></i>
+            <%= gettext("delete_worker") %>
+          </button>
+        <%= end %>
+        <%= form_for @conn, data_source_path(@conn, :start, @data_source), [method: "POST", as: :start], fn _ -> %>
+          <button type="submit" class="btn btn-success">
+            <i class="fa fa-play"></i>
+            <%= gettext("start_worker") %>
+          </button>
+        <%= end %>
+      <%= end %>
+    </div>
+  </div>
+</div>
+<div class="col-sm-12"></div>

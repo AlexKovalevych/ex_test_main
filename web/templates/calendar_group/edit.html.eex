@@ -1,0 +1,8 @@
+<div class="col-xs-12">
+  <h1 class="mt-1"><%= @calendar_group.name %></h1>
+  <hr />
+
+  <%= render "form.html", conn: @conn,
+                          changeset: @changeset,
+                          action: calendar_group_path(@conn, :update, @calendar_group) %>
+</div>

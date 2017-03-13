@@ -1,0 +1,10 @@
+<div class="col-xs-12">
+  <h1 class="mt-1"><%= dgettext "menu", "new_cache_worker" %></h1>
+  <hr />
+
+  <div class="my-1">
+    <%= render "type_badge.html", type: @changeset.data.type %>
+  </div>
+
+  <%= render "form_#{@changeset.data.type}.html", Map.put(assigns, :action, cache_path(@conn, :create, @changeset.data.type)) %>
+</div>

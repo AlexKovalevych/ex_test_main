@@ -1,0 +1,8 @@
+<div class="col-xs-12">
+  <h1 class="mt-1"><%= dgettext "menu", "new_payment_system" %></h1>
+  <hr />
+
+  <%= render "form.html", conn: @conn,
+                          changeset: @changeset,
+                          action: payment_system_path(@conn, :create) %>
+</div>

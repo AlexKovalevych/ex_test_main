@@ -1,0 +1,16 @@
+<div class="row">
+  <div class="col-sm-12 col-md-12 col-lg-6">
+    <%= form_for @changeset, @action, fn f -> %>
+      <%= render(Gt.LayoutView, "text_field.html", form: f, field: :title, label: dgettext("projects", "title")) %>
+      <%= render(Gt.LayoutView, "text_field.html", form: f, field: :prefix, label: dgettext("projects", "prefix")) %>
+      <%= render(Gt.LayoutView, "text_field.html", form: f, field: :item_id, label: dgettext("projects", "item_id")) %>
+      <%= render(Gt.LayoutView, "text_field.html", form: f, field: :external_id, label: dgettext("projects", "external_id")) %>
+      <%= render(Gt.LayoutView, "text_field.html", form: f, field: :url, label: dgettext("projects", "url")) %>
+      <%= render(Gt.LayoutView, "text_field.html", form: f, field: :logo_url, label: dgettext("projects", "logo_url")) %>
+      <%= render(Gt.LayoutView, "checkbox_field.html", form: f, field: :enabled, label: dgettext("projects", "enabled")) %>
+      <%= render(Gt.LayoutView, "checkbox_field.html", form: f, field: :is_poker, label: dgettext("projects", "is_poker")) %>
+      <%= render(Gt.LayoutView, "checkbox_field.html", form: f, field: :is_partner, label: dgettext("projects", "is_partner")) %>
+      <%= render(Gt.LayoutView, "submit_button.html") %>
+    <% end %>
+  </div>
+</div>

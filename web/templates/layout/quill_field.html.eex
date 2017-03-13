@@ -1,0 +1,47 @@
+<% quill_id = "#{input_id(@form, @field)}-editor" %>
+
+<div class="form-group row <%= if @form.errors[@field], do: "has-danger" %>">
+  <%= label @form, @field, @label, class: "col-sm-4 col-md-3 col-lg-3 col-form-label text-sm-right" %>
+  <div class="col-sm-8 col-md-9 col-lg-9">
+    <div class="form-control" id="<%= quill_id %>">
+      <%= raw input_value(@form, @field) %>
+    </div>
+    <%= hidden_input @form, @field %>
+  </div>
+  <div class="offset-sm-4 offset-md-3 offset-lg-3 col-sm-8 col-md-9 col-lg-9">
+    <%= error_tag @form, @field %>
+    <%= if Map.has_key?(assigns, :help) do %>
+      <small class="form-text text-muted"><%= @help %></small>
+    <%= end %>
+  </div>
+</div>
+
+<script type="text/javascript" charset="utf-8">
+  var toolbarOptions = [
+    ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+    ['blockquote', 'code-block'],
+
+    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+    [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
+    [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
+    [{ 'direction': 'rtl' }],                         // text direction
+
+    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+
+    [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+    [{ 'font': [] }],
+    [{ 'align': [] }],
+
+    ['clean']                                         // remove formatting button
+  ];
+
+  var quill = new Quill("#<%= quill_id %>", {
+    modules: {
+      toolbar: toolbarOptions
+    },
+    theme: 'snow'
+  });
+  quill.on('text-change', function(delta, oldDelta, _source) {
+    $('#<%= input_id(@form, @field) %>').val(quill.container.firstChild.innerHTML);
+  });
+</script>

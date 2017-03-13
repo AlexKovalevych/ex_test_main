@@ -1,0 +1,16 @@
+<div class="row">
+  <%= form_for @changeset, @action, fn f -> %>
+    <%= render Gt.PaymentSystemView, "fields.html", form: f  %>
+
+    <div class="col-sm-12"></div>
+    <div class="col-sm-12 col-md-12 col-lg-6">
+      <div class="card" style="border: 0;">
+        <div class="card-block pt-0">
+          <p class="card-text">
+            <%= render(Gt.LayoutView, "submit_button.html") %>
+          </p>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

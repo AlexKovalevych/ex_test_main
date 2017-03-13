@@ -1,0 +1,130 @@
+<div class="col-xs-12">
+  <h1 class="mt-1"><%= dgettext "permissions", "index" %></h1>
+  <hr />
+
+
+  <div class="row">
+    <div class="col-sm-12 col-md-12 col-lg-6">
+      <div class="row">
+        <p class="offset-sm-4 col-sm-8 offset-md-3 col-md-9 offset-lg-3 col-lg-9">
+          <a class="btn btn-success" href="<%= permissions_path(@conn, :export) %>">
+            <i class="fa fa-download"></i>
+            <%= dgettext "permissions", "download" %>
+          </a>
+        </p>
+      </div>
+    </div>
+
+      <div class="col-sm-12"></div>
+    <%= form_for @conn, permissions_path(@conn, :index), [as: :permissions], fn f -> %>
+      <div class="col-sm-12 col-md-12 col-lg-6">
+        <%= render(Gt.LayoutView, "radio_field.html", form: f, field: :type,
+                  label: dgettext("permissions", "type"),
+                  options: [
+                    ["project", dgettext("permissions", "project")],
+                    ["user", dgettext("permissions", "user")],
+                    ["role", dgettext("permissions", "role")]
+                  ] ) %>
+
+        <%= render(Gt.LayoutView, "select_field.html",
+                  form: f,
+                  label: dgettext("permissions", "project"),
+                  field: :project,
+                  options: @permissions.projects
+                          |> Enum.map(fn %Gt.Project{id: id, title: title} ->
+                            {title, id}
+                          end)
+                          |> Map.new,
+                  ) %>
+
+        <%= render(Gt.LayoutView, "select_field.html",
+                  form: f,
+                  label: dgettext("permissions", "user"),
+                  field: :user,
+                  options: @permissions.users
+                          |> Enum.map(fn %Gt.User{id: id, email: email} ->
+                            {email, id}
+                          end)
+                          |> Map.new,
+                  ) %>
+
+        <%= render(Gt.LayoutView, "select_field.html",
+                  form: f,
+                  label: dgettext("permissions", "role"),
+                  field: :role,
+                  options: @permissions.roles
+                          |> Enum.map(fn role ->
+                            {role, role}
+                          end)
+                          |> Map.new,
+                  ) %>
+
+      </div>
+
+      <div class="col-sm-12"></div>
+      <div class="col-sm-12 col-md-12 col-lg-6 noselect" id="permissions"></div>
+      <%= hidden_input f, :permissions, value: Poison.encode!(@permissions.users) %>
+
+      <div class="col-sm-12"></div>
+      <div class="col-sm-12 col-md-12 col-lg-6">
+        <%= render(Gt.LayoutView, "submit_button.html") %>
+      </div>
+    <%= end %>
+  </div>
+
+</div>
+
+<script src="<%= static_path(@conn, "/js/permissions.js") %>"></script>
+<script type="text/javascript">
+  var selects = $("#permissions_project, #permissions_user, #permissions_role");
+  selects.parents(".form-group").hide();
+  $("input[type=submit]").parents(".form-group").hide();
+
+  var app = Elm.Permissions.embed(document.getElementById('permissions'));
+  app.ports.availableUsers.send(<%= raw Poison.encode!(@permissions.users) %>);
+  app.ports.availableProjects.send(<%= raw Poison.encode!(@permissions.projects) %>);
+  app.ports.availableRoles.send(<%= raw Poison.encode!(@permissions.roles) %>);
+  app.ports.translations.send({
+    projects: "<%= dgettext "permissions", "projects" %>",
+    roles: "<%= dgettext "permissions", "roles" %>",
+    users: "<%= dgettext "permissions", "users" %>",
+    selectAll : "<%= dgettext "permissions", "select_all" %>"
+  });
+
+  var started = false;
+  $('input[type=radio]').on('click', function() {
+    $('input[type=radio]').unbind('change');
+    $('input[type=text]').unbind('change');
+
+    selects.map(function(i, select) {
+      select.selectize.clear();
+    });
+    selects.parents('.form-group').hide();
+    $('#permissions_' + $(this).val()).parents('.form-group').show();
+
+    if (!started) {
+      $('input[type=submit]').parents('.form-group').show();
+      selects.on('change', function(e) {
+        var value = e.target.value;
+        if (value) {
+          app.ports.value.send(value);
+        }
+      })
+
+      $('input[type=radio]').on('change', function() {
+        app.ports.activeType.send($(this).val());
+        var activeElement = $('input[type=text]').parents('.form-group').filter(function() {
+          if ($(this).css("display") == "none") {
+            return false;
+          }
+          return true;
+        });
+        app.ports.value.send(activeElement.find('input').val());
+      });
+
+      app.ports.permissions.subscribe(function(permissions) {
+        $('#permissions_permissions').val(permissions);
+      });
+    }
+  });
+</script>

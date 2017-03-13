@@ -1,0 +1,28 @@
+<div class="col-sm-12 col-md-12 col-lg-8">
+  <div class="form-group row">
+    <div class="offset-sm-4 col-sm-8 offset-md-3 col-md-9 offset-lg-3 col-lg-9">
+      <%= if @payment_check.active do %>
+        <%= form_for @conn, payment_check_path(@conn, :stop, @payment_check), [method: "POST", as: :stop], fn _ -> %>
+          <button type="submit" class="btn btn-danger">
+            <i class="fa fa-stop"></i>
+            <%= gettext("stop_worker") %>
+          </button>
+        <%= end %>
+      <%= else %>
+        <%= form_for @conn, payment_check_path(@conn, :delete, @payment_check), [method: "DELETE", as: :delete], fn _ -> %>
+          <button type="submit" class="btn btn-danger pull-right">
+            <i class="fa fa-trash"></i>
+            <%= gettext("delete_worker") %>
+          </button>
+        <%= end %>
+        <%= form_for @conn, payment_check_path(@conn, :start, @payment_check), [method: "POST", as: :start], fn _ -> %>
+          <button type="submit" class="btn btn-success">
+            <i class="fa fa-play"></i>
+            <%= gettext("start_worker") %>
+          </button>
+        <%= end %>
+      <%= end %>
+    </div>
+  </div>
+</div>
+<div class="col-sm-12"></div>

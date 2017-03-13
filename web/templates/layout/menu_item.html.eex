@@ -1,0 +1,3 @@
+<%= if Gt.Auth.Permissions.has_any(@user.permissions, @permission) do %>
+  <a class="dropdown-item" href="<%= @url %>"><%= @title %></a>
+<%= end %>

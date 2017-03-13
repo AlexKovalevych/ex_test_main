@@ -1,0 +1,129 @@
+.market-link {
+  width: 150px;
+  height: 50px;
+  display: block;
+}
+
+.windows-market-link {
+  background: url('../assets/images/stores_sprite.png') 0px 0px;
+  background-size: 150px;
+}
+
+.google-market-link {
+  background: url('../assets/images/stores_sprite.png') 0px 252px;
+  background-size: 150px;
+}
+
+.apple-market-link {
+  background: url('../assets/images/stores_sprite.png') 0px 200px;
+  background-size: 150px;
+}
+
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Chrome/Safari/Opera */
+     -khtml-user-select: none; /* Konqueror */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  not supported by any browser */
+}
+
+.typeahead.dropdown-menu li:hover .dropdown-item {
+  background: none;
+}
+
+.typeahead .active .dropdown-item {
+  background-color: #e6e6e6 !important;
+}
+
+.arrow-up {
+  border-bottom: 9px solid #7ac943;
+}
+
+.arrow-down {
+  border-top: 9px solid #f15a24;
+}
+
+.arrow-up, .arrow-down {
+  width: 0;
+  height: 0;
+  display: inline-block;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+}
+
+.canvasjs-chart-credit {
+  display: none;
+}
+
+.dashboard-chart .canvasjs-chart-tooltip {
+  right: 5px !important;
+  left: auto !important;
+  top: -30px !important;
+  bottom: auto !important;
+}
+
+.dashboard-chart.netgaming-rake .canvasjs-chart-tooltip {
+  right: 5px !important;
+  left: auto !important;
+  top: -50px !important;
+  bottom: auto !important;
+}
+
+.dashboard-chart {
+  height: 45px;
+}
+
+.dashboard-chart .canvasjs-chart-canvas {
+  cursor: pointer !important;
+  border-bottom: 1px solid silver;
+}
+
+#zoomDailyChart {
+  height: 450px;
+  max-width: 1000px;
+}
+
+.highcharts-range-selector {
+  transition: initial !important;
+  box-shadow: none !important;
+}
+
+.highcharts-range-selector:focus {
+  background-color: #fff;
+}
+
+.narrow td, .narrow th {
+  padding-top: 0;
+  padding-bottom: 0;
+  white-space: nowrap;
+}
+
+input[type=color] {
+  height: 40px;
+}
+
+.selectize-dropdown, .selectize-input, .selectize-input input {
+  line-height: 25px;
+}
+
+.selectize-control.multi .selectize-input > div {
+  border: 1px solid #ccc;
+}
+
+.selectize-control.plugin-remove_button [data-value] .remove {
+  border-left: 1px solid #ccc;
+}
+
+.has-danger .selectize-input {
+  border: 1px solid #d9534f;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+a:focus, button:focus {
+  outline: 0 !important;
+}

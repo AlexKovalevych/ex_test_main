@@ -1,0 +1,5 @@
+<%= for project <- @projects do %>
+  <%= if project do %>
+    <span class="tag tag-default"><%= project.title %></span>
+  <%= end %>
+<%= end %>

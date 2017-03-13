@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <%= if Guardian.Plug.current_token(@conn) do %>
+      <meta name="guardian_token" content="<%= Guardian.Plug.current_token(@conn) %>">
+    <%= end %>
+
+    <title>Hello Gt!</title>
+    <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
+  </head>
+
+  <body>
+      <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
+
+      <%= if @current_user do %>
+        <%= render Gt.LayoutView, "menu.html", assigns %>
+        <div class="container-fluid">
+          <div class="row">
+            <%= render Gt.BreadcrumbleView, "breadcrumb.html", breadcrumbs: @breadcrumbs %>
+
+            <% info = get_flash(@conn, :info) %>
+            <% error = get_flash(@conn, :error) %>
+
+            <%= if !is_nil(info) do %>
+              <p class="alert alert-info" role="alert"><%= info %></p>
+            <%= end %>
+
+            <%= if !is_nil(error) do %>
+              <p class="alert alert-danger" role="alert"><%= error %></p>
+            <%= end %>
+
+            <%= render @view_module, @view_template, assigns %>
+          </div>
+        </div>
+
+      <%= else %>
+        <div class="container">
+          <div class="col-lg-6 col-sm-12 offset-lg-3">
+            <div class="text-xs-center">
+              <img src="<%= static_path(@conn, "/assets/images/logo.png")  %>" alt=""/>
+            </div>
+
+            <% info = get_flash(@conn, :info) %>
+            <% error = get_flash(@conn, :error) %>
+
+            <%= if !is_nil(info) do %>
+              <p class="alert alert-info" role="alert"><%= info %></p>
+            <%= end %>
+
+            <%= if !is_nil(error) do %>
+              <p class="alert alert-danger" role="alert"><%= error %></p>
+            <%= end %>
+
+            <%= render @view_module, @view_template, assigns %>
+          </div>
+        </div>
+      <%= end %>
+
+  </body>
+</html>

@@ -1,0 +1,171 @@
+## `msgid`s in this file come from POT (.pot) files.
+##
+## Do not add, change, or remove `msgid`s manually here as
+## they're tied to the ones in the corresponding POT file
+## (with the same domain).
+##
+## Use `mix gettext.extract --merge` or `mix gettext.merge`
+## to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: ru\n"
+
+#: web/templates/dashboard/index.html.eex:86
+msgid "1m"
+msgstr "1м"
+
+#: web/templates/dashboard/index.html.eex:105
+msgid "1y"
+msgstr "1г"
+
+#: web/templates/dashboard/index.html.eex:91
+msgid "3m"
+msgstr "3м"
+
+#: web/templates/dashboard/index.html.eex:96
+msgid "6m"
+msgstr "6м"
+
+#: web/templates/layout/highcharts.html.eex:31
+msgid "Apr"
+msgstr "Апр"
+
+#: web/templates/layout/highcharts.html.eex:35
+msgid "Aug"
+msgstr "Авг"
+
+#: web/templates/layout/highcharts.html.eex:39
+msgid "Dec"
+msgstr "Дек"
+
+#: web/templates/layout/highcharts.html.eex:29
+msgid "Feb"
+msgstr "Фев"
+
+#: web/templates/layout/highcharts.html.eex:28
+msgid "Jan"
+msgstr "Янв"
+
+#: web/templates/layout/highcharts.html.eex:34
+msgid "Jul"
+msgstr "Июл"
+
+#: web/templates/layout/highcharts.html.eex:33
+msgid "Jun"
+msgstr "Июн"
+
+#: web/templates/layout/highcharts.html.eex:30
+msgid "Mar"
+msgstr "Мар"
+
+#: web/templates/layout/highcharts.html.eex:32
+msgid "May"
+msgstr "Май"
+
+#: web/templates/layout/highcharts.html.eex:38
+msgid "Nov"
+msgstr "Ноя"
+
+#: web/templates/layout/highcharts.html.eex:37
+msgid "Oct"
+msgstr "Окт"
+
+#: web/templates/layout/highcharts.html.eex:36
+msgid "Sep"
+msgstr "Сен"
+
+#: web/templates/dashboard/index.html.eex:109
+msgid "all"
+msgstr "Весь период"
+
+#: web/templates/layout/highcharts.html.eex:8
+msgid "april"
+msgstr "апрель"
+
+#: web/templates/layout/highcharts.html.eex:12
+msgid "august"
+msgstr "август"
+
+#: web/templates/layout/highcharts.html.eex:16
+msgid "december"
+msgstr "декабрь"
+
+#: web/templates/layout/highcharts.html.eex:6
+msgid "february"
+msgstr "февраль"
+
+#: web/templates/layout/highcharts.html.eex:24
+msgid "friday"
+msgstr "пятница"
+
+#: web/templates/layout/highcharts.html.eex:41
+msgid "from"
+msgstr "с"
+
+#: web/templates/layout/highcharts.html.eex:5
+msgid "january"
+msgstr "январь"
+
+#: web/templates/layout/highcharts.html.eex:11
+msgid "july"
+msgstr "июль"
+
+#: web/templates/layout/highcharts.html.eex:10
+msgid "june"
+msgstr "июнь"
+
+#: web/templates/layout/highcharts.html.eex:7
+msgid "march"
+msgstr "март"
+
+#: web/templates/layout/highcharts.html.eex:9
+msgid "may"
+msgstr "май"
+
+#: web/templates/layout/highcharts.html.eex:20
+msgid "monday"
+msgstr "понедельник"
+
+#: web/templates/layout/highcharts.html.eex:15
+msgid "november"
+msgstr "ноябрь"
+
+#: web/templates/layout/highcharts.html.eex:14
+msgid "october"
+msgstr "октябрь"
+
+#: web/templates/layout/highcharts.html.eex:25
+msgid "saturday"
+msgstr "суббота"
+
+#: web/templates/layout/highcharts.html.eex:13
+msgid "september"
+msgstr "сентябрь"
+
+#: web/templates/layout/highcharts.html.eex:19
+msgid "sunday"
+msgstr "воскресенье"
+
+#: web/templates/layout/highcharts.html.eex:23
+msgid "thursday"
+msgstr "четверг"
+
+#: web/templates/layout/highcharts.html.eex:42
+msgid "to"
+msgstr "по"
+
+#: web/templates/layout/highcharts.html.eex:21
+msgid "tuesday"
+msgstr "вторник"
+
+#: web/templates/layout/highcharts.html.eex:22
+msgid "wednesday"
+msgstr "среда"
+
+#: web/templates/dashboard/index.html.eex:100
+msgid "ytd"
+msgstr "С начала года"
+
+#: web/templates/layout/highcharts.html.eex:43
+msgid "zoom"
+msgstr "увеличить"

@@ -1,0 +1,13 @@
+<div class="form-group row">
+  <%= label @form, @field, @label, class: "col-sm-4 col-md-3 col-lg-3 text-sm-right" %>
+  <div class="col-sm-8 col-md-9 col-lg-9">
+    <div class="form-check">
+      <label class="form-check-label">
+        <% attrs = [class: "form-check-input"] %>
+        <% attrs = if Map.has_key?(assigns, :disabled) && assigns.disabled, do: Keyword.put(attrs, :disabled, true), else: attrs %>
+        <%= checkbox @form, @field, attrs %> &nbsp
+      </label>
+    </div>
+  </div>
+  <%= error_tag @form, @field %>
+</div>

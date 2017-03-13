@@ -1,0 +1,29 @@
+<%= form_tag session_path(@conn, :google), method: "post", class: "login" do %>
+  <div class="text-xs-center alert alert-warning">
+    <p><%= dgettext "login", "server_time" %> <div class="font-weight-bold" id="server_time"></div></p>
+    <img src="<%= @qrcode_url %>" alt=""/>
+  </div>
+
+  <div class='form-group row'>
+    <label class='col-sm-4 col-form-label' for='code'><%= dgettext "login", "google_code"  %></label>
+    <div class="col-sm-8">
+      <input class="form-control" id="code" name="code" required>
+    </div>
+  </div>
+
+  <div class='form-group row text-xs-center'>
+    <button class='btn btn-primary'><%= dgettext "login", "login" %></button>
+  </div>
+
+  <div class="media" style="width: 490px; margin: 0 auto; padding: 20px; background: #000; border-radius: 5px;">
+    <a target="_blank" href="http://apps.microsoft.com/windows/en-us/app/google-authenticator/7ea6de74-dddb-47df-92cb-40afac4d38bb" class="market-link windows-market-link pull-left"></a>
+    <a target="_blank" href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2" class="market-link google-market-link pull-left"></a>
+    <a target="_blank" href="https://itunes.apple.com/ua/app/google-authenticator/id388497605?mt=8" class="market-link apple-market-link pull-left"></a>
+  </div>
+<% end %>
+
+<script src="<%= static_path(@conn, "/js/google_login.js") %>"></script>
+<script type="text/javascript">
+  var app = Elm.GoogleLogin.embed(document.getElementById('server_time'));
+  app.ports.serverTime.send(<%= :os.system_time(:milli_seconds) %>);
+</script>

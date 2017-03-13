@@ -1,0 +1,173 @@
+## `msgid`s in this file come from POT (.pot) files.
+##
+## Do not add, change, or remove `msgid`s manually here as
+## they're tied to the ones in the corresponding POT file
+## (with the same domain).
+##
+## Use `mix gettext.extract --merge` or `mix gettext.merge`
+## to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: en\n"
+
+#: web/templates/payment_system/fields.html.eex:204
+msgid "account_id"
+msgstr "Account id"
+
+#: web/templates/payment_system/index.html.eex:37
+msgid "confirm_delete"
+msgstr "Are you sure you want to delete this payment system?"
+
+#: web/templates/payment_system/fields.html.eex:128
+msgid "csv_parameters"
+msgstr "CSV parameters"
+
+#: web/templates/payment_system/fields.html.eex:54
+#: web/templates/payment_system/fields.html.eex:111
+#: web/templates/payment_system/fields.html.eex:173
+msgid "currency"
+msgstr "Currency"
+
+#: web/templates/payment_system/fields.html.eex:163
+msgid "date"
+msgstr "Date"
+
+#: web/templates/payment_system/fields.html.eex:183
+msgid "default_payment_type"
+msgstr "Default payment type"
+
+#: web/templates/payment_system/fields.html.eex:141
+msgid "double_qoute"
+msgstr "Double qoute"
+
+#: web/templates/payment_system/fields.html.eex:151
+msgid "field_parameters"
+msgstr "Field parameters"
+
+#: web/templates/payment_system/fields.html.eex:3
+msgid "general_parameters"
+msgstr "General parameters"
+
+#: web/templates/payment_system/fields.html.eex:29
+#: web/templates/payment_system/fields.html.eex:49
+#: web/templates/payment_system/fields.html.eex:158
+msgid "id"
+msgstr "Id"
+
+#: web/templates/payment_system/index.html.eex:20
+msgid "inserted_at"
+msgstr "Created at"
+
+#: web/templates/payment_system/index.html.eex:2
+msgid "list"
+msgstr "Payment systems"
+
+#: web/templates/payment_system/fields.html.eex:9
+#: web/templates/payment_system/index.html.eex:18
+msgid "name"
+msgstr "Name"
+
+#: web/templates/payment_system/fields.html.eex:22
+msgid "one_gamepay_parameters"
+msgstr "1Gamepay parameters"
+
+#: web/templates/payment_system/fields.html.eex:34
+msgid "payment_system"
+msgstr "Payment system"
+
+#: web/controllers/payment_system_controller.ex:106
+msgid "payment_system_deleted"
+msgstr "Payment system was deleted"
+
+#: web/controllers/payment_system_controller.ex:41
+#: web/controllers/payment_system_controller.ex:80
+msgid "payment_system_updated"
+msgstr "Payment system \"%{title}\" was saved"
+
+#: web/templates/payment_system/fields.html.eex:214
+msgid "player_purse"
+msgstr "Player purse"
+
+#: web/templates/payment_system/fields.html.eex:14
+#: web/templates/payment_system/index.html.eex:19
+msgid "script"
+msgstr "Script"
+
+#: web/templates/payment_system/fields.html.eex:134
+msgid "separator"
+msgstr "Separator"
+
+#: web/templates/payment_system/fields.html.eex:199
+msgid "status"
+msgstr "Status"
+
+#: web/templates/payment_system/fields.html.eex:106
+#: web/templates/payment_system/fields.html.eex:168
+msgid "sum"
+msgstr "Sum"
+
+#: web/templates/payment_system/index.html.eex:21
+msgid "updated_at"
+msgstr "Updated at"
+
+#: web/templates/payment_system/fields.html.eex:178
+msgid "payment_type"
+msgstr "Payment type"
+
+#: web/templates/payment_system/fields.html.eex:189
+msgid "payment_type_in"
+msgstr "Payment type \"in\""
+
+#: web/templates/payment_system/fields.html.eex:194
+msgid "payment_type_out"
+msgstr "Payment type \"out\""
+
+#: web/templates/payment_system/fields.html.eex:219
+msgid "comment"
+msgstr "Comment"
+
+#: web/templates/payment_system/fields.html.eex:224
+msgid "status_ok"
+msgstr "Status \"OK\""
+
+#: web/templates/payment_system/fields.html.eex:69
+#: web/templates/payment_system/fields.html.eex:209
+msgid "default_account_id"
+msgstr "Default account id"
+
+#: web/templates/payment_system/fields.html.eex:84
+#: web/templates/payment_system/fields.html.eex:116
+msgid "divide_100"
+msgstr "Divide by 100"
+
+#: web/templates/payment_system/fields.html.eex:42
+msgid "fee_parameters"
+msgstr "Fee parameters"
+
+#: web/templates/payment_system/fields.html.eex:64
+msgid "fee_percent"
+msgstr "Transaction percent"
+
+#: web/templates/payment_system/fields.html.eex:79
+msgid "fee_report"
+msgstr "Get fee from report sum"
+
+#: web/templates/payment_system/fields.html.eex:59
+msgid "fee_sum"
+msgstr "Fixed sum"
+
+#: web/templates/payment_system/fields.html.eex:89
+msgid "fee_types"
+msgstr "Calculate fee for types"
+
+#: web/templates/payment_system/fields.html.eex:74
+msgid "max_fee"
+msgstr "Max fee"
+
+#: web/templates/payment_system/fields.html.eex:99
+msgid "report_parameters"
+msgstr "Report parameters"
+
+#: web/templates/payment_check/show.html.eex:57
+msgid "urls"
+msgstr "Urls"

@@ -1,0 +1,6 @@
+<%= case @type do %>
+  <%= "rates" -> %><span class="tag green lighten-2"><%= dgettext "data_sources", "rates" %></span>
+  <%= "pomadorro" -> %><span class="tag grey darken-4"><%= dgettext "data_sources", "pomadorro" %></span>
+  <%= "one_gamepay_request" -> %><span class="tag blue lighten-4"><%= dgettext "data_sources", "one_gamepay_request" %></span>
+  <%= "one_gamepay" -> %><span class="tag blue darken-4"><%= dgettext "data_sources", "one_gamepay" %></span>
+<%= end %>

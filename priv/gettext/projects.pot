@@ -1,0 +1,61 @@
+## This file is a PO Template file.
+##
+## `msgid`s here are often extracted from source code.
+## Add new translations manually only if they're dynamic
+## translations that can't be statically extracted.
+##
+## Run `mix gettext.extract` to bring this file up to
+## date. Leave `msgstr`s empty as changing them here as no
+## effect: edit them in PO (`.po`) files instead.
+msgid ""
+msgstr ""
+
+#: web/templates/project/form.html.eex:10
+#: web/templates/project/index.html.eex:31
+msgid "enabled"
+msgstr ""
+
+#: web/templates/project/form.html.eex:7
+msgid "external_id"
+msgstr ""
+
+#: web/templates/project/form.html.eex:12
+msgid "is_partner"
+msgstr ""
+
+#: web/templates/project/form.html.eex:11
+msgid "is_poker"
+msgstr ""
+
+#: web/templates/project/form.html.eex:6 web/templates/project/index.html.eex:30
+msgid "item_id"
+msgstr ""
+
+#: web/templates/project/index.html.eex:2
+msgid "list"
+msgstr ""
+
+#: web/templates/project/form.html.eex:9
+msgid "logo_url"
+msgstr ""
+
+#: web/templates/project/form.html.eex:5 web/templates/project/index.html.eex:29
+msgid "prefix"
+msgstr ""
+
+#: web/controllers/project_controller.ex:56
+#: web/controllers/project_controller.ex:94
+msgid "project_updated"
+msgstr ""
+
+#: web/templates/project/form.html.eex:4 web/templates/project/index.html.eex:28
+msgid "title"
+msgstr ""
+
+#: web/templates/project/index.html.eex:15
+msgid "title_search"
+msgstr ""
+
+#: web/templates/project/form.html.eex:8 web/templates/project/index.html.eex:32
+msgid "url"
+msgstr ""

@@ -1,0 +1,27 @@
+<div class="form-group row <%= if @form.errors[@field], do: "has-danger" %>">
+  <%= label @form, @field, @label, class: "col-sm-4 col-md-3 col-lg-3 col-form-label text-sm-right" %>
+  <div class="col-sm-8 col-md-9 col-lg-9">
+    <%= text_input @form, @field, class: "form-control" %>
+  </div>
+  <div class="offset-sm-4 offset-md-3 offset-lg-3 col-sm-8 col-md-9 col-lg-9">
+    <%= error_tag @form, @field %>
+  </div>
+</div>
+
+ <script type="text/javascript">
+  $("#<%= input_id(@form, @field) %>").selectize({
+      delimiter: ',',
+      persist: false,
+      create: function(input) {
+          return {
+              value: input,
+              text: input
+          }
+      },
+      render: {
+        'option_create': function(data, escape) {
+          return '<div class="create"><%= gettext "add" %> <strong>' + escape(data.input) + '</strong>&hellip;</div>';
+        }
+      }
+  });
+</script>

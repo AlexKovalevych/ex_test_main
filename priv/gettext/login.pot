@@ -1,0 +1,66 @@
+## This file is a PO Template file.
+##
+## `msgid`s here are often extracted from source code.
+## Add new translations manually only if they're dynamic
+## translations that can't be statically extracted.
+##
+## Run `mix gettext.extract` to bring this file up to
+## date. Leave `msgstr`s empty as changing them here as no
+## effect: edit them in PO (`.po`) files instead.
+msgid ""
+msgstr ""
+
+#: web/templates/session/google.html.eex:15
+#: web/templates/session/new.html.eex:17 web/templates/session/sms.html.eex:18
+msgid "login"
+msgstr ""
+
+#: web/templates/session/google.html.eex:8
+msgid "google_code"
+msgstr ""
+
+#: web/controllers/session_controller.ex:93
+#: web/controllers/session_controller.ex:122
+msgid "invalid_code"
+msgstr ""
+
+#: web/models/user.ex:151 web/models/user.ex:161
+msgid "invalid_credentials"
+msgstr ""
+
+#: web/templates/session/sms.html.eex:5
+msgid "sms_code"
+msgstr ""
+
+#: web/auth/ensure_authenticated.ex:27 web/controllers/session_controller.ex:81
+#: web/controllers/session_controller.ex:106 web/models/user.ex:158
+msgid "user_disabled"
+msgstr ""
+
+#: web/templates/session/google.html.eex:3
+msgid "server_time"
+msgstr ""
+
+#: web/templates/session/sms.html.eex:2
+msgid "sms_sent"
+msgstr ""
+
+#: web/templates/session/sms.html.eex:19
+msgid "sms_resend"
+msgstr ""
+
+#: web/templates/session/sms.html.eex:21
+msgid "sms_send_failed"
+msgstr ""
+
+#: web/templates/session/sms.html.eex:20
+msgid "sms_was_sent"
+msgstr ""
+
+#: web/auth/ensure_authenticated.ex:29 web/controllers/session_controller.ex:135
+msgid "not_authenticated"
+msgstr ""
+
+#: web/auth/ensure_authenticated.ex:38
+msgid "permision_denied"
+msgstr ""

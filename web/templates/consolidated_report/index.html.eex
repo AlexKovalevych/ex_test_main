@@ -1,0 +1,196 @@
+<div class="col-xs-12">
+  <h1 class="mt-1"><%= dgettext "menu", "consolidated_report" %></h1>
+  <hr />
+
+  <div class="row">
+    <%= form_for @changeset, consolidated_report_path(@conn, :index), fn f -> %>
+      <div class="col-sm-12 col-md-12 col-lg-6">
+        <%= render(Gt.LayoutView, "select_field.html",
+                  form: f,
+                  label: dgettext("consolidated_report", "project"),
+                  field: :project_id,
+                  options: @projects
+                  ) %>
+
+        <%= render Gt.LayoutView, "period_field.html",
+          form: f,
+          field_from: :from,
+          field_to: :to,
+          label: dgettext("consolidated_report", "period"),
+          current_user: @current_user,
+          period: :months
+        %>
+
+        <%= render(Gt.LayoutView, "select_field.html",
+                  form: f,
+                  label: dgettext("consolidated_report", "vip_level"),
+                  field: :vip_level,
+                  options: Gt.ProjectUser.vip_levels()
+                  ) %>
+
+      </div>
+
+      <div class="col-sm-12"></div>
+      <div class="col-sm-12 col-md-12 col-lg-6">
+        <div class="form-group row">
+          <div class="offset-sm-4 col-sm-8 offset-md-3 col-md-9 offset-lg-3 col-lg-9">
+            <%= submit gettext("show"), class: "btn btn-primary" %>
+            <%= submit gettext("download"), class: "btn btn-success", name: input_name(f, "download") %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <%= if @report do %>
+      <hr class="col-sm-12" />
+      <div class="col-sm-12" style="overflow-x: scroll;">
+        <table class="table table-bordered text-sm-center narrow">
+        <thead>
+          <tr>
+            <td></td>
+            <%= for month <- @report.months do %>
+              <td style="white-space: nowrap;"><%= Gt.Date.translate(month, :month) %></td>
+            <%= end %>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="<%= Enum.count(@report.months) + 1 %>" class="blue-grey lighten-2 white-text text-sm-left">
+              <%= dgettext "consolidated_report", "base_indicators" %>
+            </td>
+          </tr>
+          <tr>
+            <td class="text-sm-left"><%= dgettext "consolidated_report", "avg_dep" %></td>
+            <%= for stat <- @report.stats.avg_dep do %>
+              <td class="<%= cell_class(stat) %>"><%= Money.new(round(stat.value)) |> Money.to_string(fractional_unit: true) %></td>
+            <%= end %>
+          </tr>
+          <tr>
+            <td class="text-sm-left"><%= dgettext "consolidated_report", "avg_arpu" %></td>
+            <%= for stat <- @report.stats.avg_arpu do %>
+              <td class="<%= cell_class(stat) %>"><%= Money.new(round(stat.value)) |> Money.to_string(fractional_unit: true) %></td>
+            <%= end %>
+          </tr>
+          <tr>
+            <td class="text-sm-left"><%= dgettext "consolidated_report", "deps_num" %></td>
+            <%= for stat <- @report.stats.deps_num do %>
+              <td class="<%= cell_class(stat) %>"><%= stat.value %></td>
+            <%= end %>
+          </tr>
+          <tr>
+            <td class="text-sm-left"><%= dgettext "consolidated_report", "avg_first_dep" %></td>
+            <%= for stat <- @report.stats.avg_first_dep do %>
+              <td class="<%= cell_class(stat) %>"><%= Money.new(round(stat.value)) |> Money.to_string(fractional_unit: true) %></td>
+            <%= end %>
+          </tr>
+          <tr>
+            <td colspan="<%= Enum.count(@report.months) + 1 %>" class="blue-grey lighten-2 white-text text-sm-left">
+              <%= dgettext "consolidated_report", "conversion_indicators" %>
+            </td>
+          </tr>
+          <tr>
+            <td class="text-sm-left"><%= dgettext "consolidated_report", "signups" %></td>
+            <%= for stat <- @report.stats.signups do %>
+              <td class="<%= cell_class(stat) %>"><%= stat.value %></td>
+            <%= end %>
+          </tr>
+          <tr>
+            <td class="text-sm-left"><%= dgettext "consolidated_report", "first_depositors_to_signups" %></td>
+            <%= for stat <- @report.stats.first_depositors_to_signups do %>
+              <td class="<%= cell_class(stat) %>"><%= Float.round(stat.value * 100 / 1, 2) %>%</td>
+            <%= end %>
+          </tr>
+          <tr>
+            <td colspan="<%= Enum.count(@report.months) + 1 %>" class="blue-grey lighten-2 white-text text-sm-left">
+              <%= dgettext "consolidated_report", "profitability_indications" %>
+            </td>
+          </tr>
+          <tr>
+            <td class="text-sm-left"><%= dgettext "consolidated_report", "deps_sum" %></td>
+            <%= for stat <- @report.stats.deps_sum do %>
+              <td class="<%= cell_class(stat) %>"><%= Money.new(round(stat.value)) |> Money.to_string(fractional_unit: true) %></td>
+            <%= end %>
+          </tr>
+          <tr>
+            <td class="text-sm-left"><%= dgettext "consolidated_report", "deps_num" %></td>
+            <%= for stat <- @report.stats.deps_num do %>
+              <td class="<%= cell_class(stat) %>"><%= stat.value %></td>
+            <%= end %>
+          </tr>
+          <tr>
+            <td class="text-sm-left"><%= dgettext "consolidated_report", "wdrs_sum" %></td>
+            <%= for stat <- @report.stats.wdrs_sum do %>
+              <td class="<%= cell_class(stat) %>"><%= Money.new(round(stat.value)) |> Money.to_string(fractional_unit: true) %></td>
+            <%= end %>
+          </tr>
+          <tr>
+            <td class="text-sm-left"><%= dgettext "consolidated_report", "wdrs_num" %></td>
+            <%= for stat <- @report.stats.wdrs_num do %>
+              <td class="<%= cell_class(stat) %>"><%= stat.value %></td>
+            <%= end %>
+          </tr>
+          <tr>
+            <td class="text-sm-left"><%= dgettext "consolidated_report", "inout_sum" %></td>
+            <%= for stat <- @report.stats.inout_sum do %>
+              <td class="<%= cell_class(stat) %>"><%= Money.new(round(stat.value)) |> Money.to_string(fractional_unit: true) %></td>
+            <%= end %>
+          </tr>
+          <tr>
+            <td class="text-sm-left"><%= dgettext "consolidated_report", "depositors" %></td>
+            <%= for stat <- @report.stats.depositors do %>
+              <td class="<%= cell_class(stat) %>"><%= stat.value %></td>
+            <%= end %>
+          </tr>
+          <tr>
+            <td class="text-sm-left"><%= dgettext "consolidated_report", "first_depositors" %></td>
+            <%= for stat <- @report.stats.first_depositors do %>
+              <td class="<%= cell_class(stat) %>"><%= stat.value %></td>
+            <%= end %>
+          </tr>
+          <tr>
+            <td class="text-sm-left"><%= dgettext "consolidated_report", "first_deps_sum" %></td>
+            <%= for stat <- @report.stats.first_deps_sum do %>
+              <td class="<%= cell_class(stat) %>"><%= Money.new(round(stat.value)) |> Money.to_string(fractional_unit: true) %></td>
+            <%= end %>
+          </tr>
+          <tr>
+            <td class="text-sm-left"><%= dgettext "consolidated_report", "avg_first_dep" %></td>
+            <%= for stat <- @report.stats.avg_first_dep do %>
+              <td class="<%= cell_class(stat) %>"><%= Money.new(round(stat.value)) |> Money.to_string(fractional_unit: true) %></td>
+            <%= end %>
+          </tr>
+          <tr>
+            <td class="text-sm-left"><%= dgettext "consolidated_report", "avg_dep" %></td>
+            <%= for stat <- @report.stats.avg_dep do %>
+              <td class="<%= cell_class(stat) %>"><%= Money.new(round(stat.value)) |> Money.to_string(fractional_unit: true) %></td>
+            <%= end %>
+          </tr>
+          <tr>
+            <td class="text-sm-left"><%= dgettext "consolidated_report", "avg_arpu" %></td>
+            <%= for stat <- @report.stats.avg_arpu do %>
+              <td class="<%= cell_class(stat) %>"><%= Money.new(round(stat.value)) |> Money.to_string(fractional_unit: true) %></td>
+            <%= end %>
+          </tr>
+          <tr>
+            <td colspan="<%= Enum.count(@report.months) + 1 %>" class="blue-grey lighten-2 white-text text-sm-left">
+              <%= dgettext "consolidated_report", "players" %>
+            </td>
+          </tr>
+          <tr>
+            <td class="text-sm-left"><%= dgettext "consolidated_report", "unique_users" %></td>
+            <%= for stat <- @report.stats.authorizations do %>
+              <td class="<%= cell_class(stat) %>"><%= stat.value %></td>
+            <%= end %>
+          </tr>
+          <tr>
+            <td class="text-sm-left"><%= dgettext "consolidated_report", "vip_users" %></td>
+            <%= for stat <- @report.stats.vip_level do %>
+              <td class="<%= cell_class(stat) %>"><%= stat.value %></td>
+            <%= end %>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+    <%= end %>
+  </div>
+</div>

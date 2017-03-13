@@ -1,0 +1,63 @@
+## This file is a PO Template file.
+##
+## `msgid`s here are often extracted from source code.
+## Add new translations manually only if they're dynamic
+## translations that can't be statically extracted.
+##
+## Run `mix gettext.extract` to bring this file up to
+## date. Leave `msgstr`s empty as changing them here as no
+## effect: edit them in PO (`.po`) files instead.
+msgid ""
+msgstr ""
+
+#: web/templates/cache/index.html.eex:13
+#: web/templates/cache/type_badge.html.eex:2
+msgid "consolidated"
+msgstr ""
+
+#: web/templates/cache/form_consolidated.html.eex:16
+#: web/templates/cache/index.html.eex:28
+msgid "interval"
+msgstr ""
+
+#: web/templates/cache/form_consolidated.html.eex:16
+msgid "interval_help"
+msgstr ""
+
+#: web/templates/cache/form_consolidated.html.eex:10
+#: web/templates/cache/form_stats.html.eex:10
+#: web/templates/cache/index.html.eex:25
+msgid "period"
+msgstr ""
+
+#: web/templates/cache/form_consolidated.html.eex:15
+#: web/templates/cache/form_stats.html.eex:15
+#: web/templates/cache/form_vip.html.eex:6 web/templates/cache/index.html.eex:27
+msgid "projects"
+msgstr ""
+
+#: web/templates/cache/index.html.eex:14
+#: web/templates/cache/type_badge.html.eex:4
+msgid "stats"
+msgstr ""
+
+#: web/templates/cache/index.html.eex:26
+msgid "type"
+msgstr ""
+
+#: web/templates/cache/index.html.eex:15
+#: web/templates/cache/type_badge.html.eex:3
+msgid "vip"
+msgstr ""
+
+#: web/controllers/cache_controller.ex:53
+msgid "cache_worker_created"
+msgstr ""
+
+#: web/controllers/cache_controller.ex:129
+msgid "cache_worker_update"
+msgstr ""
+
+#: web/templates/cache/index.html.eex:2
+msgid "list"
+msgstr ""

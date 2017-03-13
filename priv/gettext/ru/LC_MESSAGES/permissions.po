@@ -1,0 +1,69 @@
+## `msgid`s in this file come from POT (.pot) files.
+##
+## Do not add, change, or remove `msgid`s manually here as
+## they're tied to the ones in the corresponding POT file
+## (with the same domain).
+##
+## Use `mix gettext.extract --merge` or `mix gettext.merge`
+## to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: ru\n"
+
+#: web/templates/permissions/index.html.eex:88
+#: web/templates/user/form.html.eex:49
+msgid "projects"
+msgstr "Проекты"
+
+#: web/templates/permissions/index.html.eex:89
+#: web/templates/user/form.html.eex:50
+msgid "roles"
+msgstr "Роли"
+
+#: web/templates/permissions/index.html.eex:91
+#: web/templates/user/form.html.eex:52
+msgid "select_all"
+msgstr "Выбрать все"
+
+#: web/templates/permissions/index.html.eex:90
+#: web/templates/user/form.html.eex:51
+msgid "users"
+msgstr "Пользователи"
+
+#: web/templates/permissions/index.html.eex:2
+msgid "index"
+msgstr "Права доступа"
+
+#: web/controllers/permissions_controller.ex:23
+msgid "permissions_updated"
+msgstr "Права доступа были сохранены"
+
+#: web/controllers/permissions_controller.ex:54
+#: web/templates/permissions/index.html.eex:24
+#: web/templates/permissions/index.html.eex:31
+msgid "project"
+msgstr "Проект"
+
+#: web/controllers/permissions_controller.ex:55
+#: web/templates/permissions/index.html.eex:26
+#: web/templates/permissions/index.html.eex:53
+msgid "role"
+msgstr "Роль"
+
+#: web/templates/permissions/index.html.eex:22
+msgid "type"
+msgstr "Тип"
+
+#: web/controllers/permissions_controller.ex:53
+#: web/templates/permissions/index.html.eex:25
+#: web/templates/permissions/index.html.eex:42
+msgid "user"
+msgstr "Пользователь"
+
+#: web/templates/permissions/index.html.eex:12
+msgid "download"
+msgstr "Скачать"
+
+#: web/controllers/permissions_controller.ex:56
+msgid "value"
+msgstr "Значение"

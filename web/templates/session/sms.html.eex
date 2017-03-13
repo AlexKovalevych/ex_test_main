@@ -1,0 +1,24 @@
+<%= form_tag session_path(@conn, :sms), method: "post" do %>
+  <p class="text-sm-center alert alert-warning"><%= dgettext "login", "sms_sent", phone: @phone %></p>
+
+  <div class='form-group row'>
+    <label class='col-sm-4 col-form-label' for='code'><%= dgettext "login", "sms_code" %></label>
+    <div class="col-sm-8">
+      <input class="form-control" id="code" name="code">
+    </div>
+  </div>
+
+  <div id="resend"></div>
+<% end %>
+
+<script src="<%= static_path(@conn, "/js/sms_login.js") %>"></script>
+<script type="text/javascript">
+  var app = Elm.SmsLogin.embed(document.getElementById('resend'));
+  app.ports.translations.send({
+    loginLabel: "<%= dgettext "login", "login" %>",
+    smsLabel: "<%= dgettext "login", "sms_resend" %>",
+    successResponse: "<%= dgettext "login", "sms_was_sent" %>",
+    errorResponse: "<%= dgettext "login", "sms_send_failed" %>"
+  });
+  app.ports.csrf.send("<%= get_csrf_token() %>");
+</script>
