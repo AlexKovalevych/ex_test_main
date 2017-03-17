@@ -47,6 +47,7 @@ defmodule Gt.Mixfile do
      :httpotion,
      :iconv,
      :mailroom,
+     :export,
      :redix]
   end
 
@@ -91,7 +92,8 @@ defmodule Gt.Mixfile do
      {:mailroom, github: "andrewtimberlake/mailroom", branch: "master"},
      {:xlsxir, github: "alexkovalevych/xlsxir", branch: "fix-datetime", override: true},
      {:redix, ">= 0.0.0"},
-     {:elixlsx, "~> 0.1.1"}
+     {:elixlsx, "~> 0.1.1"},
+     {:export, "~> 0.1.0"},
     ]
   end
 

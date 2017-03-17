@@ -10,7 +10,7 @@ defmodule Gt do
       # Start the endpoint when the application starts
       supervisor(Gt.Endpoint, []),
       worker(Redix, [Application.get_env(:gt, :redis), [name: :redix]]),
-      # Start the Ecto repository
+      worker(Gt.Pdf.Parser, [Application.get_env(:gt, :pdf)]),
       worker(Gt.Currency.Cache, []),
       supervisor(Gt.Repo, []),
       worker(GuardianDb.ExpiredSweeper, []),

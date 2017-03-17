@@ -129,6 +129,10 @@ config :gt, :dmp,
 
 config :gt, ecto_repos: [Gt.Repo]
 
+config :gt, :pdf,
+  python_path: './lib/gt/pdf',
+  python: 'python3'
+
 config :money,
   default_currency: :USD,
   separator: ",",
