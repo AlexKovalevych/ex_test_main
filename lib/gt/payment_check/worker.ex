@@ -33,8 +33,9 @@ defmodule Gt.PaymentCheckWorker do
     |> Repo.delete_all()
 
     {:ok, timer} = :timer.apply_interval(500, __MODULE__, :send_socket, [payment_check])
-    if payment_check.ps["script"] do
-      apply(String.to_existing_atom("Gt.PaymentCheck.#{payment_check.ps["script"]}"), :run, [payment_check])
+    script = payment_check.ps["script"]
+    if script do
+      apply(Module.concat("Gt.PaymentCheck", String.capitalize(script)), :run, [payment_check])
     else
       Processor.run(payment_check)
     end

@@ -9,6 +9,7 @@ defmodule Gt.Fixtures.PaymentSystem do
   @payment_systems [
     {
       "Interkassa",
+      nil,
       %PaymentSystemFields{
         map_id: "Interkassa invoice",
         date: "Processed",
@@ -22,7 +23,9 @@ defmodule Gt.Fixtures.PaymentSystem do
       %PaymentSystemOneGamepay{
         payment_system: "Interkassa",
         map_id: "Checkout payment number",
-      }
+      },
+      nil,
+      nil
     },
     #%{
       #name: "Moneta",
@@ -145,6 +148,7 @@ defmodule Gt.Fixtures.PaymentSystem do
     #},
     {
       "Accentpay IN",
+      nil,
       %PaymentSystemFields{
         map_id: "Transaction ID",
         date: "Date and time of completion of transaction",
@@ -455,27 +459,39 @@ defmodule Gt.Fixtures.PaymentSystem do
       #oneGamepayPaymentSystem: "sberbank.online",
       #processingScript: "acp"
     #},
-    #%{
-      #defaultAccountId: "%%account%%_%%reportCurrency%%",
-      #defaultPaymentType: "In",
-      #mappedAccountId: "Merchant name",
-      #mappedCurrency: "Currency",
-      #mappedDate: "Date and time of completion of transaction",
-      #mappedFeeCurrency: "Channel currency",
-      #mappedId: "Transaction ID",
-      #mappedPaymentType: "Transaction type",
-      #mappedPlayerPurse: "Payment instrument ID",
-      #mappedReportCurrency: "Channel currency",
-      #mappedReportSum: "Channel amount",
-      #mappedStatus: "Transaction status",
-      #mappedStatusIn: [ "rebill", "purchase" ],
-      #mappedStatusOk: "success",
-      #mappedStatusOut: [ "payout" ],
-      #mappedSum: "Amount",
-      #name: "ECP IN & OUT",
-      #oneGamepayTransactionId: "Order",
-      #processingScript: "ecp",
-    #},
+    {
+      "ECP IN & OUT",
+      "ecp",
+      %PaymentSystemFields{
+        sum: "Amount",
+        date: "Date and time of completion of transaction",
+        type: "Transaction type",
+        state: "Transaction status",
+        map_id: "Transaction ID",
+        type_in: "rebill,purchase",
+        currency: "Currency",
+        state_ok: "success",
+        type_out: "payout",
+        account_id: "Merchant name",
+        player_purse: "Payment instrument ID",
+        default_account_id: "#\{transation.account_id}#\{transaction.report_currency}",
+        default_payment_type: "In"
+      },
+      %PaymentSystemOneGamepay{
+        map_id: "Order",
+      },
+      %PaymentSystemFee{
+        types: ["In", "Out"],
+        currency: "Channel currency",
+        divide_100: true,
+        fee_report: true,
+      },
+      %PaymentSystemReport{
+        sum: "Channel amount",
+        currency: "Channel currency",
+        divide_100: true
+      }
+    },
     #%{
       #calculatedTransactionPercent: 2.6,
       #defaultAccountId: "ACP USD IN",
@@ -589,12 +605,14 @@ defmodule Gt.Fixtures.PaymentSystem do
   ]
 
   def run do
-    Enum.map(@payment_systems, fn {name, fields, one_gamepay} ->
-      %PaymentSystem{}
-      |> PaymentSystem.changeset(%{name: name})
-      |> Ecto.Changeset.put_embed(:fields, fields)
-      |> Ecto.Changeset.put_embed(:one_gamepay, one_gamepay)
-      |> Repo.insert!
+    Enum.map(@payment_systems, fn {name, script, fields, one_gamepay, fee, report} ->
+        %PaymentSystem{}
+        |> PaymentSystem.changeset(%{name: name, script: script})
+        |> Ecto.Changeset.put_embed(:fields, fields)
+        |> Ecto.Changeset.put_embed(:one_gamepay, one_gamepay)
+        |> Ecto.Changeset.put_embed(:fee, fee)
+        |> Ecto.Changeset.put_embed(:report, report)
+        |> Repo.insert!
     end)
   end
 end

@@ -24,71 +24,80 @@ defmodule Gt.PaymentCheck.Processor do
     end)
   end
 
+  def unarchive(path) do
+    Logger.info("Extracting #{path}")
+    :zip.unzip(path |> String.to_charlist, [{:cwd, Path.dirname(path) |> String.to_charlist}])
+  end
+
   def process_file(payment_check, {path, index}, total_files) do
     Logger.metadata(filename: path)
+    Logger.info("Parsing file #{path}")
     case Path.extname(path) do
       ".zip" ->
-        Logger.info("Extracting #{path}")
-        case :zip.unzip(path |> String.to_charlist, [{:cwd, Path.dirname(path) |> String.to_charlist}]) do
+        case unarchive(path) do
           {:ok, files} ->
-            Logger.info("Extracted #{Enum.count(files)} from #{path}")
             files
             |> Enum.with_index
             |> Enum.each(fn {path, index} ->
               process_file(payment_check, {to_string(path), index}, total_files + Enum.count(files) - 1)
             end)
+          {:error, reason} -> {:error, reason}
         end
-      ".csv" ->
-        Logger.info("Parsing file")
-        #PaymentCheckRegistry.save(payment_check.id, :header, 0)
-        separator = get_separator(payment_check)
-        double_qoute = get_double_qoute(payment_check)
-        headers = File.stream!(path)
-                  |> CSV.decode(separator: separator, double_qoute: double_qoute)
-                  |> Stream.take_while(fn row ->
-                    headers = parse_headers(payment_check, row)
-                  end)
-
-      _ ->
-        Logger.info("Parsing file")
-        path
-        |> Exoffice.parse()
-        |> Enum.with_index()
-        |> Enum.map(fn
-            {{:ok, pid, parser}, sheet} ->
-              rows_number = Exoffice.count_rows(pid, parser)
-              Logger.info("Found #{rows_number} rows in sheet #{sheet}")
-              PaymentCheckRegistry.increment(payment_check.id, :total, rows_number * 2)
-              stream = Exoffice.get_rows(pid, parser)
-              |> Stream.drop_while(fn row ->
-                if parse_headers(payment_check, row) do
-                  true
-                else
-                  PaymentCheckRegistry.increment(payment_check.id, :processed, 2)
-                  false
-                end
-              end)
-              |> Stream.chunk(10, 10, [])
-              |> Stream.each(fn chunk ->
-                ParallelStream.each(chunk, fn row ->
-                  PaymentCheckRegistry.increment(payment_check.id, :processed)
-                  parse_row(payment_check, row)
-                end)
-                |> Enum.reduce(nil, fn _, _ -> nil end)
-              end)
-              |> Enum.reduce(0, fn _, acc -> acc + 1 end)
-              Exoffice.close(pid, parser)
-
-              Logger.info("Matching with 1gamepay")
-              PaymentCheckRegistry.find(payment_check.id, "transaction")
-              |> Enum.chunk(10, 10, [])
-              |> Enum.each(fn chunk ->
-                chunk
-                |> ParallelStream.each(&compare_1gp(payment_check, &1))
-                |> Enum.reduce(nil, fn _, _ -> nil end)
-              end)
-        end)
+      ".csv" -> process_csv_file(path, payment_check)
+      ".xls" -> process_excel_file(path, payment_check)
+      ".xlsx" -> process_excel_file(path, payment_check)
     end
+  end
+
+  def process_csv_file(path, payment_check) do
+    #PaymentCheckRegistry.save(payment_check.id, :header, 0)
+    separator = get_separator(payment_check)
+    double_qoute = get_double_qoute(payment_check)
+    headers = File.stream!(path)
+              |> CSV.decode(separator: separator, double_qoute: double_qoute)
+              |> Stream.take_while(fn row ->
+                headers = parse_headers(payment_check, row)
+              end)
+  end
+
+  def process_excel_file(path, payment_check) do
+    path
+    |> Exoffice.parse()
+    |> Enum.with_index()
+    |> Enum.map(fn
+        {{:ok, pid, parser}, sheet} ->
+          rows_number = Exoffice.count_rows(pid, parser)
+          Logger.info("Found #{rows_number} rows in sheet #{sheet}")
+          PaymentCheckRegistry.increment(payment_check.id, :total, rows_number * 2)
+          stream = Exoffice.get_rows(pid, parser)
+          |> Stream.drop_while(fn row ->
+            if parse_headers(payment_check, row) do
+              true
+            else
+              PaymentCheckRegistry.increment(payment_check.id, :processed, 2)
+              false
+            end
+          end)
+          |> Stream.chunk(10, 10, [])
+          |> Stream.each(fn chunk ->
+            ParallelStream.each(chunk, fn row ->
+              PaymentCheckRegistry.increment(payment_check.id, :processed)
+              parse_row(payment_check, row)
+            end)
+            |> Enum.reduce(nil, fn _, _ -> nil end)
+          end)
+          |> Enum.reduce(0, fn _, acc -> acc + 1 end)
+          Exoffice.close(pid, parser)
+
+          Logger.info("Matching with 1gamepay")
+          PaymentCheckRegistry.find(payment_check.id, "transaction")
+          |> Enum.chunk(10, 10, [])
+          |> Enum.each(fn chunk ->
+            chunk
+            |> ParallelStream.each(&compare_1gp(payment_check, &1))
+            |> Enum.reduce(nil, fn _, _ -> nil end)
+          end)
+    end)
   end
 
   def parse_headers(payment_check, row) do
