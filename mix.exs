@@ -80,7 +80,7 @@ defmodule Gt.Mixfile do
      {:amqp, "~> 0.1.5"},
      {:amqp_client, github: "jbrisbin/amqp_client", ref: "d50aec0", override: true},
      {:rabbit_common, git: "https://github.com/Nezteb/rabbit_common.git", override: true},
-     {:exoffice, "~> 0.1.0"},
+     {:exoffice, github: "alexkovalevych/exoffice"},
      {:money, "~> 1.2"},
      {:html_sanitize_ex, "~> 1.1"},
      {:arc_ecto, "~> 0.5.0"},

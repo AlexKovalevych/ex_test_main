@@ -17,6 +17,7 @@ defmodule Gt.Fixtures.PaymentSystem do
         currency: "Currency",
         default_payment_type: "In",
         account_id: "Checkout name",
+        default_account_id: "some_account_id",
         player_purse: "Purse",
         state: "State",
       },
@@ -24,8 +25,13 @@ defmodule Gt.Fixtures.PaymentSystem do
         payment_system: "Interkassa",
         map_id: "Checkout payment number",
       },
-      nil,
-      nil
+      %PaymentSystemFee{
+        types: ["In", "Out"],
+        fee_report: false,
+      },
+      %PaymentSystemReport{
+        divide_100: false
+      }
     },
     #%{
       #name: "Moneta",
@@ -155,13 +161,13 @@ defmodule Gt.Fixtures.PaymentSystem do
         sum: "Channel amount",
         currency: "Channel currency",
         default_payment_type: "In",
+        default_account_id: "AccentMobile",
         account_id: "Checkout name",
         player_purse: "Purse",
         state: "Transaction status",
         state_ok: "success"
       },
       %PaymentSystemOneGamepay{
-        payment_system: "Interkassa",
         map_id: "Order",
       },
       %PaymentSystemFee{

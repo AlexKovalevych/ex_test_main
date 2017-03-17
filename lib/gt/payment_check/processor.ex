@@ -154,7 +154,7 @@ defmodule Gt.PaymentCheck.Processor do
         "type" -> %{acc | type: parse_type(fields["default_payment_type"], fields["type_in"], fields["type_out"], cell)}
         "account_id" -> %{acc | account_id: cell}
         "state" -> %{acc | state: cell}
-        "player_purse" -> %{acc | player_purse: cell}
+        "player_purse" -> %{acc | player_purse: parse_purse(cell)}
         "1gp_map_id" -> %{acc | one_gamepay_id: parse_one_gamepay_id(cell)}
         "comment" -> %{acc | comment: cell}
         "fee_map_id" -> %{acc | fee_id: cell} # this field is not mapped
@@ -196,6 +196,10 @@ defmodule Gt.PaymentCheck.Processor do
     end
     PaymentCheckRegistry.increment(payment_check.id, :processed)
   end
+
+  def parse_purse(value) when is_binary(value), do: value
+
+  def parse_purse(value) when is_number(value), do: value |> round |> to_string
 
   def find_1gp_transaction(payment_check, transaction) do
     case OneGamepayTransaction.by_payment_check_transaction(payment_check, transaction) |> Repo.one do
@@ -354,7 +358,7 @@ defmodule Gt.PaymentCheck.Processor do
     |> String.replace("(", "")
     |> String.replace(")", "")
     case String.length(value) do
-      19 -> Timex.parse!(value, "{ISO} {ISOtime}")
+      19 -> Timex.parse!(value, "{ISOdate} {ISOtime}")
       25 -> Timex.parse!(value, "{ISOdate} {ISOtime}{Z:}")
       _ ->
         Logger.error("Failed to parse date #{value}")
@@ -390,6 +394,10 @@ defmodule Gt.PaymentCheck.Processor do
         Logger.info("Unknown type #{value}, using default: #{default_type}")
         value
     end
+  end
+
+  def parse_one_gamepay_id(value) when is_number(value) do
+    round(value)
   end
 
   def parse_one_gamepay_id(value) when is_bitstring(value) do
