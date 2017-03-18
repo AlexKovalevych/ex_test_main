@@ -55,7 +55,7 @@
                           form: f,
                           field: :urls,
                           label: dgettext("payment_systems", "urls"),
-                          options: stats.urls,
+                          options: (if is_nil(stats.urls), do: [], else: stats.urls),
                           multiple: true
                           ) %>
 

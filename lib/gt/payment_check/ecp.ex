@@ -7,7 +7,8 @@ defmodule Gt.PaymentCheck.Ecp do
   alias Gt.PaymentCheckRegistry
   alias Gt.PaymentCheckTransaction
   alias Gt.PaymentCheckTransactionError
-  #alias Gt.Payment
+  alias Gt.PaymentCheckSourceReport
+  alias Gt.PaymentCheckSourceValue
   alias Gt.Repo
   require Logger
 
@@ -56,26 +57,69 @@ defmodule Gt.PaymentCheck.Ecp do
              %{"fee_in" => fee_in} <- fee_in(content),
              %{"fee_out" => fee_out_commission} <- fee_out_commission(content),
              %{"fee_out" => fee_out_transaction} <- fee_out_transaction(content),
-             %{"rate" => usd_rub_rate} <- usd_rub_rate(content),
+             %{"rate" => usd_rub_rate} <- parse_usd_rub_rate(content),
+             %{"rate" => usd_eur_rate} <- parse_usd_eur_rate(content),
+             %{"fee" => service_commission} <- parse_service_commission(content),
              %{"fee" => reverse_fee_out, "sum" => reverse_sum} <- reverse_fee_out(content),
              %{"merchant" => merchant} <- merchant(content) do
-               create_source_report({from, to},
-                                    currency,
-                                    in_sum,
-                                    {fee_in, transaction_fee},
-                                    {out, reverse_volume},
-                                    {fee_out_commission, fee_out_transaction, reverse_fee_out},
-                                    usd_rub_rate,
-                                    reverse_sum,
-                                    merchant
-                                  )
+               create_source_report(path, from, to, merchant, currency)
+               |> source_report_in(in_sum, currency)
+               |> source_report_out(out, reverse_volume)
+               |> source_report_fee_in(fee_in + transaction_fee, currency)
+               |> source_report_fee_out(fee_out_commission + fee_out_transaction, reverse_fee_out, usd_rub_rate)
+               |> source_report_extra(usd_rub_rate, usd_eur_rate, service_commission, reverse_sum)
         else
           {:error, reason} -> {:error, reason}
         end
     end
   end
 
-  defp create_source_report(period, currency, in_sum, fee_in, out_sum, fee_out, usd_rub_rate, reverse_sum, merchant) do
+  defp create_source_report(path, from, to, merchant, currency) do
+    %PaymentCheckSourceReport{}
+    |> PaymentCheckSourceReport.changeset(%{
+      filename: Path.basename(path),
+      merchant: merchant,
+      currency: currency,
+      from: from,
+      to: to
+    })
+
+  end
+
+  defp source_report_in(source_report, in_sum, currency) do
+    value = %PaymentCheckSourceValue{value: in_sum, currency: currency}
+    Ecto.Changeset.put_embed(source_report, :in, [value])
+  end
+
+  defp source_report_out(source_report, out, reverse_volume) do
+    reverse_value = %PaymentCheckSourceValue{value: reverse_volume, currency: "USD"}
+    out_values = Enum.map(out, fn {value, currency, alternative_value, alternative_currency} ->
+      out_value = %PaymentCheckSourceValue{value: value, currency: currency}
+      alternative = %PaymentCheckSourceValue{value: alternative_value, currency: alternative_currency}
+      Ecto.Changeset.put_embed(out_value, :alternatives, [alternative])
+    end)
+    Ecto.Changeset.put_embed(source_report, :out, [reverse_value | out_values])
+  end
+
+  defp source_report_fee_in(source_report, fee_in, currency) do
+    value = %PaymentCheckSourceValue{value: fee_in, currency: currency}
+    Ecto.Changeset.put_embed(source_report, :fee_in, [value])
+  end
+
+  defp source_report_fee_out(source_report, fee_out, reverse_fee_out, usd_rub_rate) do
+    fee_out = if usd_rub_rate, do: fee_out * usd_rub_rate, else: fee_out
+    value = %PaymentCheckSourceValue{value: fee_out, currency: "RUB"}
+    reverse_fee_out_value = %PaymentCheckSourceValue{value: reverse_fee_out, currency: "USD"}
+    Ecto.Changeset.put_embed(source_report, :fee_out, [value, reverse_fee_out_value])
+  end
+
+  defp source_report_extra(source_report, usd_rub_rate, usd_eur_rate, service_commission, reverse_sum) do
+    PaymentCheckSourceReport.changeset(source_report, %{extra_data: %{
+                                         "EUR_USD" => usd_eur_rate,
+                                         "USD_RUB" => usd_rub_rate,
+                                         "service_commission" => service_commission,
+                                         "refund_commission" => reverse_sum
+                                       }})
   end
 
   defp period(content) do
@@ -129,11 +173,11 @@ defmodule Gt.PaymentCheck.Ecp do
   defp parse_out(content) do
     opts = [capture: ~w(currency sum rate to_currency)]
     Regex.scan(~r/Net total payouts.*?\s*(?<sum>[-\d. ]+)(?<currency>\w{3}) ?\((?<to_currency>\w{3})\/\w{3} rate(?<rate>[-\d. ]+)\)\s*([-\d. ]+)/i, content, opts)
-    |> Enum.map(fn [currency, sum ,rate, to_currency] ->
+    |> Enum.map(fn [currency, sum, rate, alternative_currency] ->
       value = get_number(sum)
       rate = get_number(rate)
-      rate = if rate != 0, do: value / rate, else: 0
-      {value, currency, rate, to_currency}
+      alternative_value = if rate != 0, do: value / rate, else: 0
+      {value, currency, alternative_value, alternative_currency}
     end)
   end
 
@@ -160,12 +204,26 @@ defmodule Gt.PaymentCheck.Ecp do
     %{"fee" => fee}
   end
 
-  defp usd_rub_rate(content) do
-    rate = case Regex.named_captures(~r/USD\/RUB.*?(?<rate>[\d.]+)/i, content) do
+  defp parse_service_commission(content) do
+    case Regex.named_captures(~r/Service commission\s(?<fee>[\d.]+)/i, content) do
+      nil -> {:error, "Failed to parse \"Service commission\""}
+      %{"fee" => fee} -> %{"fee" => fee}
+    end
+  end
+
+  defp parse_usd_rub_rate(content) do
+    rate = case Regex.named_captures(~r/usd\/rub.*?(?<rate>[\d.]+)/i, content) do
       nil -> nil
       %{"rate" => rate} -> get_number(rate)
     end
     %{"rate" => rate}
+  end
+
+  defp parse_usd_eur_rate(content) do
+    case Regex.named_captures(~r/EUR\/USD.*?(?<rate>[\d.]+)/i, content) do
+      nil -> {:error, "Failed to parse USD/EUR rate"}
+      %{"rate" => rate} -> %{"rate" => get_number(rate)}
+    end
   end
 
   defp reverse_fee_out(content) do

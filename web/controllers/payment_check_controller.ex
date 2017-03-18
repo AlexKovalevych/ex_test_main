@@ -217,12 +217,18 @@ defmodule Gt.PaymentCheckController do
           |> Map.new
         end)
         stats = PaymentCheckTransaction.stats(payment_check.id) |> Repo.one!
+        urls = if is_nil(stats.urls), do: [], else: stats.urls
+        default_one_s = %{
+          "from" => stats.from,
+          "to" => stats.to,
+          "urls" => urls
+        }
         %Gt.Report.PaymentCheck{
           stats: stats,
           tab: tab,
           one_gamepay_errors: transactions,
           one_gamepay_page: page,
-          one_s_changeset: Map.get(params, "one_s", %{"from" => stats.from, "to" => stats.to, "urls" => stats.urls}) |> one_s_changeset()
+          one_s_changeset: Map.get(params, "one_s", default_one_s) |> one_s_changeset()
         }
       _ ->
         %Gt.Report.PaymentCheck{}

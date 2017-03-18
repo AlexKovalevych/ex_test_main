@@ -4,7 +4,7 @@ defmodule Gt.Report.PaymentCheckOneS do
   schema "abstract(one_s_report)" do
     field :from, :date
     field :to, :date
-    field :urls, {:array, :string}
+    field :urls, {:array, :string}, default: []
   end
 
   @required_fields ~w(from to urls)a
