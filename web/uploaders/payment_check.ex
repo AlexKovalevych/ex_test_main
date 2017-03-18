@@ -4,7 +4,7 @@ defmodule Gt.Uploaders.PaymentCheck do
 
   @versions [:original]
 
-  @extensions ~w(.csv .zip .xls .xlsx)
+  @extensions ~w(.csv .zip .xls .xlsx .pdf)
 
   def extensions(), do: @extensions
 
