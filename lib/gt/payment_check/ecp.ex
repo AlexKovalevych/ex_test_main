@@ -10,19 +10,32 @@ defmodule Gt.PaymentCheck.Ecp do
   alias Gt.PaymentCheckSourceReport
   alias Gt.PaymentCheckSourceValue
   alias Gt.Repo
+  import Ecto.Changeset
   require Logger
 
   def run(payment_check) do
     total_files = Enum.count(payment_check.files)
     Logger.info("Processing #{total_files} files")
     PaymentCheckRegistry.save(payment_check.id, :total, 0)
-    total_report_sources = payment_check.files
+    source_reports = payment_check.files
     |> Enum.with_index
-    |> Enum.map(fn {filename, index} ->
+    |> Enum.into(%{}, fn {filename, index} ->
       Logger.info("Processing #{filename} file")
-      process_report_file(payment_check, {Gt.Uploaders.PaymentCheck.local_path(payment_check.id, filename), index}, total_files)
+      path = Gt.Uploaders.PaymentCheck.local_path(payment_check.id, filename)
+      source_report = process_report_file(payment_check, {path, index}, total_files)
+      {filename, source_report}
     end)
-    IO.inspect(total_report_sources)
+
+    failed_sources = source_reports
+                     |> Enum.filter(&(!&1.valid?))
+                     |> Enum.map(fn source_report ->
+                       path = Gt.Uploaders.PaymentCheck.local_path(payment_check.id, get_change(source_report, :filename))
+                       process_secondary_file(payment_check, path)
+                     end)
+    IO.inspect(failed_sources)
+  end
+
+  def process_secondary_file(payment_check, path) do
   end
 
   def process_report_file(payment_check, {path, index}, total_files) do
@@ -94,7 +107,7 @@ defmodule Gt.PaymentCheck.Ecp do
 
   defp source_report_in(source_report, in_sum, currency) do
     value = %PaymentCheckSourceValue{value: in_sum, currency: currency}
-    Ecto.Changeset.put_embed(source_report, :in, [value])
+    put_embed(source_report, :in, [value])
   end
 
   defp source_report_out(source_report, out, reverse_volume) do
@@ -103,19 +116,19 @@ defmodule Gt.PaymentCheck.Ecp do
       alternative = %PaymentCheckSourceValue{value: alternative_value, currency: alternative_currency}
       out_value = %PaymentCheckSourceValue{value: value, currency: currency, alternatives: [alternative]}
     end)
-    Ecto.Changeset.put_embed(source_report, :out, [reverse_value | out_values])
+    put_embed(source_report, :out, [reverse_value | out_values])
   end
 
   defp source_report_fee_in(source_report, fee_in, currency) do
     value = %PaymentCheckSourceValue{value: fee_in, currency: currency}
-    Ecto.Changeset.put_embed(source_report, :fee_in, [value])
+    put_embed(source_report, :fee_in, [value])
   end
 
   defp source_report_fee_out(source_report, fee_out, reverse_fee_out, usd_rub_rate) do
     fee_out = if usd_rub_rate, do: fee_out * usd_rub_rate, else: fee_out
     value = %PaymentCheckSourceValue{value: fee_out, currency: "RUB"}
     reverse_fee_out_value = %PaymentCheckSourceValue{value: reverse_fee_out, currency: "USD"}
-    Ecto.Changeset.put_embed(source_report, :fee_out, [value, reverse_fee_out_value])
+    put_embed(source_report, :fee_out, [value, reverse_fee_out_value])
   end
 
   defp source_report_extra(source_report, usd_rub_rate, usd_eur_rate, service_commission, reverse_sum) do

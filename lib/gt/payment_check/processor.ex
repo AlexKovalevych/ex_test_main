@@ -43,13 +43,13 @@ defmodule Gt.PaymentCheck.Processor do
             end)
           {:error, reason} -> {:error, reason}
         end
-      ".csv" -> process_csv_file(path, payment_check)
-      ".xls" -> process_excel_file(path, payment_check)
-      ".xlsx" -> process_excel_file(path, payment_check)
+      ".csv" -> process_csv_file(path, index, total_files, payment_check)
+      ".xls" -> process_excel_file(path, index, total_files, payment_check)
+      ".xlsx" -> process_excel_file(path, index, total_files, payment_check)
     end
   end
 
-  def process_csv_file(path, payment_check) do
+  def process_csv_file(path, index, total_files, payment_check) do
     #PaymentCheckRegistry.save(payment_check.id, :header, 0)
     separator = get_separator(payment_check)
     double_qoute = get_double_qoute(payment_check)
@@ -60,7 +60,7 @@ defmodule Gt.PaymentCheck.Processor do
               end)
   end
 
-  def process_excel_file(path, payment_check) do
+  def process_excel_file(path, index, total_files, payment_check) do
     path
     |> Exoffice.parse()
     |> Enum.with_index()
@@ -68,7 +68,8 @@ defmodule Gt.PaymentCheck.Processor do
         {{:ok, pid, parser}, sheet} ->
           rows_number = Exoffice.count_rows(pid, parser)
           Logger.info("Found #{rows_number} rows in sheet #{sheet}")
-          PaymentCheckRegistry.increment(payment_check.id, :total, rows_number * 2)
+          PaymentCheckRegistry.save(payment_check.id, :processed, index * rows_number * 2)
+          PaymentCheckRegistry.save(payment_check.id, :total, total_files * rows_number * 2)
           stream = Exoffice.get_rows(pid, parser)
           |> Stream.drop_while(fn row ->
             if parse_headers(payment_check, row) do
