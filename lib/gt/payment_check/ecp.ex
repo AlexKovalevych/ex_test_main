@@ -45,9 +45,15 @@ defmodule Gt.PaymentCheck.Ecp do
   end
 
   defp process_pdf_file(path, payment_check) do
+    Logger.metadata(filename: path)
     case GenServer.call(Gt.Pdf.Parser, {:parse, path}) do
       nil -> {:error, "Can't parse pdf"}
       pages ->
+        source_report = %PaymentCheckSourceReport{}
+        |> PaymentCheckSourceReport.changeset(%{
+          filename: Path.basename(path),
+          payment_check_id: payment_check.id
+        })
         content = pages |> Enum.map(&to_string/1) |> Enum.join("")
         with %{"from" => from, "to" => to} <- period(content),
              %{"currency" => currency} <- currency(content),
@@ -61,8 +67,8 @@ defmodule Gt.PaymentCheck.Ecp do
              %{"rate" => usd_eur_rate} <- parse_usd_eur_rate(content),
              %{"fee" => service_commission} <- parse_service_commission(content),
              %{"fee" => reverse_fee_out, "sum" => reverse_sum} <- reverse_fee_out(content),
-             %{"merchant" => merchant} <- merchant(content) do
-               create_source_report(path, from, to, merchant, currency)
+             %{"merchant" => merchant} <- parse_merchant(content) do
+               create_source_report(source_report, from, to, merchant, currency)
                |> source_report_in(in_sum, currency)
                |> source_report_out(out, reverse_volume)
                |> source_report_fee_in(fee_in + transaction_fee, currency)
@@ -70,16 +76,15 @@ defmodule Gt.PaymentCheck.Ecp do
                |> source_report_extra(usd_rub_rate, usd_eur_rate, service_commission, reverse_sum)
         else
           {:error, reason} ->
-          IO.inspect(reason)
-            {:error, reason}
+            Logger.info(reason)
+            PaymentCheckSourceReport.changeset(source_report, %{error: "pdf_error"})
         end
     end
   end
 
-  defp create_source_report(path, from, to, merchant, currency) do
-    %PaymentCheckSourceReport{}
+  defp create_source_report(source_report, from, to, merchant, currency) do
+    source_report
     |> PaymentCheckSourceReport.changeset(%{
-      filename: Path.basename(path),
       merchant: merchant,
       currency: currency,
       from: from,
@@ -95,9 +100,8 @@ defmodule Gt.PaymentCheck.Ecp do
   defp source_report_out(source_report, out, reverse_volume) do
     reverse_value = %PaymentCheckSourceValue{value: reverse_volume, currency: "USD"}
     out_values = Enum.map(out, fn {value, currency, alternative_value, alternative_currency} ->
-      out_value = %PaymentCheckSourceValue{value: value, currency: currency}
       alternative = %PaymentCheckSourceValue{value: alternative_value, currency: alternative_currency}
-      Ecto.Changeset.put_embed(out_value, :alternatives, [alternative])
+      out_value = %PaymentCheckSourceValue{value: value, currency: currency, alternatives: [alternative]}
     end)
     Ecto.Changeset.put_embed(source_report, :out, [reverse_value | out_values])
   end
@@ -221,7 +225,7 @@ defmodule Gt.PaymentCheck.Ecp do
   end
 
   defp parse_usd_eur_rate(content) do
-    case Regex.named_captures(~r/EUR\/USD.*?(?<rate>[\d.]+)/i, content) do
+    case Regex.named_captures(~r/EUR\/USD\srate:\s(?<rate>[\s\d.]+)\s/i, content) do
       nil -> {:error, "Failed to parse USD/EUR rate"}
       %{"rate" => rate} -> %{"rate" => get_number(rate)}
     end
@@ -235,10 +239,10 @@ defmodule Gt.PaymentCheck.Ecp do
     %{"fee" => fee, "sum" => sum}
   end
 
-  defp merchant(content) do
+  defp parse_merchant(content) do
     case Regex.named_captures(~r/Merchant:\s(?<merchant>[\w\s]+)\sStatement/i, content) do
       nil -> {:error, "Failed to get merchant"}
-      %{"merchant" => merchant} -> merchant
+      %{"merchant" => merchant} -> %{"merchant" => merchant}
     end
   end
 

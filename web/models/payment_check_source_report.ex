@@ -24,7 +24,7 @@ defmodule Gt.PaymentCheckSourceReport do
 
   @required_fields ~w(filename merchant from to currency payment_check_id)a
 
-  @optional_fields ~w(error chargeback representment extra_data)a
+  @optional_fields ~w(error extra_data)a
 
   @doc """
   Builds a changeset based on the `struct` and `params`.
