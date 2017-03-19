@@ -38,17 +38,10 @@ defmodule Gt.PaymentCheckServer do
   end
 
   def stop_worker(payment_check) do
-    res = case PaymentCheckRegistry.find(payment_check.id, :pid) do
+    case PaymentCheckRegistry.find(payment_check.id, :pid) do
       nil -> :ok
       pid -> Supervisor.terminate_child(__MODULE__, pid)
     end
-    payment_check = payment_check
-    |> PaymentCheck.changeset(%{active: false})
-    |> Ecto.Changeset.put_embed(:status, %Gt.WorkerStatus{state: "stopped"})
-    |> Repo.update!
-    Gt.Endpoint.broadcast("payment_check:#{payment_check.id}", "payment_check:update", payment_check)
-    PaymentCheckRegistry.delete(payment_check.id)
-    res
   end
 
 end

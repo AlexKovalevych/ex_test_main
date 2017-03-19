@@ -13,6 +13,7 @@ defmodule Gt do
       worker(Gt.Pdf.Parser, [Application.get_env(:gt, :pdf)]),
       worker(Gt.Currency.Cache, []),
       supervisor(Gt.Repo, []),
+      worker(Gt.Monitor, []),
       worker(GuardianDb.ExpiredSweeper, []),
       supervisor(Gt.Amqp.Server, []),
       worker(Gt.CacheRegistry, []),

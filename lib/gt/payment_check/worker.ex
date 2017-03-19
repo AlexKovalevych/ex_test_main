@@ -19,6 +19,7 @@ defmodule Gt.PaymentCheckWorker do
   end
 
   def init(state) do
+    GenServer.call(Gt.Monitor, {:monitor, state.payment_check})
     {:ok, state}
   end
 
@@ -56,26 +57,26 @@ defmodule Gt.PaymentCheckWorker do
     |> Repo.update!
   end
 
-  def terminate(:normal, state) do
-    %Gt.WorkerStatus{state: ":normal"} |> terminate(state)
-  end
+  #def terminate(:normal, state) do
+    #%Gt.WorkerStatus{state: ":normal"} |> terminate(state)
+  #end
 
-  def terminate(%Gt.WorkerStatus{} = status, state) do
-    payment_check = state.payment_check
-    payment_check = payment_check
-    |> PaymentCheck.changeset(%{active: false})
-    |> Ecto.Changeset.put_embed(:status, status)
-    |> Repo.update!
-    PaymentCheckRegistry.delete(payment_check.id)
-    Gt.Endpoint.broadcast("payment_check:#{payment_check.id}", "payment_check:update", payment_check)
-    payment_check
-  end
+  #def terminate(%Gt.WorkerStatus{} = status, state) do
+    #payment_check = state.payment_check
+    #payment_check = payment_check
+    #|> PaymentCheck.changeset(%{active: false})
+    #|> Ecto.Changeset.put_embed(:status, status)
+    #|> Repo.update!
+    #PaymentCheckRegistry.delete(payment_check.id)
+    #Gt.Endpoint.broadcast("payment_check:#{payment_check.id}", "payment_check:update", payment_check)
+    #payment_check
+  #end
 
-  def terminate(reason, state) do
-    PaymentCheckRegistry.delete(state.payment_check.id)
-    %Gt.WorkerStatus{state: "danger", text: inspect(reason, pretty: true, width: 0) |> String.replace("\n", "<br>")}
-    |> terminate(state)
-  end
+  #def terminate(reason, state) do
+    #PaymentCheckRegistry.delete(state.payment_check.id)
+    #%Gt.WorkerStatus{state: "danger", text: inspect(reason, pretty: true, width: 0) |> String.replace("\n", "<br>")}
+    #|> terminate(state)
+  #end
 
   defp init_worker(payment_check) do
     PaymentCheckRegistry.create(payment_check.id)

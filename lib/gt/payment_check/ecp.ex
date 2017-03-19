@@ -34,7 +34,7 @@ defmodule Gt.PaymentCheck.Ecp do
           {:ok, files} ->
             files
             |> Enum.with_index
-            |> Enum.each(fn {path, index} ->
+            |> Enum.map(fn {path, index} ->
               process_report_file(payment_check, {to_string(path), index}, total_files + Enum.count(files) - 1)
             end)
           {:error, reason} -> {:error, reason}
@@ -45,7 +45,7 @@ defmodule Gt.PaymentCheck.Ecp do
   end
 
   defp process_pdf_file(path, payment_check) do
-    content = case GenServer.call(Gt.Pdf.Parser, {:parse, path}) do
+    case GenServer.call(Gt.Pdf.Parser, {:parse, path}) do
       nil -> {:error, "Can't parse pdf"}
       pages ->
         content = pages |> Enum.map(&to_string/1) |> Enum.join("")
@@ -54,9 +54,9 @@ defmodule Gt.PaymentCheck.Ecp do
              %{"in" => in_sum, "fee" => transaction_fee} <- service_commission(content),
              %{"out" => reverse_volume} <- reverse_volume(content),
              out <- parse_out(content),
-             %{"fee_in" => fee_in} <- fee_in(content),
-             %{"fee_out" => fee_out_commission} <- fee_out_commission(content),
-             %{"fee_out" => fee_out_transaction} <- fee_out_transaction(content),
+             %{"fee" => fee_in} <- fee_in(content),
+             %{"fee" => fee_out_commission} <- fee_out_commission(content),
+             %{"fee" => fee_out_transaction} <- fee_out_transaction(content),
              %{"rate" => usd_rub_rate} <- parse_usd_rub_rate(content),
              %{"rate" => usd_eur_rate} <- parse_usd_eur_rate(content),
              %{"fee" => service_commission} <- parse_service_commission(content),
@@ -69,7 +69,9 @@ defmodule Gt.PaymentCheck.Ecp do
                |> source_report_fee_out(fee_out_commission + fee_out_transaction, reverse_fee_out, usd_rub_rate)
                |> source_report_extra(usd_rub_rate, usd_eur_rate, service_commission, reverse_sum)
         else
-          {:error, reason} -> {:error, reason}
+          {:error, reason} ->
+          IO.inspect(reason)
+            {:error, reason}
         end
     end
   end
@@ -83,7 +85,6 @@ defmodule Gt.PaymentCheck.Ecp do
       from: from,
       to: to
     })
-
   end
 
   defp source_report_in(source_report, in_sum, currency) do
