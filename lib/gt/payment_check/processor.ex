@@ -157,7 +157,7 @@ defmodule Gt.PaymentCheck.Processor do
     |> Enum.with_index
     |> Enum.reduce(transaction, fn {cell, index}, acc ->
       cell = sanitize(cell)
-      case Map.get(headers, index, nil) do
+      case Map.get(headers, index) do
         "map_id" -> %{acc | ps_trans_id: to_string(cell)}
         "sum" -> %{acc | sum: parse_float(cell)}
         "currency" -> %{acc | currency: parse_currency(cell)}
@@ -191,11 +191,7 @@ defmodule Gt.PaymentCheck.Processor do
   """
   def compare_1gp(payment_check, transaction) do
     cond do
-      # Wrong type
-      !Enum.member?(PaymentCheckTransaction.types(), transaction.type) ->
-        PaymentCheckTransaction.changeset(transaction, %{skipped: true}) |> Repo.update!
-
-      true ->
+      !is_nil(transaction.one_gamepay_id) ->
         compare_result = find_1gp_transaction(payment_check, transaction)
                          |> validate_date()
                          |> one_gamepay_duplicates(payment_check)
@@ -207,6 +203,7 @@ defmodule Gt.PaymentCheck.Processor do
         transaction
         |> Ecto.Changeset.put_embed(:errors, errors)
         |> Repo.update!()
+      true -> transaction
     end
     PaymentCheckRegistry.increment(payment_check.id, :processed)
   end
@@ -308,16 +305,20 @@ defmodule Gt.PaymentCheck.Processor do
       []
     end
     cond do
-      !transaction.date -> skip_transaction(transaction)
-      !Enum.member?(state_ok, transaction.state) -> skip_transaction(transaction)
-      Enum.count(state_ok) > 0 && !payment_check.ps["fields"]["state"] -> skip_transaction(transaction)
-      !Enum.member?(PaymentCheckTransaction.types(), transaction.type) -> skip_transaction(transaction)
+      !transaction.date ->
+        skip_transaction(transaction, :bad_date)
+      !Enum.member?(state_ok, transaction.state) ->
+        skip_transaction(transaction, :bad_state)
+      Enum.count(state_ok) > 0 && !payment_check.ps["fields"]["state"] ->
+        skip_transaction(transaction, :bad_state)
+      !Enum.member?(PaymentCheckTransaction.types(), transaction.type) ->
+        skip_transaction(transaction, :bad_type)
       true -> transaction
     end
   end
 
-  def skip_transaction(transaction) do
-    %{transaction | skipped: true}
+  def skip_transaction(transaction, reason) do
+    %{transaction | skipped: to_string(reason)}
   end
 
   @doc"""
@@ -380,10 +381,13 @@ defmodule Gt.PaymentCheck.Processor do
   def parse_float(value) when is_integer(value), do: value / 1
 
   def parse_float(value) when is_bitstring(value) do
-    value
+    value = value
     |> String.replace(",", ".")
     |> String.replace(" ", "")
-    |> String.to_float()
+    case Float.parse(value) do
+      :error -> nil
+      {value, _} -> value
+    end
   end
 
   def parse_currency(value) do
@@ -474,7 +478,7 @@ defmodule Gt.PaymentCheck.Processor do
       is_nil(default_account_id) -> transaction
       :binary.match(default_account_id, "#") != :nomatch ->
         try do
-          account = Code.eval_string("\"#{default_account_id}\"", transaction: transaction)
+          {account, _} = Code.eval_string("\"#{default_account_id}\"", transaction: transaction)
           Map.put(transaction, field, account)
         rescue
           _ ->

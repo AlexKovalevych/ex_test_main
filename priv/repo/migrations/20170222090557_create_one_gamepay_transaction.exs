@@ -26,6 +26,7 @@ defmodule Gt.Repo.Migrations.CreateOneGamepayTransaction do
     end
 
     create index(:one_gamepay_transactions, [:trans_id, :project_id], unique: true)
+    create index(:one_gamepay_transactions, [:trans_id, :ps_trans_id, :ps_name])
 
   end
 end

@@ -19,7 +19,7 @@ defmodule Gt.PaymentCheckTransaction do
     field :player_purse, :string
     field :comment, :string
     field :source, :map
-    field :skipped, :boolean, default: false
+    field :skipped, :string
     field :lang, :string
     field :report_sum, :float
     field :report_currency, :string
@@ -43,13 +43,13 @@ defmodule Gt.PaymentCheckTransaction do
   def types(), do: [@type_in, @type_out, @type_fee]
 
   @required_fields ~w(ps_trans_id
-                      one_gamepay_id
                       sum
                       fee
                       date
                       source)a
 
   @optional_fields ~w(pguid
+                      one_gamepay_id
                       currency
                       fee_currency
                       type
@@ -94,7 +94,7 @@ defmodule Gt.PaymentCheckTransaction do
     |> select([pct, ogt], %{
       total: count("*"),
       one_gamepay_errors: sum(fragment("CASE WHEN ? @> '[{\"type\": \"1gp\"}]' THEN 1 ELSE 0 END", pct.errors)),
-      skipped: sum(fragment("CASE WHEN ? THEN 1 ELSE 0 END", pct.skipped)),
+      skipped: sum(fragment("CASE WHEN ? IS NULL THEN 0 ELSE 1 END", pct.skipped)),
       from: min(pct.date),
       to: max(pct.date),
       urls: fragment("array_agg(distinct(?))", ogt.site_url)

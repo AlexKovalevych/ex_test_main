@@ -72,25 +72,38 @@ defmodule Gt.Fixtures.PaymentSystem do
         divide_100: false
       }
     },
-    #%{
-      #defaultAccountId: "Neteller_%%currency%%",
-      #defaultPaymentType: "In",
-      #mappedCurrency: "Currency",
-      #mappedDate: "Date",
-      #mappedFee: "Fee",
-      #mappedFeeCurrency: "Currency",
-      #mappedId: "NETELLER Trans. ID",
-      #mappedPaymentType: "Type",
-      #mappedPlayerPurse: "Account ID",
-      #mappedStatus: "Status",
-      #mappedStatusIn: [ "Incoming" ],
-      #mappedStatusOk: "Accepted",
-      #mappedStatusOut: [ "Outgoing" ],
-      #mappedSum: "Amount",
-      #name: "Neteller",
-      #oneGamepayPaymentSystem: "neteller",
-      #oneGamepayTransactionId: "Merchant Ref. ID",
-    #},
+    {
+      "Neteller",
+      nil,
+      %PaymentSystemFields{
+        map_id: "NETELLER Trans. ID",
+        date: "Date",
+        sum: "Amount",
+        currency: "Currency",
+        default_payment_type: "In",
+        default_account_id: "Neteller_#\{transaction.currency}",
+        type: "Type",
+        player_purse: "Account ID",
+        state: "Status",
+        state_ok: "Accepted",
+        type_in: "Incoming",
+        type_out: "Outgoing",
+      },
+      %PaymentSystemCsv{},
+      %PaymentSystemOneGamepay{
+        payment_system: "neteller",
+        map_id: "Merchant Ref. ID",
+      },
+      %PaymentSystemFee{
+        types: ["In", "Out"],
+        fee_report: false,
+        map_id: "Fee",
+        currency: "Currency"
+      },
+      %PaymentSystemReport{
+        divide_100: false
+      }
+    },
     #%{
       #defaultAccountId: "Yandex 18884",
       #defaultPaymentType: "In",

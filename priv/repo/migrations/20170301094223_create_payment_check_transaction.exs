@@ -19,7 +19,7 @@ defmodule Gt.Repo.Migrations.CreatePaymentCheckTransaction do
       add :comment, :text
       add :source, :map, null: false
       add :errors, :map
-      add :skipped, :boolean, default: false
+      add :skipped, :string
       add :lang, :string
       add :report_sum, :float
       add :report_currency, :string
