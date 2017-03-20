@@ -27,7 +27,7 @@
           <tr>
             <td><%= (@page.page - 1) * @page.per_page + i + 1 %></td>
             <td><%= payment_check.payment_system.name %></td>
-            <td><%= payment_check.status %></td>
+            <td><%= render "status_tag.html", status: payment_check.status %></td>
             <td><%= payment_check.user.email %></td>
             <td><%= payment_check.inserted_at |> Gt.Date.format(:datetime) %></td>
             <td>
