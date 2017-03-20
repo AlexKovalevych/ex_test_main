@@ -80,13 +80,20 @@ defmodule Gt.Report.PaymentCheck do
       site,
       transaction.type,
       transaction.currency,
-      trunc(transaction.sum),
+      get_sum(transaction.sum, true),
       transaction.comment,
-      one_gp_sum,
+      get_sum(one_gp_sum),
       one_gp_currency,
       one_gp_channel_currency,
-      one_gp_channel_sum,
+      get_sum(one_gp_channel_sum),
       errors
     ]
   end
+
+  defp get_sum(sum, abs \\ false) when is_number(sum) do
+    val = Float.round(sum / 1, 2)
+    if abs, do: abs(val), else: val
+  end
+
+  defp get_sum(sum, _), do: sum
 end

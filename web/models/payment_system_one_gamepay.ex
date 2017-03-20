@@ -4,12 +4,13 @@ defmodule Gt.PaymentSystemOneGamepay do
 
   embedded_schema do
     field :map_id, :string
+    field :pguid, :string
     field :payment_system, :string
   end
 
   @required_fields ~w()a
 
-  @optional_fields ~w(map_id payment_system)a
+  @optional_fields ~w(map_id pguid payment_system)a
 
   def changeset(struct, params \\ %{}) do
     struct

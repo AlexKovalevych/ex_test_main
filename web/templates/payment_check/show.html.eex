@@ -27,7 +27,7 @@
 
         <%= render "status_block.html",
             label: dgettext("payment_checks", "payment_system"),
-            value: @payment_check.payment_system.name %>
+            value: link(@payment_check.payment_system.name, to: payment_system_path(@conn, :edit, @payment_check.payment_system)) %>
         <%= render "status_block.html",
             label: dgettext("payment_checks", "user"),
             value: @payment_check.user.email %>

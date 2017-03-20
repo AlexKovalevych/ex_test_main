@@ -16,6 +16,7 @@ defmodule Gt.PaymentSystemFields do
     field :state_ok, :string
     field :type_in, :string
     field :type_out, :string
+    field :is_out_negative, :boolean, default: false
     field :comment, :string
   end
 
@@ -31,6 +32,7 @@ defmodule Gt.PaymentSystemFields do
                       state_ok
                       type_in
                       type_out
+                      is_out_negative
                       comment
                     )a
 

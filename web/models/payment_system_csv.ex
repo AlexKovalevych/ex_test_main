@@ -3,8 +3,8 @@ defmodule Gt.PaymentSystemCsv do
   import Ecto.Changeset
 
   embedded_schema do
-    field :separator, :string
-    field :double_qoute, :string
+    field :separator, :string, default: ","
+    field :double_qoute, :string, default: "\""
     field :encoding, :string
   end
 
@@ -12,9 +12,13 @@ defmodule Gt.PaymentSystemCsv do
 
   @double_qoutes ~w(double_qoute single_qoute)
 
+  @encodings ~w(utf-8 windows-1251)
+
   def separators(), do: @separators
 
   def double_qoutes(), do: @double_qoutes
+
+  def encodings(), do: @encodings
 
   @required_fields ~w(separator double_qoute)a
 

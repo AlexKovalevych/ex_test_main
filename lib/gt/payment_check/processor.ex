@@ -50,14 +50,18 @@ defmodule Gt.PaymentCheck.Processor do
   end
 
   def process_csv_file(path, index, total_files, payment_check) do
-    #PaymentCheckRegistry.save(payment_check.id, :header, 0)
+    encoding = if payment_check.ps["csv"]["encoding"], do: payment_check.ps["csv"]["encoding"], else: "utf-8"
     separator = get_separator(payment_check)
     double_qoute = get_double_qoute(payment_check)
-    headers = File.stream!(path)
-              |> CSV.decode(separator: separator, double_qoute: double_qoute)
-              |> Stream.take_while(fn row ->
-                headers = parse_headers(payment_check, row)
-              end)
+    lines = File.stream!(path)
+            |> Stream.map(&(:iconv.convert(encoding, "utf-8", &1)))
+            |> CSV.decode(separator: separator, double_qoute: double_qoute)
+    rows_number = lines |> Enum.reduce(0, fn _, i -> i + 1 end)
+    Logger.info("Found #{rows_number} rows")
+    PaymentCheckRegistry.save(payment_check.id, :processed, index * rows_number * 2)
+    PaymentCheckRegistry.save(payment_check.id, :total, total_files * rows_number * 2)
+    process_rows_stream(lines, payment_check)
+    process_one_gamepay(payment_check)
   end
 
   def process_excel_file(path, index, total_files, payment_check) do
@@ -70,39 +74,46 @@ defmodule Gt.PaymentCheck.Processor do
           Logger.info("Found #{rows_number} rows in sheet #{sheet}")
           PaymentCheckRegistry.save(payment_check.id, :processed, index * rows_number * 2)
           PaymentCheckRegistry.save(payment_check.id, :total, total_files * rows_number * 2)
-          stream = Exoffice.get_rows(pid, parser)
-          |> Stream.drop_while(fn row ->
-            if parse_headers(payment_check, row) do
-              true
-            else
-              PaymentCheckRegistry.increment(payment_check.id, :processed, 2)
-              false
-            end
-          end)
-          |> Stream.chunk(10, 10, [])
-          |> Stream.each(fn chunk ->
-            ParallelStream.each(chunk, fn row ->
-              PaymentCheckRegistry.increment(payment_check.id, :processed)
-              parse_row(payment_check, row)
-            end)
-            |> Enum.reduce(nil, fn _, _ -> nil end)
-          end)
-          |> Enum.reduce(0, fn _, acc -> acc + 1 end)
+          Exoffice.get_rows(pid, parser) |> process_rows_stream(payment_check)
           Exoffice.close(pid, parser)
+          process_one_gamepay(payment_check)
+    end)
+  end
 
-          Logger.info("Matching with 1gamepay")
-          PaymentCheckRegistry.find(payment_check.id, "transaction")
-          |> Enum.chunk(10, 10, [])
-          |> Enum.each(fn chunk ->
-            chunk
-            |> ParallelStream.each(&compare_1gp(payment_check, &1))
-            |> Enum.reduce(nil, fn _, _ -> nil end)
-          end)
+  def process_rows_stream(stream, payment_check) do
+    stream
+    |> Stream.drop_while(fn row ->
+      if parse_headers(payment_check, row) do
+        true
+      else
+        PaymentCheckRegistry.increment(payment_check.id, :processed, 2)
+        false
+      end
+    end)
+    |> Stream.chunk(10, 10, [])
+    |> Stream.each(fn chunk ->
+      ParallelStream.each(chunk, fn row ->
+        PaymentCheckRegistry.increment(payment_check.id, :processed)
+        parse_row(payment_check, row)
+      end)
+      |> Enum.reduce(nil, fn _, _ -> nil end)
+    end)
+    |> Enum.reduce(0, fn _, acc -> acc + 1 end)
+  end
+
+  def process_one_gamepay(payment_check) do
+    Logger.info("Matching with 1gamepay")
+    PaymentCheckRegistry.find(payment_check.id, "transaction")
+    |> Enum.chunk(10, 10, [])
+    |> Enum.each(fn chunk ->
+      chunk
+      |> ParallelStream.each(&compare_1gp(payment_check, &1))
+      |> Enum.reduce(nil, fn _, _ -> nil end)
     end)
   end
 
   def parse_headers(payment_check, row) do
-    headers = ~w(map_id sum currency date type account_id state player_purse)
+    headers = ~w(map_id sum currency date type account_id state player_purse pguid)
               |> parse_headers_block(payment_check, "fields", "", %{})
 
     headers = ~w(map_id payment_system)
@@ -161,13 +172,16 @@ defmodule Gt.PaymentCheck.Processor do
         "fee_currency" -> %{acc | fee_currency: parse_currency(cell)}
         "report_sum" -> %{acc | report_sum: parse_float(cell)}
         "report_currency" -> %{acc | report_currency: parse_currency(cell)}
+        "pguid" -> %{acc | pguid: cell}
         nil -> acc
       end
     end)
+    |> negative_out_type(payment_check)
     |> divide_100(payment_check)
     |> calculate_fee(payment_check)
     |> set_account(payment_check.ps["fields"]["default_account_id"], :account_id)
     |> set_account(payment_check.ps["fee"]["default_account_id"], :fee_account_id)
+    |> check_skipped(payment_check)
     transaction = PaymentCheckTransaction.changeset(transaction) |> Repo.insert!()
     PaymentCheckRegistry.save(payment_check.id, transaction)
   end
@@ -278,6 +292,32 @@ defmodule Gt.PaymentCheck.Processor do
       result
     end
 
+  end
+
+  @doc """
+  Skip transaction in cases:
+    - its state is not amoung defined "OK" states
+    - date is empty
+    - no mapped state, but there are defined "OK" states
+    - type is not valid
+  """
+  def check_skipped(transaction, payment_check) do
+    state_ok = if payment_check.ps["fields"]["state_ok"] do
+      String.split(payment_check.ps["fields"]["state_ok"], ",")
+    else
+      []
+    end
+    cond do
+      !transaction.date -> skip_transaction(transaction)
+      !Enum.member?(state_ok, transaction.state) -> skip_transaction(transaction)
+      Enum.count(state_ok) > 0 && !payment_check.ps["fields"]["state"] -> skip_transaction(transaction)
+      !Enum.member?(PaymentCheckTransaction.types(), transaction.type) -> skip_transaction(transaction)
+      true -> transaction
+    end
+  end
+
+  def skip_transaction(transaction) do
+    %{transaction | skipped: true}
   end
 
   @doc"""
@@ -401,8 +441,8 @@ defmodule Gt.PaymentCheck.Processor do
   end
 
   def parse_one_gamepay_id(value) when is_bitstring(value) do
-    case Regex.run(~r/\d+/, value) do
-      [id] -> id |> String.to_integer
+    case Regex.named_captures(~r/(?<id>\d+)/, value) do
+      %{"id" => id} -> id |> String.to_integer
       _ -> nil
     end
   end
@@ -447,6 +487,14 @@ defmodule Gt.PaymentCheck.Processor do
         end
       !is_nil(default_account_id) -> Map.put(transaction, field, default_account_id)
       true -> transaction
+    end
+  end
+
+  def negative_out_type(transaction, payment_check) do
+    if transaction.sum < 0 && payment_check.ps["fields"]["is_out_negative"] do
+      %{transaction | type: PaymentCheckTransaction.type(:out)}
+    else
+      transaction
     end
   end
 

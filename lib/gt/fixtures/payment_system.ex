@@ -2,6 +2,7 @@ defmodule Gt.Fixtures.PaymentSystem do
   alias Gt.Repo
   alias Gt.PaymentSystem
   alias Gt.PaymentSystemFields
+  alias Gt.PaymentSystemCsv
   alias Gt.PaymentSystemFee
   alias Gt.PaymentSystemReport
   alias Gt.PaymentSystemOneGamepay
@@ -21,6 +22,7 @@ defmodule Gt.Fixtures.PaymentSystem do
         player_purse: "Purse",
         state: "State",
       },
+      %PaymentSystemCsv{},
       %PaymentSystemOneGamepay{
         payment_system: "Interkassa",
         map_id: "Checkout payment number",
@@ -33,28 +35,43 @@ defmodule Gt.Fixtures.PaymentSystem do
         divide_100: false
       }
     },
-    #%{
-      #name: "Moneta",
-      #defaultPaymentType: "In",
-      #delimiter: ";",
-      #mappedAccountId: "Merchant Account ID",
-      #mappedComment: "Description",
-      #mappedCurrency: "Currency",
-      #mappedDate: "Date",
-      #mappedFee: "Fee",
-      #mappedFeeCurrency: "Currency",
-      #mappedId: "#",
-      #mappedPaymentType: "Category",
-      #mappedPlayerPurse: "User Account ID",
-      #mappedProjectGUID: "Description",
-      #mappedStatus: "Status",
-      #mappedStatusIn: [ "BUSINESS" ],
-      #mappedStatusOut: [ "WITHDRAWAL" ],
-      #mappedSum: "Amount",
-      #oneGamepayPaymentSystem: "moneta",
-      #oneGamepayTransactionId: "Client Transaction ID",
-      #processingScript: "moneta"
-    #},
+    {
+      "Moneta",
+      nil,
+      %PaymentSystemFields{
+        map_id: "#",
+        date: "Date",
+        sum: "Amount",
+        currency: "Currency",
+        default_payment_type: "In",
+        account_id: "Merchant Account Id",
+        player_purse: "User Account Id",
+        state: "Status",
+        comment: "Description",
+        state_ok: "Выполнена",
+        type_in: "BUSINESS",
+        type_out: "WITHDRAWAL",
+        is_out_negative: true
+      },
+      %PaymentSystemCsv{
+        separator: "semicolon",
+        encoding: "windows-1251",
+      },
+      %PaymentSystemOneGamepay{
+        payment_system: "Moneta",
+        map_id: "Client Transaction ID",
+        pguid: "Description"
+      },
+      %PaymentSystemFee{
+        types: ["In", "Out"],
+        fee_report: false,
+        map_id: "Fee",
+        currency: "Currency"
+      },
+      %PaymentSystemReport{
+        divide_100: false
+      }
+    },
     #%{
       #defaultAccountId: "Neteller_%%currency%%",
       #defaultPaymentType: "In",
@@ -483,6 +500,7 @@ defmodule Gt.Fixtures.PaymentSystem do
         default_account_id: "#\{transation.account_id}#\{transaction.report_currency}",
         default_payment_type: "In"
       },
+      %PaymentSystemCsv{},
       %PaymentSystemOneGamepay{
         map_id: "Order",
       },

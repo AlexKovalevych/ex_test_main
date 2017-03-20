@@ -5,6 +5,7 @@ defmodule Gt.Repo.Migrations.CreatePaymentCheckTransaction do
     create table(:payment_check_transactions) do
       add :ps_trans_id, :string, null: false
       add :one_gamepay_id, :integer
+      add :pguid, :string
       add :sum, :float, null: false
       add :fee, :float, null: false, default: 0
       add :currency, :string

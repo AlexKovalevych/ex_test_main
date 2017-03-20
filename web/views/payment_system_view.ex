@@ -11,6 +11,10 @@ defmodule Gt.PaymentSystemView do
     |> Enum.map(&{translate_double_qoutes(&1), &1})
   end
 
+  def encodings() do
+    Gt.PaymentSystemCsv.encodings()
+  end
+
   def payment_types() do
     Gt.PaymentCheckTransaction.types()
   end

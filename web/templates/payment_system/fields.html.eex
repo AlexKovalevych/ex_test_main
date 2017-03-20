@@ -33,6 +33,11 @@
                     field: :payment_system,
                     label: dgettext("payment_systems", "payment_system")
                     ) %>
+          <%= render(Gt.LayoutView, "tags_field.html",
+                    form: f_1gp,
+                    field: :pguid,
+                    label: dgettext("payment_systems", "pguid")
+                    ) %>
         <% end %>
       </p>
     </div>
@@ -142,6 +147,13 @@
                     field: :double_qoute,
                     options: double_qoutes(),
                     ) %>
+
+          <%= render(Gt.LayoutView, "select_field.html",
+                    form: f_csv,
+                    label: dgettext("payment_systems", "encoding"),
+                    field: :encoding,
+                    options: encodings(),
+                    ) %>
         <% end %>
       </p>
     </div>
@@ -192,6 +204,11 @@
                     form: f_field,
                     field: :type_out,
                     label: dgettext("payment_systems", "payment_type_out")
+                    ) %>
+          <%= render(Gt.LayoutView, "checkbox_field.html",
+                    form: f_field,
+                    field: :is_out_negative,
+                    label: dgettext("payment_systems", "is_out_negative")
                     ) %>
           <%= render(Gt.LayoutView, "tags_field.html",
                     form: f_field,

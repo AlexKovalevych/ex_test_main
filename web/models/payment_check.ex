@@ -6,6 +6,7 @@ defmodule Gt.PaymentCheck do
     field :active, :boolean, default: false
     field :completed, :boolean, default: false
     field :processed, :integer, default: 0
+    field :skipped, :integer, default: 0
     field :total, :integer, default: 0
 
     belongs_to :user, Gt.User
@@ -21,7 +22,7 @@ defmodule Gt.PaymentCheck do
 
   @required_fields ~w(payment_system_id user_id)a
 
-  @optional_fields ~w(active completed processed total)
+  @optional_fields ~w(active completed processed skipped total)
 
   @doc """
   Builds a changeset based on the `struct` and `params`.
@@ -56,6 +57,7 @@ defmodule Gt.PaymentCheck do
     changeset(payment_check, %{
                 total: 0,
                 processed: 0,
+                skipped: 0,
                 active: true,
                 completed: false,
               })

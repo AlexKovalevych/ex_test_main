@@ -11,7 +11,12 @@ defmodule Gt.PaymentCheckWorker do
   def send_socket(payment_check) do
     processed = PaymentCheckRegistry.find(payment_check.id, :processed)
     total = PaymentCheckRegistry.find(payment_check.id, :total)
-    Gt.Endpoint.broadcast("payment_check:#{payment_check.id}", "payment_check:update", %{payment_check | processed: processed, total: total})
+    Gt.Endpoint.broadcast("payment_check:#{payment_check.id}",
+                          "payment_check:update",
+                          %{payment_check |
+                            processed: processed,
+                            total: total
+                          })
   end
 
   def start_link(state) do
@@ -52,36 +57,17 @@ defmodule Gt.PaymentCheckWorker do
       active: false,
       total: PaymentCheckRegistry.find(payment_check.id, :total) || 0,
       processed: PaymentCheckRegistry.find(payment_check.id, :processed) || 0,
+      skipped: PaymentCheckRegistry.find(payment_check.id, :skipped) || 0,
       completed: true,
     })
     |> Repo.update!
   end
 
-  #def terminate(:normal, state) do
-    #%Gt.WorkerStatus{state: ":normal"} |> terminate(state)
-  #end
-
-  #def terminate(%Gt.WorkerStatus{} = status, state) do
-    #payment_check = state.payment_check
-    #payment_check = payment_check
-    #|> PaymentCheck.changeset(%{active: false})
-    #|> Ecto.Changeset.put_embed(:status, status)
-    #|> Repo.update!
-    #PaymentCheckRegistry.delete(payment_check.id)
-    #Gt.Endpoint.broadcast("payment_check:#{payment_check.id}", "payment_check:update", payment_check)
-    #payment_check
-  #end
-
-  #def terminate(reason, state) do
-    #PaymentCheckRegistry.delete(state.payment_check.id)
-    #%Gt.WorkerStatus{state: "danger", text: inspect(reason, pretty: true, width: 0) |> String.replace("\n", "<br>")}
-    #|> terminate(state)
-  #end
-
   defp init_worker(payment_check) do
     PaymentCheckRegistry.create(payment_check.id)
     PaymentCheckRegistry.save(payment_check.id, :pid, self())
     PaymentCheckRegistry.save(payment_check.id, :processed, 0)
+    PaymentCheckRegistry.save(payment_check.id, :skipped, 0)
     PaymentCheck.clear_state(payment_check)
   end
 

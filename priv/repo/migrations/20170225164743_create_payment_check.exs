@@ -7,6 +7,7 @@ defmodule Gt.Repo.Migrations.CreatePaymentCheck do
       add :active, :boolean, default: false, null: false
       add :completed, :boolean, default: false, null: false
       add :processed, :integer
+      add :skipped, :integer
       add :total, :integer
       add :user_id, references(:users, on_delete: :nothing)
       add :payment_system_id, references(:payment_systems, on_delete: :nothing)

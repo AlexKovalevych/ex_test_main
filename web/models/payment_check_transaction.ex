@@ -5,6 +5,7 @@ defmodule Gt.PaymentCheckTransaction do
   schema "payment_check_transactions" do
     field :ps_trans_id, :string
     field :one_gamepay_id, :integer
+    field :pguid, :string
     field :sum, :float
     field :currency, :string
     field :fee, :float, default: 0.0
@@ -48,7 +49,8 @@ defmodule Gt.PaymentCheckTransaction do
                       date
                       source)a
 
-  @optional_fields ~w(currency
+  @optional_fields ~w(pguid
+                      currency
                       fee_currency
                       type
                       account_id
@@ -66,9 +68,12 @@ defmodule Gt.PaymentCheckTransaction do
   Builds a changeset based on the `struct` and `params`.
   """
   def changeset(struct, params \\ %{}) do
-    struct
-    |> cast(params, @required_fields ++ @optional_fields)
-    |> validate_required(@required_fields)
+    changes = struct |> cast(params, @required_fields ++ @optional_fields)
+    if Ecto.Changeset.get_field(changes, :skipped) do
+      changes
+    else
+      changes |> validate_required(@required_fields)
+    end
   end
 
   def by_payment_check(query, id) do
