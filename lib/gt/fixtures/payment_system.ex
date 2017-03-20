@@ -163,25 +163,39 @@ defmodule Gt.Fixtures.PaymentSystem do
       #name: "WireCard",
       #processingScript: "wirecard",
     #},
-    #%{
-      #defaultAccountId: "PSC_EUR",
-      #defaultFeeCurrency: "EUR",
-      #defaultPaymentType: "In",
-      #calculatedTransactionPercent: 10.25,
-      #mappedCurrency: "Currency",
-      #mappedDate: "Date and time of completion of transaction",
-      #mappedId: "Transaction ID",
-      #mappedPaymentType: "Transaction type",
-      #mappedReportCurrency: "Channel currency",
-      #mappedReportSum: "Channel amount",
-      #mappedStatus: "Transaction status",
-      #mappedStatusIn: [ "purchase" ],
-      #mappedStatusOk: "success",
-      #mappedSum: "Amount",
-      #name: "PaySafeCard_EUR",
-      #oneGamepayPaymentSystem: "paysafecard",
-      #processingScript: "pay_safe_card"
-    #},
+    {
+      "PaySafeCard_EUR",
+      nil,
+      %PaymentSystemFields{
+        map_id: "Transaction ID",
+        date: "Date and time of completion of transaction",
+        sum: "Amount",
+        currency: "Currency",
+        type: "Transaction type",
+        default_payment_type: "In",
+        default_account_id: "PSC_EUR",
+        account_id: "Checkout name",
+        player_purse: "Purse",
+        type_in: "purchase",
+        state: "Transaction status",
+        state_ok: "success"
+      },
+      %PaymentSystemOneGamepay{
+        map_id: "Order",
+        payment_system: "paysafecard"
+      },
+      %PaymentSystemFee{
+        types: ["In", "Out"],
+        percent: 10.25,
+        divide_100: true,
+        fee_report: false,
+      },
+      %PaymentSystemReport{
+        divide_100: false,
+        sum: "Channel amount",
+        currency: "Channel currency"
+      }
+    },
     {
       "Accentpay IN",
       nil,

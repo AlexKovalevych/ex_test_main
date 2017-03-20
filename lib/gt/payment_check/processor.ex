@@ -464,7 +464,8 @@ defmodule Gt.PaymentCheck.Processor do
       fee = fixed_fee + percent_fee
       max_fee = Map.get(payment_check.ps["fee"], "max_fee")
       fee = if max_fee && fee > max_fee, do: max_fee, else: fee
-      %{transaction | fee: fee}
+      fee_currency = if transaction.fee_currency, do: transaction.fee_currency, else: transaction.currency
+      %{transaction | fee: fee, fee_currency: fee_currency}
     else
       transaction
     end
