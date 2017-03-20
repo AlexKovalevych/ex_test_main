@@ -15,7 +15,6 @@ defmodule Gt.PaymentSystem do
 
   @scripts ~w(
     apko
-    accentpay_in
     accentpay_out
     acp
     dengionline_in
@@ -23,8 +22,6 @@ defmodule Gt.PaymentSystem do
     dengionline_web_in
     dengionline_web_out
     ecp
-    moneta
-    pay_safe_card
     qiwi
     skrill_ggs
     skrill_pm

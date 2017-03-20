@@ -20,10 +20,12 @@ defmodule Gt.PaymentSystemController do
            ]
   end
 
-  def new(conn, _params, user) do
-    changeset = PaymentSystem.changeset(%PaymentSystem{})
+  def new(conn, %{"type" => type}, user) do
+    script = if type != "default", do: type, else: nil
+    changeset = PaymentSystem.changeset(%PaymentSystem{script: script})
     render conn, "new.html",
       changeset: changeset,
+      type: type,
       current_user: user,
       breadcrumbs: [
         Gt.DashboardController.add_breadcrumb(conn),
@@ -32,8 +34,9 @@ defmodule Gt.PaymentSystemController do
       ]
   end
 
-  def create(conn, %{"payment_system" => payment_system_params}, user) do
-    changeset = PaymentSystem.changeset(%PaymentSystem{}, payment_system_params)
+  def create(conn, %{"type" => type, "payment_system" => payment_system_params}, user) do
+    script = if type != "default", do: type, else: nil
+    changeset = PaymentSystem.changeset(%PaymentSystem{script: script}, payment_system_params)
 
     case Repo.insert(changeset) do
       {:ok, payment_system} ->
@@ -41,11 +44,11 @@ defmodule Gt.PaymentSystemController do
         |> put_flash(:info, dgettext("payment_systems", "payment_system_updated", name: payment_system.name))
         |> redirect(to: payment_system_path(conn, :index))
       {:error, changeset} ->
-        IO.inspect(changeset)
         conn
         |> put_flash(:error, gettext("validation_failed"))
         |> render("new.html",
           changeset: changeset,
+          type: type,
           current_user: user,
           breadcrumbs: [
             Gt.DashboardController.add_breadcrumb(conn),
@@ -61,6 +64,7 @@ defmodule Gt.PaymentSystemController do
     changeset = PaymentSystem.changeset(payment_system)
     render conn, "edit.html",
       payment_system: payment_system,
+      type: payment_system.script,
       current_user: user,
       changeset: changeset,
       breadcrumbs: [
@@ -84,6 +88,7 @@ defmodule Gt.PaymentSystemController do
         |> put_flash(:error, gettext("validation_failed"))
         |> render("edit.html",
           current_user: user,
+          type: payment_system.script,
           payment_system: payment_system,
           changeset: changeset,
           breadcrumbs: [

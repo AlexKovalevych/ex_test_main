@@ -8,12 +8,6 @@
                   field: :name,
                   label: dgettext("payment_systems", "name")
                   ) %>
-        <%= render(Gt.LayoutView, "select_field.html",
-                  form: @form,
-                  field: :script,
-                  label: dgettext("payment_systems", "script"),
-                  options: [nil | Gt.PaymentSystem.scripts()]
-                  ) %>
       </p>
     </div>
   </div>

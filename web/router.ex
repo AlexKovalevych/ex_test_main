@@ -45,7 +45,11 @@ defmodule Gt.Router do
     end
 
     scope "/finance" do
-      resources "/payment-systems", PaymentSystemController, except: [:show]
+      scope "/payment-systems" do
+        resources "/", PaymentSystemController, except: [:show, :new, :create]
+        get "/new/:type", PaymentSystemController, :new
+        post "/:type", PaymentSystemController, :create
+      end
       scope "/payment-check" do
         resources "/", PaymentCheckController, except: [:edit, :update, :show]
         get "/:id", PaymentCheckController, :show

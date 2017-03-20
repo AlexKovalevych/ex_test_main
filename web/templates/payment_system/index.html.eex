@@ -3,12 +3,20 @@
   <hr />
 </div>
 
-<p class="col-xs-4">
-  <a href="<%= payment_system_path(@conn, :new) %>" class="btn btn-success">
-    <i class="fa fa-plus"></i>
-    <%= gettext "create" %>
-  </a>
-</p>
+<div class="col-xs-4 mb-1">
+  <div class="btn-group">
+    <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <i class="fa fa-plus"></i>
+      <%= gettext "create" %>
+    </button>
+    <div class="dropdown-menu">
+      <a href="<%= payment_system_path(@conn, :new, "default") %>" class="dropdown-item"><%= dgettext "payment_systems", "default" %></a>
+      <a href="<%= payment_system_path(@conn, :new, "ecp") %>" class="dropdown-item"><%= dgettext "payment_systems", "ecp" %></a>
+      <a href="<%= payment_system_path(@conn, :new, "qiwi") %>" class="dropdown-item"><%= dgettext "payment_systems", "qiwi" %></a>
+      <a href="<%= payment_system_path(@conn, :new, "skrill") %>" class="dropdown-item"><%= dgettext "payment_systems", "skrill" %></a>
+    </div>
+  </div>
+</div>
 
 <div class="col-xs-12">
   <table class="table table-striped">

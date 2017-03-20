@@ -1,8 +1,11 @@
 <div class="col-xs-12">
   <h1 class="mt-1"><%= dgettext "menu", "new_payment_system" %></h1>
+  <%= if @type != "default" do %>
+    <span class="tag tag-success"><%= dgettext "payment_systems", "script" %>: <%= @type %></span>
+  <%= end %>
   <hr />
 
   <%= render "form.html", conn: @conn,
                           changeset: @changeset,
-                          action: payment_system_path(@conn, :create) %>
+                          action: payment_system_path(@conn, :create, @type) %>
 </div>
