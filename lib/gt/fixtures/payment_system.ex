@@ -224,26 +224,39 @@ defmodule Gt.Fixtures.PaymentSystem do
         divide_100: false
       }
     },
-    #%{
-      #calculatedTransactionAmount: 50.0,
-      #calculatedTransactionPercent: 2.7,
-      #defaultAccountId: "accent_cards",
-      #defaultFeeAccountId: "AccentMobile",
-      #defaultPaymentType: "Out",
-      #mappedCurrency: "Currency",
-      #mappedDate: "Date and time of completion of transaction",
-      #mappedFeeCurrency: "Channel currency",
-      #mappedId: "Order",
-      #mappedReportCurrency: "Channel currency",
-      #mappedReportSum: "Channel amount",
-      #mappedStatus: "Transaction status",
-      #mappedStatusOk: "Success",
-      #mappedSum: "Amount",
-      #name: "Accentpay OUT",
-      #oneGamepayPaymentSystem: "visa|mastercard|maestro|american express|diners club|jcb|discover|solo|switch",
-      #oneGamepayTransactionId: "Transaction ID",
-      #processingScript: "accentpay_out",
-    #},
+    {
+      "Accentpay OUT",
+      nil,
+      %PaymentSystemFields{
+        map_id: "Order",
+        date: "Date and time of transaction",
+        sum: "Amount",
+        currency: "Currency",
+        default_payment_type: "Out",
+        default_account_id: "accent_cards",
+        player_purse: "Purse",
+        state: "Transaction status",
+        state_ok: "success"
+      },
+      %PaymentSystemOneGamepay{
+        map_id: "Order",
+        payment_system: "visa,mastercard,maestro,american express,diners club,jcb,discover,solo,switch"
+      },
+      %PaymentSystemFee{
+        types: ["In", "Out"],
+        currency: "Channel currency",
+        default_account_id: "AccentMobile",
+        sum: 50.0,
+        percent: 2.7,
+        divide_100: true,
+        fee_report: true,
+      },
+      %PaymentSystemReport{
+        currency: "Channel currency",
+        sum: "Channel amount",
+        divide_100: true
+      }
+    },
     #%{
       #calculatedTransactionPercent: 2.0,
       #defaultAccountId: "9526_%%currency%%",

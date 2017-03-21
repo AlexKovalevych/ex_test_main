@@ -60,8 +60,11 @@ defmodule Gt.PaymentCheck.Processor do
     Logger.info("Found #{rows_number} rows")
     PaymentCheckRegistry.save(payment_check.id, :processed, index * rows_number * 2)
     PaymentCheckRegistry.save(payment_check.id, :total, total_files * rows_number * 2)
-    process_rows_stream(lines, payment_check)
-    process_one_gamepay(payment_check)
+    with :ok <- process_rows_stream(lines, payment_check) do
+         process_one_gamepay(payment_check)
+    else
+      {:error, reason} -> raise reason
+    end
   end
 
   def process_excel_file(path, index, total_files, payment_check) do
@@ -74,20 +77,26 @@ defmodule Gt.PaymentCheck.Processor do
           Logger.info("Found #{rows_number} rows in sheet #{sheet}")
           PaymentCheckRegistry.save(payment_check.id, :processed, index * rows_number * 2)
           PaymentCheckRegistry.save(payment_check.id, :total, total_files * rows_number * 2)
-          Exoffice.get_rows(pid, parser) |> process_rows_stream(payment_check)
-          Exoffice.close(pid, parser)
-          process_one_gamepay(payment_check)
+          with :ok <- Exoffice.get_rows(pid, parser) |> process_rows_stream(payment_check),
+               :ok <- Exoffice.close(pid, parser) do
+                 process_one_gamepay(payment_check)
+          else
+            {:error, reason} ->
+              Exoffice.close(pid, parser)
+              raise reason
+          end
     end)
   end
 
   def process_rows_stream(stream, payment_check) do
-    stream
+    processed_rows = stream
     |> Stream.drop_while(fn row ->
-      if parse_headers(payment_check, row) do
-        true
-      else
-        PaymentCheckRegistry.increment(payment_check.id, :processed, 2)
-        false
+      case parse_headers(payment_check, row) do
+        :ok -> true
+        :nomatch -> true
+        :already_matched ->
+          PaymentCheckRegistry.increment(payment_check.id, :processed, 2)
+          false
       end
     end)
     |> Stream.chunk(10, 10, [])
@@ -99,6 +108,7 @@ defmodule Gt.PaymentCheck.Processor do
       |> Enum.reduce(nil, fn _, _ -> nil end)
     end)
     |> Enum.reduce(0, fn _, acc -> acc + 1 end)
+    if processed_rows > 0, do: :ok, else: {:error, "config doesn't match"}
   end
 
   def process_one_gamepay(payment_check) do
@@ -113,34 +123,42 @@ defmodule Gt.PaymentCheck.Processor do
   end
 
   def parse_headers(payment_check, row) do
-    headers = ~w(map_id sum currency date type account_id state player_purse pguid)
-              |> parse_headers_block(payment_check, "fields", "", %{})
-
-    headers = ~w(map_id payment_system)
-              |> parse_headers_block(payment_check, "one_gamepay", "1gp_", headers)
-
-    headers = ~w(map_id currency)
-              |> parse_headers_block(payment_check, "fee", "fee_", headers)
-
-    headers = ~w(sum currency)
-              |> parse_headers_block(payment_check, "report", "report_", headers)
-
-    matched_headers = row
-    |> Enum.with_index
-    |> Enum.reduce(%{}, fn {cell, index}, acc ->
-      cell = sanitize(cell)
-      case Enum.find(headers, fn {_, values} -> !is_nil(Enum.find_index(values, fn v -> v == cell end)) end) do
-        {key, _} -> Map.put(acc, index, key)
-        _ -> acc
-      end
-    end)
-    if Enum.all?(~w(map_id sum date), &(Map.values(matched_headers) |> Enum.member?(&1))) do
-      Logger.info("Found headers: #{inspect(matched_headers)}")
-      PaymentCheckRegistry.save(payment_check.id, :headers, matched_headers)
-      PaymentCheckRegistry.save(payment_check.id, :source_headers, row)
-      true
+    if PaymentCheckRegistry.find(payment_check.id, :headers) do
+      :already_matched
     else
-      false
+      headers = ~w(map_id sum currency date type account_id state player_purse pguid)
+                |> parse_headers_block(payment_check, "fields", "", %{})
+
+      headers = ~w(map_id payment_system)
+                |> parse_headers_block(payment_check, "one_gamepay", "1gp_", headers)
+
+      headers = ~w(map_id currency)
+                |> parse_headers_block(payment_check, "fee", "fee_", headers)
+
+      headers = ~w(sum currency)
+                |> parse_headers_block(payment_check, "report", "report_", headers)
+
+      matched_headers = row
+      |> Enum.with_index
+      |> Enum.reduce(%{}, fn {cell, index}, acc ->
+        cell = sanitize(cell)
+        new_acc = headers
+        |> Enum.filter(fn {k, values} ->
+          !is_nil(Enum.find_index(values, fn v -> v == cell end))
+        end)
+        |> Enum.reduce(acc, fn {key, _}, acc ->
+          Map.put(acc, index, Map.get(acc, index, []) ++ [key])
+        end)
+        if Enum.empty?(new_acc), do: acc, else: new_acc
+      end)
+      if Enum.all?(~w(map_id sum date), &(Map.values(matched_headers) |> Enum.concat |> Enum.member?(&1))) do
+        Logger.info("Found headers: #{inspect(matched_headers)}")
+        PaymentCheckRegistry.save(payment_check.id, :headers, matched_headers)
+        PaymentCheckRegistry.save(payment_check.id, :source_headers, row)
+        :ok
+      else
+        :nomatch
+      end
     end
   end
 
@@ -158,22 +176,27 @@ defmodule Gt.PaymentCheck.Processor do
     |> Enum.reduce(transaction, fn {cell, index}, acc ->
       cell = sanitize(cell)
       case Map.get(headers, index) do
-        "map_id" -> %{acc | ps_trans_id: to_string(cell)}
-        "sum" -> %{acc | sum: parse_float(cell)}
-        "currency" -> %{acc | currency: parse_currency(cell)}
-        "date" -> %{acc | date: parse_date(cell)}
-        "type" -> %{acc | type: parse_type(fields["default_payment_type"], fields["type_in"], fields["type_out"], cell)}
-        "account_id" -> %{acc | account_id: cell}
-        "state" -> %{acc | state: cell}
-        "player_purse" -> %{acc | player_purse: parse_purse(cell)}
-        "1gp_map_id" -> %{acc | one_gamepay_id: parse_one_gamepay_id(cell)}
-        "comment" -> %{acc | comment: cell}
-        "fee_map_id" -> %{acc | fee_id: cell} # this field is not mapped
-        "fee_currency" -> %{acc | fee_currency: parse_currency(cell)}
-        "report_sum" -> %{acc | report_sum: parse_float(cell)}
-        "report_currency" -> %{acc | report_currency: parse_currency(cell)}
-        "pguid" -> %{acc | pguid: cell}
         nil -> acc
+        mapped_fields ->
+          Enum.reduce(mapped_fields, acc, fn field, acc ->
+            case field do
+              "map_id" -> %{acc | ps_trans_id: to_string(cell)}
+              "sum" -> %{acc | sum: parse_float(cell)}
+              "currency" -> %{acc | currency: parse_currency(cell)}
+              "date" -> %{acc | date: parse_date(cell)}
+              "type" -> %{acc | type: parse_type(fields["default_payment_type"], fields["type_in"], fields["type_out"], cell)}
+              "account_id" -> %{acc | account_id: cell}
+              "state" -> %{acc | state: cell}
+              "player_purse" -> %{acc | player_purse: parse_purse(cell)}
+              "1gp_map_id" -> %{acc | one_gamepay_id: parse_one_gamepay_id(cell)}
+              "comment" -> %{acc | comment: cell}
+              "fee_map_id" -> %{acc | fee_id: cell} # this field is not mapped
+              "fee_currency" -> %{acc | fee_currency: parse_currency(cell)}
+              "report_sum" -> %{acc | report_sum: parse_float(cell)}
+              "report_currency" -> %{acc | report_currency: parse_currency(cell)}
+              "pguid" -> %{acc | pguid: cell}
+            end
+          end)
       end
     end)
     |> negative_out_type(payment_check)
@@ -455,17 +478,19 @@ defmodule Gt.PaymentCheck.Processor do
 
   def calculate_fee(transaction, payment_check) do
     if Enum.member?(payment_check.ps["fee"]["types"], transaction.type) do
-      fee_sum = case payment_check.ps["fee"]["fee_report"] do
-        true -> "report_sum"
-        _ -> "sum"
+      {fee_sum, fee_currency} = case payment_check.ps["fee"]["fee_report"] do
+        true ->
+          {:report_sum, :report_currency}
+        _ ->
+          fee_currency = if transaction.fee_currency, do: :fee_currency, else: :currency
+          {:sum, fee_currency}
       end
-      fixed_fee = get_float(Map.get(payment_check.ps["fee"], fee_sum))
-      percent_fee = get_float(Map.get(payment_check.ps["fee"], "percent")) / 100 * transaction.sum
+      fixed_fee = get_float(Map.get(payment_check.ps["fee"], "sum"))
+      percent_fee = get_float(Map.get(payment_check.ps["fee"], "percent")) / 100 * Map.get(transaction, fee_sum)
       fee = fixed_fee + percent_fee
       max_fee = Map.get(payment_check.ps["fee"], "max_fee")
       fee = if max_fee && fee > max_fee, do: max_fee, else: fee
-      fee_currency = if transaction.fee_currency, do: transaction.fee_currency, else: transaction.currency
-      %{transaction | fee: fee, fee_currency: fee_currency}
+      %{transaction | fee: fee, fee_currency: Map.get(transaction, fee_currency)}
     else
       transaction
     end
