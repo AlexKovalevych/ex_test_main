@@ -40,6 +40,7 @@
             <td><%= payment_system.updated_at |> Gt.Date.format(:datetime) %></td>
             <td>
               <%= link gettext("edit"), to: payment_system_path(@conn, :edit, payment_system), class: "btn btn-outline-primary btn-sm" %>
+              <%= link gettext("copy"), to: payment_system_path(@conn, :copy, payment_system), class: "btn btn-outline-primary btn-sm" %>
               <%= render Gt.LayoutView, "confirm_delete.html",
                 id: payment_system.id,
                 title: dgettext("payment_systems", "confirm_delete", id: payment_system.id),

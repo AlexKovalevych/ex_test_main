@@ -1,0 +1,29 @@
+<%= render(Gt.LayoutView, "text_field.html",
+          form: @form,
+          field: :fee_in_percent,
+          label: dgettext("payment_systems", "fee_in_percent")
+          ) %>
+
+<%= render(Gt.LayoutView, "text_field.html",
+          form: @form,
+          field: :fee_out_percent,
+          label: dgettext("payment_systems", "fee_out_percent")
+          ) %>
+
+<%= render(Gt.LayoutView, "text_field.html",
+          form: @form,
+          field: :fee_sum_rub,
+          label: dgettext("payment_systems", "fee_sum_rub")
+          ) %>
+
+<%= render(Gt.LayoutView, "tags_field.html",
+          form: @form,
+          field: :darmako_merchants,
+          label: dgettext("payment_systems", "darmako_merchants")
+          ) %>
+
+<%= render(Gt.LayoutView, "tags_field.html",
+          form: @form,
+          field: :ggs_merchants,
+          label: dgettext("payment_systems", "ggs_merchants")
+          ) %>

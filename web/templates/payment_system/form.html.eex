@@ -1,6 +1,6 @@
 <div class="row">
   <%= form_for @changeset, @action, fn f -> %>
-    <%= render Gt.PaymentSystemView, "fields.html", form: f  %>
+    <%= render Gt.PaymentSystemView, "fields.html", form: f, changeset: @changeset %>
 
     <div class="col-sm-12"></div>
     <div class="col-sm-12 col-md-12 col-lg-6">

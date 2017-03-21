@@ -49,6 +49,7 @@ defmodule Gt.Router do
         resources "/", PaymentSystemController, except: [:show, :new, :create]
         get "/new/:type", PaymentSystemController, :new
         post "/:type", PaymentSystemController, :create
+        post "/copy/:id", PaymentSystemController, :copy
       end
       scope "/payment-check" do
         resources "/", PaymentCheckController, except: [:edit, :update, :show]

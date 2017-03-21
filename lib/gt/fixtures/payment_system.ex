@@ -564,7 +564,7 @@ defmodule Gt.Fixtures.PaymentSystem do
         type_out: "payout",
         account_id: "Merchant name",
         player_purse: "Payment instrument ID",
-        default_account_id: "#\{transation.account_id}#\{transaction.report_currency}",
+        default_account_id: "#\{transaction.account_id}#\{transaction.report_currency}",
         default_payment_type: "In",
         fee_in_percent: 2.9,
         fee_out_percent: 2.7,

@@ -100,6 +100,11 @@ defmodule Gt.PaymentSystemController do
     end
   end
 
+  def copy(conn, %{"id" => id}, _user) do
+    payment_system = Repo.get!(PaymentSystem, id)
+    IO.inspect(payment_system)
+  end
+
   def delete(conn, %{"id" => id}, _user) do
     payment_system = Repo.get!(PaymentSystem, id)
 

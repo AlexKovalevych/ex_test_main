@@ -12,6 +12,20 @@
     </div>
   </div>
 
+  <% script = Ecto.Changeset.get_field(@changeset, :script) %>
+  <%= if script do %>
+    <div class="card">
+      <div class="card-header"><%= dgettext "payment_systems", "script_parameters" %></div>
+      <div class="card-block">
+        <p class="card-text">
+          <%= inputs_for @form, :fields, fn f_field -> %>
+            <%= render "#{script}.html", form: f_field %>
+          <%= end %>
+        </p>
+      </div>
+    </div>
+  <%= end %>
+
   <div class="card">
     <div class="card-header"><%= dgettext "payment_systems", "one_gamepay_parameters" %></div>
     <div class="card-block">
