@@ -19,20 +19,33 @@ defmodule Gt.PaymentCheck.Ecp do
     PaymentCheckRegistry.save(payment_check.id, :total, 0)
     source_reports = payment_check.files
     |> Enum.with_index
-    |> Enum.into(%{}, fn {filename, index} ->
+    |> Enum.reduce([], fn {filename, index}, acc ->
       Logger.info("Processing #{filename} file")
       path = Gt.Uploaders.PaymentCheck.local_path(payment_check.id, filename)
       source_report = process_report_file(payment_check, {path, index}, total_files)
-      {filename, source_report}
+      if is_list(source_report) do
+        source_report
+        |> Enum.filter(fn
+          {:error, reason} -> false
+          _ -> true
+        end)
+        |> Enum.reduce(acc, fn {filename, report}, reports ->
+          reports ++ [report]
+        end)
+      else
+        {filename, report} = source_report
+        acc ++ [report]
+      end
     end)
 
     failed_sources = source_reports
-                     |> Enum.filter(&(!&1.valid?))
-                     |> Enum.map(fn source_report ->
-                       path = Gt.Uploaders.PaymentCheck.local_path(payment_check.id, get_change(source_report, :filename))
-                       process_secondary_file(payment_check, path)
-                     end)
-    IO.inspect(failed_sources)
+                     |> Enum.filter_map(
+                       fn report -> !report.valid? end,
+                       fn report ->
+                         path = Gt.Uploaders.PaymentCheck.local_path(payment_check.id, get_change(report, :filename))
+                         process_secondary_file(payment_check, path)
+                       end
+                     )
   end
 
   def process_secondary_file(payment_check, path) do
@@ -60,15 +73,16 @@ defmodule Gt.PaymentCheck.Ecp do
   defp process_pdf_file(path, payment_check) do
     Logger.metadata(filename: path)
     case GenServer.call(Gt.Pdf.Parser, {:parse, path}) do
-      nil -> {:error, "Can't parse pdf"}
+      nil ->
+        Logger.error("Failed to parse pdf #{path}")
+        {:error, "Can't parse pdf"}
       pages ->
-        source_report = %PaymentCheckSourceReport{}
-        |> PaymentCheckSourceReport.changeset(%{
+        source_report = %{
           filename: Path.basename(path),
           payment_check_id: payment_check.id
-        })
+        }
         content = pages |> Enum.map(&to_string/1) |> Enum.join("")
-        with %{"from" => from, "to" => to} <- period(content),
+        report = with %{"from" => from, "to" => to} <- period(content),
              %{"currency" => currency} <- currency(content),
              %{"in" => in_sum, "fee" => transaction_fee} <- service_commission(content),
              %{"out" => reverse_volume} <- reverse_volume(content),
@@ -82,22 +96,22 @@ defmodule Gt.PaymentCheck.Ecp do
              %{"fee" => reverse_fee_out, "sum" => reverse_sum} <- reverse_fee_out(content),
              %{"merchant" => merchant} <- parse_merchant(content) do
                create_source_report(source_report, from, to, merchant, currency)
+               |> source_report_extra(usd_rub_rate, usd_eur_rate, service_commission, reverse_sum)
                |> source_report_in(in_sum, currency)
                |> source_report_out(out, reverse_volume)
                |> source_report_fee_in(fee_in + transaction_fee, currency)
                |> source_report_fee_out(fee_out_commission + fee_out_transaction, reverse_fee_out, usd_rub_rate)
-               |> source_report_extra(usd_rub_rate, usd_eur_rate, service_commission, reverse_sum)
         else
           {:error, reason} ->
             Logger.info(reason)
-            PaymentCheckSourceReport.changeset(source_report, %{error: "pdf_error"})
+            %PaymentCheckSourceReport{} |> PaymentCheckSourceReport.changeset(%{error: "pdf_error"})
         end
+        {Path.basename(path), report}
     end
   end
 
   defp create_source_report(source_report, from, to, merchant, currency) do
-    source_report
-    |> PaymentCheckSourceReport.changeset(%{
+    Map.merge(source_report, %{
       merchant: merchant,
       currency: currency,
       from: from,
@@ -132,18 +146,26 @@ defmodule Gt.PaymentCheck.Ecp do
   end
 
   defp source_report_extra(source_report, usd_rub_rate, usd_eur_rate, service_commission, reverse_sum) do
-    PaymentCheckSourceReport.changeset(source_report, %{extra_data: %{
-                                         "EUR_USD" => usd_eur_rate,
-                                         "USD_RUB" => usd_rub_rate,
-                                         "service_commission" => service_commission,
-                                         "refund_commission" => reverse_sum
-                                       }})
+    changes = Map.merge(source_report, %{
+      extra_data: %{
+        "EUR_USD" => usd_eur_rate,
+        "USD_RUB" => usd_rub_rate,
+        "service_commission" => service_commission,
+        "refund_commission" => reverse_sum
+    }})
+    %PaymentCheckSourceReport{} |> PaymentCheckSourceReport.changeset(changes)
   end
 
   defp period(content) do
     case Regex.named_captures(~r/Period(?: \(transaction date\))?:\s*(?<from>[\d\/]+)-(?<to>[\d\/]+)/i, content) do
       nil -> {:error, "Failed to parse period"}
-      matches -> matches
+      %{"from" => from, "to" => to} -> %{"from" => parse_date(from), "to" => parse_date(to)}
+    end
+  end
+
+  defp parse_date(value) do
+    case String.length(value) do
+      10 -> Timex.parse!(value, "{0D}/{0M}/{YYYY}") |> Timex.to_date
     end
   end
 
