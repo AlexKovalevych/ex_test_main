@@ -102,7 +102,15 @@ defmodule Gt.PaymentSystemController do
 
   def copy(conn, %{"id" => id}, _user) do
     payment_system = Repo.get!(PaymentSystem, id)
-    IO.inspect(payment_system)
+    new_payment_system = payment_system
+                     |> Map.delete(:id)
+                     |> PaymentSystem.changeset(%{
+                       name: "#{payment_system.name} copy"
+                     })
+                     |> Repo.insert!
+    conn
+    |> put_flash(:info, dgettext("payment_systems", "payment_system_updated", title: new_payment_system.name))
+    |> redirect(to: payment_system_path(conn, :edit, new_payment_system.id))
   end
 
   def delete(conn, %{"id" => id}, _user) do
