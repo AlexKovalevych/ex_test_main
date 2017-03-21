@@ -74,16 +74,18 @@ defmodule Gt.PaymentCheck.Processor do
     |> Enum.map(fn
         {{:ok, pid, parser}, sheet} ->
           rows_number = Exoffice.count_rows(pid, parser)
-          Logger.info("Found #{rows_number} rows in sheet #{sheet}")
-          PaymentCheckRegistry.save(payment_check.id, :processed, index * rows_number * 2)
-          PaymentCheckRegistry.save(payment_check.id, :total, total_files * rows_number * 2)
-          with :ok <- Exoffice.get_rows(pid, parser) |> process_rows_stream(payment_check),
-               :ok <- Exoffice.close(pid, parser) do
-                 process_one_gamepay(payment_check)
-          else
-            {:error, reason} ->
-              Exoffice.close(pid, parser)
-              raise reason
+          if rows_number > 0 do
+            Logger.info("Found #{rows_number} rows in sheet #{sheet}")
+            PaymentCheckRegistry.save(payment_check.id, :processed, index * rows_number * 2)
+            PaymentCheckRegistry.save(payment_check.id, :total, total_files * rows_number * 2)
+            with :ok <- Exoffice.get_rows(pid, parser) |> process_rows_stream(payment_check),
+                 :ok <- Exoffice.close(pid, parser) do
+                   process_one_gamepay(payment_check)
+            else
+              {:error, reason} ->
+                Exoffice.close(pid, parser)
+                raise reason
+            end
           end
     end)
   end
@@ -448,6 +450,12 @@ defmodule Gt.PaymentCheck.Processor do
       _ ->
         Logger.error("Failed to parse date #{inspect(value)}")
         nil
+    end
+  end
+
+  def parse_date(value) do
+    case value do
+      %NaiveDateTime{} -> value
     end
   end
 

@@ -180,6 +180,7 @@ defmodule Gt.Fixtures.PaymentSystem do
         state: "Transaction status",
         state_ok: "success"
       },
+      %PaymentSystemCsv{},
       %PaymentSystemOneGamepay{
         map_id: "Order",
         payment_system: "paysafecard"
@@ -211,6 +212,7 @@ defmodule Gt.Fixtures.PaymentSystem do
         state: "Transaction status",
         state_ok: "success"
       },
+      %PaymentSystemCsv{},
       %PaymentSystemOneGamepay{
         map_id: "Order",
       },
@@ -238,6 +240,7 @@ defmodule Gt.Fixtures.PaymentSystem do
         state: "Transaction status",
         state_ok: "success"
       },
+      %PaymentSystemCsv{},
       %PaymentSystemOneGamepay{
         map_id: "Order",
         payment_system: "visa,mastercard,maestro,american express,diners club,jcb,discover,solo,switch"
@@ -257,22 +260,34 @@ defmodule Gt.Fixtures.PaymentSystem do
         divide_100: true
       }
     },
-    #%{
-      #calculatedTransactionPercent: 2.0,
-      #defaultAccountId: "9526_%%currency%%",
-      #defaultPaymentType: "Out",
-      #mappedAccountId: "Провайдер",
-      #mappedCurrency: "Валюта суммы к отправке",
-      #mappedDate: "Создан",
-      #mappedFeeCurrency: "Валюта суммы к отправке",
-      #mappedId: "ID инвойса",
-      #mappedStatus: "Статус",
-      #mappedStatusOk: "paid",
-      #mappedSum: "Сумма к отправке в валюте запроса",
-      #name: "DengiOnline OUT",
-      #oneGamepayPaymentSystem: "wm",
-      #oneGamepayTransactionId: "Номер транзакции",
-      #processingScript: "dengionline_out"
+    #{
+      #"DengiOnline Web OUT",
+      #"dol_web_out",
+      #%PaymentSystemFields{
+        #map_id: "ID",
+        #date: "Дата создания",
+        #sum: "Сумма запрошенная",
+        #currency: "Услуги",
+        #type: "Тип",
+        #default_payment_type: "Out",
+        #default_account_id: "9526_#\{currency}",
+        #player_purse: "Purse",
+        #state: "Статус",
+        #type_out: "Выплата",
+        #state_ok: "1. Успех"
+      #},
+      #%PaymentSystemCsv{},
+      #%PaymentSystemOneGamepay{
+        #map_id: "Внешний ID партнёра",
+        #payment_system: "wm"
+      #},
+      #%PaymentSystemFee{
+        #types: ["In", "Out"],
+        #fee_report: false,
+      #},
+      #%PaymentSystemReport{
+        #divide_100: false
+      #}
     #},
     #%{
       #defaultAccountId: "9294/DOL_%%currency%%",
@@ -372,26 +387,38 @@ defmodule Gt.Fixtures.PaymentSystem do
       #name: "Yandex OUT",
       #processingScript: "yandex_out",
     #},
-    #%{
-      #calculatedTransactionPercent: 10.25,
-      #defaultAccountId: "PSC_SEK",
-      #defaultCurrency: "SEK",
-      #defaultFeeCurrency: "SEK",
-      #defaultPaymentType: "In",
-      #mappedCurrency: "Currency",
-      #mappedDate: "Date and time of completion of transaction",
-      #mappedId: "Transaction ID",
-      #mappedPaymentType: "Transaction type",
-      #mappedReportCurrency: "Channel currency",
-      #mappedReportSum: "Channel amount",
-      #mappedStatus: "Transaction status",
-      #mappedStatusIn: [ "purchase" ],
-      #mappedStatusOk: "success",
-      #mappedSum: "Amount",
-      #name: "PaySafeCard_SEK",
-      #oneGamepayPaymentSystem: "paysafecard",
-      #processingScript: "pay_safe_card"
-    #},
+    {
+      "PaySafeCard_SEK",
+      nil,
+      %PaymentSystemFields{
+        map_id: "Transaction ID",
+        date: "Date and time of completion of transaction",
+        sum: "Amount",
+        currency: "Currency",
+        type: "Transaction type",
+        default_payment_type: "In",
+        default_account_id: "PSC_SEK",
+        type_in: "purchase",
+        state: "Transaction status",
+        state_ok: "success"
+      },
+      %PaymentSystemCsv{},
+      %PaymentSystemOneGamepay{
+        map_id: "Order",
+        payment_system: "paysafecard"
+      },
+      %PaymentSystemFee{
+        types: ["In", "Out"],
+        percent: 10.25,
+        divide_100: true,
+        fee_report: true,
+      },
+      %PaymentSystemReport{
+        divide_100: true,
+        sum: "Channel amount",
+        currency: "Channel currency"
+      }
+    },
     #%{
       #calculatedTransactionPercent: 10.25,
       #defaultAccountId: "PSC_NOK",
@@ -538,7 +565,12 @@ defmodule Gt.Fixtures.PaymentSystem do
         account_id: "Merchant name",
         player_purse: "Payment instrument ID",
         default_account_id: "#\{transation.account_id}#\{transaction.report_currency}",
-        default_payment_type: "In"
+        default_payment_type: "In",
+        fee_in_percent: 2.9,
+        fee_out_percent: 2.7,
+        fee_sum_rub: 50.0,
+        darmako_merchants: "CASINO-X.COM,POKERDOM,RuPoker.com,Pomadorro",
+        ggs_merchants: "GGS,FBS"
       },
       %PaymentSystemCsv{},
       %PaymentSystemOneGamepay{
