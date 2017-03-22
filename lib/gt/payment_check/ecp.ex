@@ -38,17 +38,63 @@ defmodule Gt.PaymentCheck.Ecp do
       end
     end)
 
+    source_reports
+    |> Enum.filter_map(
+      fn report -> report.valid? end,
+      &(PaymentCheckRegistry.save(payment_check.id, apply_changes(&1)))
+    )
+
     failed_sources = source_reports
                      |> Enum.filter_map(
                        fn report -> !report.valid? end,
-                       fn report ->
-                         path = Gt.Uploaders.PaymentCheck.local_path(payment_check.id, get_change(report, :filename))
-                         process_secondary_file(payment_check, path)
-                       end
+                       &(process_secondary_file(payment_check, &1))
                      )
+                      IO.inspect(failed_sources)
   end
 
-  def process_secondary_file(payment_check, path) do
+  def process_secondary_file(payment_check, report) do
+    filename = get_change(report, :filename)
+    path = Gt.Uploaders.PaymentCheck.local_path(payment_check.id, filename)
+    Logger.metadata(filename: path)
+    Logger.info("Parsing file #{path}")
+    case Path.extname(path) do
+      ".pdf" ->
+        case GenServer.call(Gt.Pdf.Parser, {:parse, path}) do
+          nil ->
+            Logger.error("Failed to parse pdf #{path}")
+            {:error, "Can't parse pdf"}
+          pages ->
+            content = pages |> Enum.map(&to_string/1) |> Enum.join("")
+            with %{"from" => from, "to" => to} <- period(content),
+                 %{"merchant" => merchant} <- parse_merchant(content) do
+                   update_matched_report(payment_check, content, filename, merchant, from, to)
+            else
+              {:error, reason} ->
+                PaymentCheckSourceReport.changeset(report, %{error: "pdf_error"})
+            end
+        end
+      _ -> nil
+    end
+  end
+
+  defp update_matched_report(payment_check, content, filename, merchant, from, to) do
+    IO.inspect({merchant, from, to})
+    matched_report = PaymentCheckRegistry.find(payment_check.id, {merchant, from, to})
+    if Enum.empty?(matched_report) do
+      message = "Can't find associated report file for #{filename}"
+      Logger.error(message)
+      raise message
+    else
+      report = with %{"currency" => currency} <- currency(content),
+           %{"out" => out} <- secondary_out(content),
+           fee <- secondary_fee_out(content) do
+             add_secondary_report(matched_report, content, currency, out, fee)
+      else
+        {:error, reason} -> PaymentCheckSourceReport.changeset(matched_report, %{error: "pdf_error"})
+      end
+      PaymentCheckRegistry.save(payment_check.id, apply_changes(report))
+      report
+    end
   end
 
   def process_report_file(payment_check, {path, index}, total_files) do
@@ -59,6 +105,9 @@ defmodule Gt.PaymentCheck.Ecp do
         case Processor.unarchive(path) do
           {:ok, files} ->
             files
+            |> Enum.filter(fn file_path ->
+              Path.dirname(file_path) == Path.dirname(path)
+            end)
             |> Enum.with_index
             |> Enum.map(fn {path, index} ->
               process_report_file(payment_check, {to_string(path), index}, total_files + Enum.count(files) - 1)
@@ -77,7 +126,7 @@ defmodule Gt.PaymentCheck.Ecp do
         Logger.error("Failed to parse pdf #{path}")
         {:error, "Can't parse pdf"}
       pages ->
-        source_report = %{
+        report = %{
           filename: Path.basename(path),
           payment_check_id: payment_check.id
         }
@@ -95,7 +144,7 @@ defmodule Gt.PaymentCheck.Ecp do
              %{"fee" => service_commission} <- parse_service_commission(content),
              %{"fee" => reverse_fee_out, "sum" => reverse_sum} <- reverse_fee_out(content),
              %{"merchant" => merchant} <- parse_merchant(content) do
-               create_source_report(source_report, from, to, merchant, currency)
+               create_source_report(report, from, to, merchant, currency)
                |> source_report_extra(usd_rub_rate, usd_eur_rate, service_commission, reverse_sum)
                |> source_report_in(in_sum, currency)
                |> source_report_out(out, reverse_volume)
@@ -104,7 +153,7 @@ defmodule Gt.PaymentCheck.Ecp do
         else
           {:error, reason} ->
             Logger.info(reason)
-            %PaymentCheckSourceReport{} |> PaymentCheckSourceReport.changeset(%{error: "pdf_error"})
+            %PaymentCheckSourceReport{} |> PaymentCheckSourceReport.changeset(Map.merge(report, %{error: "pdf_error"}))
         end
         {Path.basename(path), report}
     end
@@ -117,6 +166,25 @@ defmodule Gt.PaymentCheck.Ecp do
       from: from,
       to: to
     })
+  end
+
+  defp add_secondary_report(report, content, currency, out, fee) do
+    out_value = %PaymentCheckSourceValue{value: out, currency: currency}
+    fee_value = %PaymentCheckSourceValue{value: fee, currency: currency}
+    report = report
+    |> put_embed(:out, [out_value | get_change(report, :out)])
+    |> put_embed(:fee_out, [fee_value | get_change(report, :fee_out)])
+
+    extra_data = get_change(report, :extra_data)
+    new_extra_data = if !Map.get(extra_data, "USD_RUB") do
+      case parse_usd_rub_rate(content) do
+        %{"rate" => usd_rub_rate} -> Map.put(extra_data, "USD_RUB", usd_rub_rate)
+        _ -> extra_data
+      end
+    else
+      extra_data
+    end
+    put_change(report, :extra_data, new_extra_data)
   end
 
   defp source_report_in(source_report, in_sum, currency) do
@@ -219,6 +287,30 @@ defmodule Gt.PaymentCheck.Ecp do
       alternative_value = if rate != 0, do: value / rate, else: 0
       {value, currency, alternative_value, alternative_currency}
     end)
+  end
+
+  defp secondary_out(content) do
+    case Regex.named_captures(~r/(Net total payouts|Net total cards payouts|Cards total payouts).*?\s*(?<sum>[-\d. ]+)/i, content) do
+      nil -> {:error, "Failed to get secondary out"}
+      %{"sum" => sum} -> %{"out" => abs(get_number(sum))}
+    end
+  end
+
+  defp secondary_fee_out(content) do
+    fee = case Regex.named_captures(~r/Service commission for transaction[s]?\s+([\d.]+)%\s([\d\s.]+)\s([-\d.\s]+)\s(?<fee>[-\d\s.]+)\s/i, content) do
+      nil -> 0
+      %{"fee" => fee} -> get_number(fee)
+    end
+
+    fee = fee + case Regex.named_captures(~r/Transaction[s]?al fee for transaction[s]?\s+([\d.]+)\s([\d\s.]+)\s([-\d.\s]+)\s(?<fee>[-\d\s.]+)\s/i, content) do
+      nil -> 0
+      %{"fee" => fee} -> get_number(fee)
+    end
+
+    fee + case Regex.named_captures(~r/Transaction[s]?al fee for minimal transaction[s]?\s+([\d.]+)\s([\d\s.]+)\s([-\d.\s]+)\s(?<fee>[-\d\s.]+)\s/i, content) do
+      nil -> 0
+      %{"fee" => fee} -> get_number(fee)
+    end
   end
 
   defp fee_in(content) do

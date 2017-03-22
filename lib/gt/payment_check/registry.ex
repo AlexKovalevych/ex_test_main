@@ -1,6 +1,7 @@
 defmodule Gt.PaymentCheckRegistry do
   use GenServer
   alias Gt.PaymentCheckTransaction
+  alias Gt.PaymentCheckSourceReport
   import String, only: [to_atom: 1]
 
   def create(id) do
@@ -9,6 +10,10 @@ defmodule Gt.PaymentCheckRegistry do
 
   def save(id, key, value) do
     :ets.insert(get_key(id), {key, value})
+  end
+
+  def save(id, %PaymentCheckSourceReport{} = report) do
+    :ets.insert(get_key(id), {"report_#{report.filename}", "report", report.merchant, report.from, report.to, report})
   end
 
   def save(id, %PaymentCheckTransaction{id: transaction_id} = transaction) do
@@ -29,6 +34,15 @@ defmodule Gt.PaymentCheckRegistry do
 
   def find(id, "transaction" = key) do
     :ets.match(get_key(id), {:"_", key, :"$1"}) |> Enum.concat
+  end
+
+  def find(id, "report" = key) do
+    #fun = :ets.fun2ms(fn {_, key, merchant, from, to, report} -> username end)
+    :ets.match(get_key(id), {:"_", key, :"_", :"_", :"_", :"$1"}) |> Enum.concat
+  end
+
+  def find(id, {merchant, from, to}) do
+    :ets.match(get_key(id), {:"_", merchant, from, to, :"$1"}) |> Enum.concat
   end
 
   def find(id, key) when is_atom(key) do
