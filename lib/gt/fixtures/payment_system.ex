@@ -419,45 +419,70 @@ defmodule Gt.Fixtures.PaymentSystem do
         currency: "Channel currency"
       }
     },
-    #%{
-      #calculatedTransactionPercent: 10.25,
-      #defaultAccountId: "PSC_NOK",
-      #defaultCurrency: "NOK",
-      #defaultFeeCurrency: "NOK",
-      #defaultPaymentType: "In",
-      #mappedCurrency: "Currency",
-      #mappedDate: "Date and time of completion of transaction",
-      #mappedId: "Transaction ID",
-      #mappedPaymentType: "Transaction type",
-      #mappedReportCurrency: "Channel currency",
-      #mappedReportSum: "Channel amount",
-      #mappedStatus: "Transaction status",
-      #mappedStatusIn: [ "purchase" ],
-      #mappedStatusOk: "success",
-      #mappedSum: "Amount",
-      #name: "PaySafeCard_NOK",
-      #oneGamepayPaymentSystem: "paysafecard",
-      #processingScript: "pay_safe_card"
-    #},
-    #%{
-      #calculatedTransactionPercent: 10.25,
-      #defaultAccountId: "PSC_USD",
-      #defaultFeeCurrency: "USD",
-      #defaultPaymentType: "In",
-      #mappedCurrency: "Currency",
-      #mappedDate: "Date and time of completion of transaction",
-      #mappedId: "Transaction ID",
-      #mappedPaymentType: "Transaction type",
-      #mappedReportCurrency: "Channel currency",
-      #mappedReportSum: "Channel amount",
-      #mappedStatus: "Transaction status",
-      #mappedStatusIn: [ "purchase" ],
-      #mappedStatusOk: "success",
-      #mappedSum: "Amount",
-      #name: "PaySafeCard_USD",
-      #oneGamepayPaymentSystem: "paysafecard",
-      #processingScript: "pay_safe_card"
-    #},
+    {
+      "PaySafeCard_NOK",
+      nil,
+      %PaymentSystemFields{
+        map_id: "Transaction ID",
+        date: "Date and time of completion of transaction",
+        sum: "Amount",
+        currency: "Currency",
+        type: "Transaction type",
+        default_payment_type: "In",
+        default_account_id: "PSC_NOK",
+        type_in: "purchase",
+        state: "Transaction status",
+        state_ok: "success"
+      },
+      %PaymentSystemCsv{},
+      %PaymentSystemOneGamepay{
+        map_id: "Order",
+        payment_system: "paysafecard"
+      },
+      %PaymentSystemFee{
+        types: ["In", "Out"],
+        percent: 10.25,
+        divide_100: true,
+        fee_report: true,
+      },
+      %PaymentSystemReport{
+        divide_100: true,
+        sum: "Channel amount",
+        currency: "Channel currency"
+      }
+    },
+    {
+      "PaySafeCard_USD",
+      nil,
+      %PaymentSystemFields{
+        map_id: "Transaction ID",
+        date: "Date and time of completion of transaction",
+        sum: "Amount",
+        currency: "Currency",
+        type: "Transaction type",
+        default_payment_type: "In",
+        default_account_id: "PSC_USD",
+        type_in: "purchase",
+        state: "Transaction status",
+        state_ok: "success"
+      },
+      %PaymentSystemCsv{},
+      %PaymentSystemOneGamepay{
+        map_id: "Order",
+        payment_system: "paysafecard"
+      },
+      %PaymentSystemFee{
+        types: ["In", "Out"],
+        percent: 10.25,
+        divide_100: true,
+        fee_report: true,
+      },
+      %PaymentSystemReport{
+        divide_100: true,
+        sum: "Channel amount",
+        currency: "Channel currency"
+      }
+    },
     #%{
       #calculatedTransactionPercent: 3.0,
       #defaultAccountId: "9909/DOL_%%currency%%",
