@@ -215,21 +215,17 @@ defmodule Gt.PaymentCheck.Processor do
   Compare with 1Gamepay transactions
   """
   def compare_1gp(payment_check, transaction) do
-    cond do
-      !is_nil(transaction.one_gamepay_id) ->
-        compare_result = find_1gp_transaction(payment_check, transaction)
-                         |> validate_date()
-                         |> one_gamepay_duplicates(payment_check)
-                         |> compare_sum()
-                         |> compare_currency()
-                         |> set_lang()
-                         |> set_1gp_trans_id()
-        {transaction, _, errors} = compare_result
-        transaction
-        |> Ecto.Changeset.put_embed(:errors, errors)
-        |> Repo.update!()
-      true -> transaction
-    end
+    compare_result = find_1gp_transaction(payment_check, transaction)
+                     |> validate_date()
+                     |> one_gamepay_duplicates(payment_check)
+                     |> compare_sum()
+                     |> compare_currency()
+                     |> set_lang()
+                     |> set_1gp_trans_id()
+    {transaction, _, errors} = compare_result
+    transaction
+    |> Ecto.Changeset.put_embed(:errors, errors)
+    |> Repo.update!()
     PaymentCheckRegistry.increment(payment_check.id, :processed)
   end
 

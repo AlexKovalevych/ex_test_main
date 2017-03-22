@@ -404,7 +404,6 @@ defmodule Gt.Fixtures.PaymentSystem do
       },
       %PaymentSystemCsv{},
       %PaymentSystemOneGamepay{
-        map_id: "Order",
         payment_system: "paysafecard"
       },
       %PaymentSystemFee{
@@ -436,7 +435,6 @@ defmodule Gt.Fixtures.PaymentSystem do
       },
       %PaymentSystemCsv{},
       %PaymentSystemOneGamepay{
-        map_id: "Order",
         payment_system: "paysafecard"
       },
       %PaymentSystemFee{
@@ -468,7 +466,6 @@ defmodule Gt.Fixtures.PaymentSystem do
       },
       %PaymentSystemCsv{},
       %PaymentSystemOneGamepay{
-        map_id: "Order",
         payment_system: "paysafecard"
       },
       %PaymentSystemFee{
@@ -558,6 +555,37 @@ defmodule Gt.Fixtures.PaymentSystem do
       #oneGamepayPaymentSystem: "yandex",
       #processingScript: "yandex_via_acceptance_in"
     #},
+    {
+      "ACP SBOL IN",
+      nil,
+      %PaymentSystemFields{
+        map_id: "Transaction ID",
+        date: "Date and time of completion of transaction",
+        sum: "Channel amount",
+        currency: "Channel currency",
+        type: "Transaction type",
+        default_payment_type: "In",
+        default_account_id: "ACP SBOL IN",
+        type_in: "purchase",
+        state: "Transaction status",
+        state_ok: "success"
+      },
+      %PaymentSystemCsv{},
+      %PaymentSystemOneGamepay{
+        payment_system: "sberbank.online,alfa-click,promsvyazbank"
+      },
+      %PaymentSystemFee{
+        types: ["In", "Out"],
+        percent: 4.5,
+        divide_100: true,
+        fee_report: false,
+      },
+      %PaymentSystemReport{
+        divide_100: false,
+        sum: "Channel amount",
+        currency: "Channel currency"
+      }
+    },
     #%{
       #calculatedTransactionPercent: 4.5,
       #defaultAccountId: "ACP SBOL IN",

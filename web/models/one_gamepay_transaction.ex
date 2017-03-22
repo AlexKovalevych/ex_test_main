@@ -55,8 +55,15 @@ defmodule Gt.OneGamepayTransaction do
 
   def by_payment_check_transaction(payment_check, transaction) do
     query = __MODULE__
-    |> where([ogt], ogt.trans_id == ^transaction.one_gamepay_id)
-    |> or_where([ogt], ogt.ps_trans_id == ^transaction.ps_trans_id and ilike(ogt.ps_name, ^payment_check.ps["one_gamepay"]["payment_system"]))
+    query = if !is_nil(transaction.one_gamepay_id) do
+      query |> where([ogt], ogt.trans_id == ^transaction.one_gamepay_id)
+    else
+      query
+    end
+    ps_value = "(#{String.replace(payment_check.ps["one_gamepay"]["payment_system"], ",", "|")})"
+    query = query
+            |> or_where([ogt], ogt.ps_trans_id == ^transaction.ps_trans_id and
+              fragment("? ~* ?", ogt.ps_name, ^ps_value))
 
     if transaction.pguid do
       query |> or_where([ogt], ogt.project_trans_id == ^transaction.pguid)

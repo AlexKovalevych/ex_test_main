@@ -97,7 +97,7 @@ defmodule Gt.PaymentCheckTransaction do
       skipped: sum(fragment("CASE WHEN ? IS NULL THEN 0 ELSE 1 END", pct.skipped)),
       from: min(pct.date),
       to: max(pct.date),
-      urls: fragment("array_agg(distinct(?))", ogt.site_url)
+      urls: fragment("array_agg(distinct(CASE WHEN ? @> '[{\"type\": \"1gp\"}]' THEN NULL ELSE ? END))", pct.errors, ogt.site_url)
     })
   end
 
