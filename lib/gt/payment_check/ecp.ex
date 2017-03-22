@@ -1,5 +1,5 @@
 defmodule Gt.PaymentCheck.Ecp do
-  @behaviour Gt.PaymentCheck.Processor
+  defstruct [:payment_check]
 
   alias Gt.PaymentCheck.Processor
   alias Gt.OneGamepayTransaction
@@ -9,71 +9,8 @@ defmodule Gt.PaymentCheck.Ecp do
   alias Gt.PaymentCheckTransactionError
   alias Gt.PaymentCheckSourceReport
   alias Gt.PaymentCheckSourceValue
-  alias Gt.Repo
   import Ecto.Changeset
   require Logger
-
-  def run(payment_check) do
-    total_files = Enum.count(payment_check.files)
-    Logger.info("Processing #{total_files} files")
-    PaymentCheckRegistry.save(payment_check.id, :total, 0)
-    source_reports = payment_check.files
-    |> Enum.with_index
-    |> Enum.reduce(%{}, fn {filename, index}, acc ->
-      Logger.info("Processing #{filename} file")
-      path = Gt.Uploaders.PaymentCheck.local_path(payment_check.id, filename)
-      source_report = process_report_file(payment_check, {path, index}, total_files)
-      if is_list(source_report) do
-        source_report
-        |> Enum.filter(fn
-          {:error, reason} -> false
-          _ -> true
-        end)
-        |> Enum.reduce(acc, fn {filename, report}, reports ->
-          Map.put(reports, filename, report)
-        end)
-      else
-        {filename, report} = source_report
-        Map.put(acc, filename, report)
-      end
-    end)
-
-    success_reports = source_reports
-                      |> Enum.filter_map(
-                        fn {_, report} -> !Map.has_key?(report, :error) end,
-                        fn {_, report} ->
-                          PaymentCheckRegistry.save(payment_check.id, report)
-                          report
-                        end
-                      )
-
-    source_reports
-    |> Enum.filter_map(
-      fn {_, report} -> Map.has_key?(report, :error) end,
-      &(process_secondary_file(payment_check, success_reports, &1))
-    )
-    |> Enum.map(fn report ->
-      report = if !Map.has_key?(report, :error) do
-        in_v = report.in |> Enum.with_index |> Enum.map(fn {v, k} -> {to_string(k), v} end) |> Enum.into(%{})
-        out = report.out |> Enum.with_index |> Enum.map(fn {v, k} -> {to_string(k), v} end) |> Enum.into(%{})
-        fee_in = report.fee_in |> Enum.with_index |> Enum.map(fn {v, k} -> {to_string(k), v} end) |> Enum.into(%{})
-        fee_out = report.fee_out |>Enum.with_index |> Enum.map(fn {v, k} -> {to_string(k), v} end) |> Enum.into(%{})
-        report
-        |> Map.put(:in, in_v)
-        |> Map.put(:out, out)
-        |> Map.put(:fee_in, fee_in)
-        |> Map.put(:fee_out, fee_out)
-      else
-        report
-      end
-      report = %PaymentCheckSourceReport{}
-      |> PaymentCheckSourceReport.changeset(report)
-      |> Repo.insert!
-      if !report.error do
-        PaymentCheckRegistry.save(payment_check.id, report)
-      end
-    end)
-  end
 
   def process_secondary_file(payment_check, reports, {filename, report}) do
     path = Gt.Uploaders.PaymentCheck.local_path(payment_check.id, filename)
@@ -138,7 +75,7 @@ defmodule Gt.PaymentCheck.Ecp do
           {:error, reason} -> {:error, reason}
         end
       ".pdf" -> process_pdf_file(path, payment_check)
-      _ -> nil
+      _ -> PaymentCheckRegistry.save(payment_check.id, {:log, path})
     end
   end
 
@@ -404,4 +341,87 @@ defmodule Gt.PaymentCheck.Ecp do
     end
   end
 
+end
+
+defimpl Gt.PaymentCheck.Script, for: Gt.PaymentCheck.Ecp do
+  import Gt.PaymentCheck.Ecp
+  alias Gt.PaymentCheckSourceReport
+  alias Gt.PaymentCheckRegistry
+  alias Gt.Repo
+  require Logger
+
+  def run(%{payment_check: payment_check}) do
+    total_files = Enum.count(payment_check.files)
+    Logger.info("Processing #{total_files} files")
+    PaymentCheckRegistry.save(payment_check.id, :total, 0)
+    source_reports = payment_check.files
+    |> Enum.with_index
+    |> Enum.reduce(%{}, fn {filename, index}, acc ->
+      Logger.info("Processing #{filename} file")
+      path = Gt.Uploaders.PaymentCheck.local_path(payment_check.id, filename)
+      source_report = process_report_file(payment_check, {path, index}, total_files)
+      cond do
+        is_list(source_report) ->
+          source_report
+          |> Enum.filter(fn
+            {:error, reason} -> false
+            _ -> true
+          end)
+          |> Enum.reduce(acc, fn {filename, report}, reports ->
+            Map.put(reports, filename, report)
+          end)
+        is_tuple(source_report) ->
+          {filename, report} = source_report
+          Map.put(acc, filename, report)
+        true -> acc
+      end
+    end)
+
+    success_reports = source_reports
+                      |> Enum.filter_map(
+                        fn {_, report} -> !Map.has_key?(report, :error) end,
+                        fn {_, report} ->
+                          PaymentCheckRegistry.save(payment_check.id, {:report, report})
+                          report
+                        end
+                      )
+
+    source_reports
+    |> Enum.filter_map(
+      fn {_, report} -> Map.has_key?(report, :error) end,
+      &(process_secondary_file(payment_check, success_reports, &1))
+    )
+    |> Enum.map(fn report ->
+      report = if !Map.has_key?(report, :error) do
+        in_v = report.in |> Enum.with_index |> Enum.map(fn {v, k} -> {to_string(k), v} end) |> Enum.into(%{})
+        out = report.out |> Enum.with_index |> Enum.map(fn {v, k} -> {to_string(k), v} end) |> Enum.into(%{})
+        fee_in = report.fee_in |> Enum.with_index |> Enum.map(fn {v, k} -> {to_string(k), v} end) |> Enum.into(%{})
+        fee_out = report.fee_out |>Enum.with_index |> Enum.map(fn {v, k} -> {to_string(k), v} end) |> Enum.into(%{})
+        report
+        |> Map.put(:in, in_v)
+        |> Map.put(:out, out)
+        |> Map.put(:fee_in, fee_in)
+        |> Map.put(:fee_out, fee_out)
+      else
+        report
+      end
+      report = %PaymentCheckSourceReport{}
+      |> PaymentCheckSourceReport.changeset(report)
+      |> Repo.insert!
+      if !report.error do
+        PaymentCheckRegistry.save(payment_check.id, {:report, report})
+      end
+    end)
+
+    PaymentCheckRegistry.find(payment_check.id, "log")
+    |> Enum.with_index
+    |> Enum.map(fn {path, index} ->
+      filename = Path.basename(path)
+      Logger.info("Processing #{filename} file")
+      process_file(payment_check, {path, index}, total_files)
+    end)
+  end
+
+  def process_file(payment_check, {path, index}, total_files) do
+  end
 end

@@ -1,52 +1,21 @@
 defmodule Gt.PaymentCheck.Processor do
+  defstruct [:payment_check]
+
   alias Gt.OneGamepayTransaction
   alias Gt.PaymentCheck
   alias Gt.PaymentCheckRegistry
   alias Gt.PaymentCheckTransaction
   alias Gt.PaymentCheckTransactionError
+  alias Gt.PaymentCheck.Script
   alias Gt.Payment
   alias Gt.Repo
   require Ecto.Query
   require Logger
   use Timex
 
-  @callback run(payment_check :: %PaymentCheck{}) :: any
-
-  def run(payment_check) do
-    total_files = Enum.count(payment_check.files)
-    Logger.info("Processing #{total_files} files")
-    PaymentCheckRegistry.save(payment_check.id, :total, 0)
-    payment_check.files
-    |> Enum.with_index
-    |> Enum.map(fn {filename, index} ->
-      Logger.info("Processing #{filename} file")
-      process_file(payment_check, {Gt.Uploaders.PaymentCheck.local_path(payment_check.id, filename), index}, total_files)
-    end)
-  end
-
   def unarchive(path) do
     Logger.info("Extracting #{path}")
     :zip.unzip(path |> String.to_charlist, [{:cwd, Path.dirname(path) |> String.to_charlist}])
-  end
-
-  def process_file(payment_check, {path, index}, total_files) do
-    Logger.metadata(filename: path)
-    Logger.info("Parsing file #{path}")
-    case Path.extname(path) do
-      ".zip" ->
-        case unarchive(path) do
-          {:ok, files} ->
-            files
-            |> Enum.with_index
-            |> Enum.each(fn {path, index} ->
-              process_file(payment_check, {to_string(path), index}, total_files + Enum.count(files) - 1)
-            end)
-          {:error, reason} -> {:error, reason}
-        end
-      ".csv" -> process_csv_file(path, index, total_files, payment_check)
-      ".xls" -> process_excel_file(path, index, total_files, payment_check)
-      ".xlsx" -> process_excel_file(path, index, total_files, payment_check)
-    end
   end
 
   def process_csv_file(path, index, total_files, payment_check) do
@@ -558,4 +527,42 @@ defmodule Gt.PaymentCheck.Processor do
     end)
   end
 
+end
+
+defimpl Gt.PaymentCheck.Script, for: Any do
+  alias Gt.PaymentCheckRegistry
+  alias Gt.PaymentCheck.Processor
+  require Logger
+
+  def run(%{payment_check: payment_check}) do
+    total_files = Enum.count(payment_check.files)
+    Logger.info("Processing #{total_files} files")
+    PaymentCheckRegistry.save(payment_check.id, :total, 0)
+    payment_check.files
+    |> Enum.with_index
+    |> Enum.map(fn {filename, index} ->
+      Logger.info("Processing #{filename} file")
+      process_file(payment_check, {Gt.Uploaders.PaymentCheck.local_path(payment_check.id, filename), index}, total_files)
+    end)
+  end
+
+  def process_file(payment_check, {path, index}, total_files) do
+    Logger.metadata(filename: path)
+    Logger.info("Parsing file #{path}")
+    case Path.extname(path) do
+      ".zip" ->
+        case Processor.unarchive(path) do
+          {:ok, files} ->
+            files
+            |> Enum.with_index
+            |> Enum.each(fn {path, index} ->
+              process_file(payment_check, {to_string(path), index}, total_files + Enum.count(files) - 1)
+            end)
+          {:error, reason} -> {:error, reason}
+        end
+      ".csv" -> Processor.process_csv_file(path, index, total_files, payment_check)
+      ".xls" -> Processor.process_excel_file(path, index, total_files, payment_check)
+      ".xlsx" -> Processor.process_excel_file(path, index, total_files, payment_check)
+    end
+  end
 end

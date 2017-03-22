@@ -12,12 +12,16 @@ defmodule Gt.PaymentCheckRegistry do
     :ets.insert(get_key(id), {key, value})
   end
 
-  def save(id, %{} = report) do
+  def save(id, %PaymentCheckTransaction{id: transaction_id} = transaction) do
+    :ets.insert(get_key(id), {"transaction_#{transaction_id}", "transaction", transaction})
+  end
+
+  def save(id, {:report, report}) do
     :ets.insert(get_key(id), {"report_#{report.filename}", "report", report.merchant, report.from, report.to, report})
   end
 
-  def save(id, %PaymentCheckTransaction{id: transaction_id} = transaction) do
-    :ets.insert(get_key(id), {"transaction_#{transaction_id}", "transaction", transaction})
+  def save(id, {:log, path}) do
+    :ets.insert(get_key(id), {"log_#{path}", "log", path})
   end
 
   def increment(id, key, value \\ 1) do
@@ -38,6 +42,10 @@ defmodule Gt.PaymentCheckRegistry do
 
   def find(id, "report" = key) do
     :ets.match(get_key(id), {:"_", key, :"_", :"_", :"_", :"$1"}) |> Enum.concat
+  end
+
+  def find(id, "log" = key) do
+    :ets.match(get_key(id), {:"_", key, :"$1"}) |> Enum.concat
   end
 
   def find(id, {merchant, from, to}) do
