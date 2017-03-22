@@ -586,22 +586,6 @@ defmodule Gt.Fixtures.PaymentSystem do
         currency: "Channel currency"
       }
     },
-    #%{
-      #calculatedTransactionPercent: 4.5,
-      #defaultAccountId: "ACP SBOL IN",
-      #defaultFeeCurrency: "RUB",
-      #defaultPaymentType: "In",
-      #delimiter: ";",
-      #mappedCurrency: "Channel currency",
-      #mappedDate: "Date and time of completion of transaction",
-      #mappedId: "Transaction ID",
-      #mappedStatus: "Transaction status",
-      #mappedStatusOk: "success",
-      #mappedSum: "Channel amount",
-      #name: "ACP SBOL IN",
-      #oneGamepayPaymentSystem: "sberbank.online",
-      #processingScript: "acp"
-    #},
     {
       "ECP IN & OUT",
       "ecp",
@@ -641,6 +625,34 @@ defmodule Gt.Fixtures.PaymentSystem do
         divide_100: true
       }
     },
+    {
+      "ACP WME_In",
+      nil,
+      %PaymentSystemFields{
+        map_id: "Transaction ID",
+        date: "Date and time of completion of transaction",
+        sum: "Channel amount",
+        currency: "Channel currency",
+        default_payment_type: "In",
+        default_account_id: "ACP EUR IN",
+        type_in: "purchase",
+        state: "Transaction status",
+        state_ok: "success"
+      },
+      %PaymentSystemCsv{},
+      %PaymentSystemOneGamepay{
+        payment_system: "WME"
+      },
+      %PaymentSystemFee{
+        types: ["In", "Out"],
+        percent: 2.6,
+        divide_100: true,
+        fee_report: false,
+      },
+      %PaymentSystemReport{
+        divide_100: false,
+      }
+    },
     #%{
       #calculatedTransactionPercent: 2.6,
       #defaultAccountId: "ACP USD IN",
@@ -671,22 +683,6 @@ defmodule Gt.Fixtures.PaymentSystem do
       #mappedSum: "Channel amount",
       #name: "ACP WMZ_Out",
       #oneGamepayPaymentSystem: "WMZ",
-      #processingScript: "acp"
-    #},
-    #%{
-      #calculatedTransactionPercent: 2.6,
-      #defaultAccountId: "ACP EUR IN",
-      #defaultFeeCurrency: "EUR",
-      #defaultPaymentType: "In",
-      #delimiter: ";",
-      #mappedCurrency: "Channel currency",
-      #mappedDate: "Date and time of completion of transaction",
-      #mappedId: "Transaction ID",
-      #mappedStatus: "Transaction status",
-      #mappedStatusOk: "success",
-      #mappedSum: "Channel amount",
-      #name: "ACP WME_In",
-      #oneGamepayPaymentSystem: "WME",
       #processingScript: "acp"
     #},
     #%{
