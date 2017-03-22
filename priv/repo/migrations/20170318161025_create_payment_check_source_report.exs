@@ -4,15 +4,15 @@ defmodule Gt.Repo.Migrations.CreatePaymentCheckSourceReport do
   def change do
     create table(:payment_check_source_reports) do
       add :filename, :string, null: false
-      add :merchant, :string, null: false
+      add :merchant, :string
       add :error, :string
-      add :from, :date, null: false
-      add :to, :date, null: false
+      add :from, :date
+      add :to, :date
       add :currency, :string
-      add :in, :map, null: false
-      add :out, :map, null: false
-      add :fee_in, :map, null: false
-      add :fee_out, :map, null: false
+      add :in, :map
+      add :out, :map
+      add :fee_in, :map
+      add :fee_out, :map
       add :chargeback, :map
       add :representment, :map
       add :extra_data, :map

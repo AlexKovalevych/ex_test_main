@@ -14,6 +14,8 @@ defmodule Gt.PaymentCheck do
 
     embeds_one :status, Gt.WorkerStatus, on_replace: :delete
 
+    has_many :source_reports, Gt.PaymentCheckSourceReport, on_replace: :delete
+
     field :ps, :map
 
     timestamps()
@@ -53,13 +55,16 @@ defmodule Gt.PaymentCheck do
   end
 
   def clear_state(payment_check) do
-    changeset(payment_check, %{
+    payment_check
+    |> Repo.preload(:source_reports)
+    |> changeset(%{
                 total: 0,
                 processed: 0,
                 skipped: 0,
                 active: true,
                 completed: false,
               })
+    |> put_assoc(:source_reports, [])
     |> put_embed(:status, nil)
     |> Repo.update!
   end

@@ -12,7 +12,7 @@ defmodule Gt.PaymentCheckRegistry do
     :ets.insert(get_key(id), {key, value})
   end
 
-  def save(id, %PaymentCheckSourceReport{} = report) do
+  def save(id, %{} = report) do
     :ets.insert(get_key(id), {"report_#{report.filename}", "report", report.merchant, report.from, report.to, report})
   end
 
@@ -37,12 +37,18 @@ defmodule Gt.PaymentCheckRegistry do
   end
 
   def find(id, "report" = key) do
-    #fun = :ets.fun2ms(fn {_, key, merchant, from, to, report} -> username end)
     :ets.match(get_key(id), {:"_", key, :"_", :"_", :"_", :"$1"}) |> Enum.concat
   end
 
   def find(id, {merchant, from, to}) do
-    :ets.match(get_key(id), {:"_", merchant, from, to, :"$1"}) |> Enum.concat
+    :ets.match(get_key(id), {:"_", "report", :"_", from, to, :"$1"})
+    |> Enum.concat
+    |> Enum.filter(fn report ->
+      case :binary.match(report.merchant, merchant) do
+        :nomatch -> false
+        _ -> true
+      end
+    end)
   end
 
   def find(id, key) when is_atom(key) do

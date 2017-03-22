@@ -19,7 +19,7 @@ defmodule Gt.PaymentCheck.Ecp do
     PaymentCheckRegistry.save(payment_check.id, :total, 0)
     source_reports = payment_check.files
     |> Enum.with_index
-    |> Enum.reduce([], fn {filename, index}, acc ->
+    |> Enum.reduce(%{}, fn {filename, index}, acc ->
       Logger.info("Processing #{filename} file")
       path = Gt.Uploaders.PaymentCheck.local_path(payment_check.id, filename)
       source_report = process_report_file(payment_check, {path, index}, total_files)
@@ -30,30 +30,52 @@ defmodule Gt.PaymentCheck.Ecp do
           _ -> true
         end)
         |> Enum.reduce(acc, fn {filename, report}, reports ->
-          reports ++ [report]
+          Map.put(reports, filename, report)
         end)
       else
         {filename, report} = source_report
-        acc ++ [report]
+        Map.put(acc, filename, report)
       end
     end)
 
+    success_reports = source_reports
+                      |> Enum.filter_map(
+                        fn {_, report} -> !Map.has_key?(report, :error) end,
+                        fn {_, report} ->
+                          PaymentCheckRegistry.save(payment_check.id, report)
+                          report
+                        end
+                      )
+
     source_reports
     |> Enum.filter_map(
-      fn report -> report.valid? end,
-      &(PaymentCheckRegistry.save(payment_check.id, apply_changes(&1)))
+      fn {_, report} -> Map.has_key?(report, :error) end,
+      &(process_secondary_file(payment_check, success_reports, &1))
     )
-
-    failed_sources = source_reports
-                     |> Enum.filter_map(
-                       fn report -> !report.valid? end,
-                       &(process_secondary_file(payment_check, &1))
-                     )
-                      IO.inspect(failed_sources)
+    |> Enum.map(fn report ->
+      report = if !Map.has_key?(report, :error) do
+        in_v = report.in |> Enum.with_index |> Enum.map(fn {v, k} -> {to_string(k), v} end) |> Enum.into(%{})
+        out = report.out |> Enum.with_index |> Enum.map(fn {v, k} -> {to_string(k), v} end) |> Enum.into(%{})
+        fee_in = report.fee_in |> Enum.with_index |> Enum.map(fn {v, k} -> {to_string(k), v} end) |> Enum.into(%{})
+        fee_out = report.fee_out |>Enum.with_index |> Enum.map(fn {v, k} -> {to_string(k), v} end) |> Enum.into(%{})
+        report
+        |> Map.put(:in, in_v)
+        |> Map.put(:out, out)
+        |> Map.put(:fee_in, fee_in)
+        |> Map.put(:fee_out, fee_out)
+      else
+        report
+      end
+      report = %PaymentCheckSourceReport{}
+      |> PaymentCheckSourceReport.changeset(report)
+      |> Repo.insert!
+      if !report.error do
+        PaymentCheckRegistry.save(payment_check.id, report)
+      end
+    end)
   end
 
-  def process_secondary_file(payment_check, report) do
-    filename = get_change(report, :filename)
+  def process_secondary_file(payment_check, reports, {filename, report}) do
     path = Gt.Uploaders.PaymentCheck.local_path(payment_check.id, filename)
     Logger.metadata(filename: path)
     Logger.info("Parsing file #{path}")
@@ -65,35 +87,36 @@ defmodule Gt.PaymentCheck.Ecp do
             {:error, "Can't parse pdf"}
           pages ->
             content = pages |> Enum.map(&to_string/1) |> Enum.join("")
-            with %{"from" => from, "to" => to} <- period(content),
+            report = with %{"from" => from, "to" => to} <- period(content),
                  %{"merchant" => merchant} <- parse_merchant(content) do
-                   update_matched_report(payment_check, content, filename, merchant, from, to)
+                   update_matched_report(payment_check, reports, content, filename, merchant, from, to)
             else
-              {:error, reason} ->
-                PaymentCheckSourceReport.changeset(report, %{error: "pdf_error"})
+              {:error, reason} -> Map.put(report, :error, "pdf_error")
             end
         end
       _ -> nil
     end
   end
 
-  defp update_matched_report(payment_check, content, filename, merchant, from, to) do
-    IO.inspect({merchant, from, to})
-    matched_report = PaymentCheckRegistry.find(payment_check.id, {merchant, from, to})
-    if Enum.empty?(matched_report) do
+  defp update_matched_report(payment_check, reports, content, filename, merchant, from, to) do
+    matched_report = Enum.find(reports, fn report ->
+      case :binary.match(report.merchant, merchant) do
+        :nomatch -> false
+        _ -> report.from == from && report.to == to
+      end
+    end)
+    if !matched_report do
       message = "Can't find associated report file for #{filename}"
       Logger.error(message)
       raise message
     else
       report = with %{"currency" => currency} <- currency(content),
-           %{"out" => out} <- secondary_out(content),
-           fee <- secondary_fee_out(content) do
-             add_secondary_report(matched_report, content, currency, out, fee)
+                    %{"out" => out} <- secondary_out(content),
+                    fee <- secondary_fee_out(content) do
+                    add_secondary_report(matched_report, content, currency, out, fee)
       else
-        {:error, reason} -> PaymentCheckSourceReport.changeset(matched_report, %{error: "pdf_error"})
+        {:error, reason} -> Map.put(matched_report, :error, "pdf_error")
       end
-      PaymentCheckRegistry.save(payment_check.id, apply_changes(report))
-      report
     end
   end
 
@@ -153,7 +176,7 @@ defmodule Gt.PaymentCheck.Ecp do
         else
           {:error, reason} ->
             Logger.info(reason)
-            %PaymentCheckSourceReport{} |> PaymentCheckSourceReport.changeset(Map.merge(report, %{error: "pdf_error"}))
+            Map.put(report, :error, "pdf_error")
         end
         {Path.basename(path), report}
     end
@@ -171,11 +194,11 @@ defmodule Gt.PaymentCheck.Ecp do
   defp add_secondary_report(report, content, currency, out, fee) do
     out_value = %PaymentCheckSourceValue{value: out, currency: currency}
     fee_value = %PaymentCheckSourceValue{value: fee, currency: currency}
+    extra_data = report.extra_data
     report = report
-    |> put_embed(:out, [out_value | get_change(report, :out)])
-    |> put_embed(:fee_out, [fee_value | get_change(report, :fee_out)])
+    |> Map.put(:out, [out_value | report.out])
+    |> Map.put(:fee_out, [fee_value | report.fee_out])
 
-    extra_data = get_change(report, :extra_data)
     new_extra_data = if !Map.get(extra_data, "USD_RUB") do
       case parse_usd_rub_rate(content) do
         %{"rate" => usd_rub_rate} -> Map.put(extra_data, "USD_RUB", usd_rub_rate)
@@ -184,12 +207,11 @@ defmodule Gt.PaymentCheck.Ecp do
     else
       extra_data
     end
-    put_change(report, :extra_data, new_extra_data)
+    Map.put(report, :extra_data, Map.merge(report.extra_data, new_extra_data))
   end
 
   defp source_report_in(source_report, in_sum, currency) do
-    value = %PaymentCheckSourceValue{value: in_sum, currency: currency}
-    put_embed(source_report, :in, [value])
+    Map.put(source_report, :in, [%PaymentCheckSourceValue{value: in_sum, currency: currency}])
   end
 
   defp source_report_out(source_report, out, reverse_volume) do
@@ -198,30 +220,28 @@ defmodule Gt.PaymentCheck.Ecp do
       alternative = %PaymentCheckSourceValue{value: alternative_value, currency: alternative_currency}
       out_value = %PaymentCheckSourceValue{value: value, currency: currency, alternatives: [alternative]}
     end)
-    put_embed(source_report, :out, [reverse_value | out_values])
+    Map.put(source_report, :out, [reverse_value | out_values])
   end
 
   defp source_report_fee_in(source_report, fee_in, currency) do
-    value = %PaymentCheckSourceValue{value: fee_in, currency: currency}
-    put_embed(source_report, :fee_in, [value])
+    Map.put(source_report, :fee_in, [%PaymentCheckSourceValue{value: fee_in, currency: currency}])
   end
 
   defp source_report_fee_out(source_report, fee_out, reverse_fee_out, usd_rub_rate) do
     fee_out = if usd_rub_rate, do: fee_out * usd_rub_rate, else: fee_out
     value = %PaymentCheckSourceValue{value: fee_out, currency: "RUB"}
     reverse_fee_out_value = %PaymentCheckSourceValue{value: reverse_fee_out, currency: "USD"}
-    put_embed(source_report, :fee_out, [value, reverse_fee_out_value])
+    Map.put(source_report, :fee_out, [value, reverse_fee_out_value])
   end
 
   defp source_report_extra(source_report, usd_rub_rate, usd_eur_rate, service_commission, reverse_sum) do
-    changes = Map.merge(source_report, %{
+    Map.merge(source_report, %{
       extra_data: %{
         "EUR_USD" => usd_eur_rate,
         "USD_RUB" => usd_rub_rate,
         "service_commission" => service_commission,
         "refund_commission" => reverse_sum
     }})
-    %PaymentCheckSourceReport{} |> PaymentCheckSourceReport.changeset(changes)
   end
 
   defp period(content) do
@@ -245,9 +265,9 @@ defmodule Gt.PaymentCheck.Ecp do
   end
 
   defp service_commission(content) do
-    {in_sum, fee} = case Regex.named_captures(~r/Service commission\s([-\d .]+)%\s(?<in>[-\d .,]+)\s(?<fee>[-\d .,]+)/i, content) do
-      nil -> {0, 0}
-      %{"in" => in_sum, "fee" => fee} -> {get_number(in_sum), get_number(fee)}
+    {in_sum, fee, matched} = case Regex.named_captures(~r/Service commission\s([-\d .]+)%\s(?<in>[-\d .,]+)\s(?<fee>[-\d .,]+)/i, content) do
+      nil -> {0, 0, false}
+      %{"in" => in_sum, "fee" => fee} -> {get_number(in_sum), get_number(fee), true}
     end
 
     min_trans_in = case Regex.named_captures(~r/Service commission for minimal transactions?\s([-\d .,]+)%\s(?<in>[-\d .,]+)/i, content) do
@@ -263,7 +283,7 @@ defmodule Gt.PaymentCheck.Ecp do
     in_sum = in_sum + min_trans_in
     fee = fee + min_trans_fee
 
-    if in_sum == 0 && fee == 0 do
+    if !matched do
       {:error, "Failed to parse \"in\""}
     else
       %{"in" => in_sum, "fee" => fee}
@@ -367,7 +387,7 @@ defmodule Gt.PaymentCheck.Ecp do
   end
 
   defp parse_merchant(content) do
-    case Regex.named_captures(~r/Merchant:\s(?<merchant>[\w\s]+)\sStatement/i, content) do
+    case Regex.named_captures(~r/Merchant:\s(?<merchant>[\w\s \.]+)\sStatement/i, content) do
       nil -> {:error, "Failed to get merchant"}
       %{"merchant" => merchant} -> %{"merchant" => merchant}
     end

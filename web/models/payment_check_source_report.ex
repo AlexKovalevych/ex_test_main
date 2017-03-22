@@ -1,3 +1,8 @@
+defmodule Gt.PaymentCheckSourceValue do
+  @enforce_keys [:value, :currency]
+  defstruct [:value, :currency, :alternatives]
+end
+
 defmodule Gt.PaymentCheckSourceReport do
   use Gt.Web, :model
 
@@ -10,21 +15,21 @@ defmodule Gt.PaymentCheckSourceReport do
     field :currency, :string
     field :extra_data, :map
 
-    embeds_many :in, Gt.PaymentCheckSourceValue
-    embeds_many :out, Gt.PaymentCheckSourceValue
-    embeds_many :fee_in, Gt.PaymentCheckSourceValue
-    embeds_many :fee_out, Gt.PaymentCheckSourceValue
-    embeds_many :chargeback, Gt.PaymentCheckSourceValue
-    embeds_many :representment, Gt.PaymentCheckSourceValue
+    field :in, :map
+    field :out, :map
+    field :fee_in, :map
+    field :fee_out, :map
+    field :chargeback, :map
+    field :representment, :map
 
     belongs_to :payment_check, Gt.PaymentCheck
 
     timestamps()
   end
 
-  @required_fields ~w(filename merchant from to currency payment_check_id)a
+  @required_fields ~w(filename payment_check_id)a
 
-  @optional_fields ~w(error extra_data)a
+  @optional_fields ~w(error merchant from to currency extra_data in out fee_in fee_out chargeback representment)a
 
   @doc """
   Builds a changeset based on the `struct` and `params`.
