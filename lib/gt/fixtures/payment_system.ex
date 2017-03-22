@@ -653,54 +653,90 @@ defmodule Gt.Fixtures.PaymentSystem do
         divide_100: false,
       }
     },
-    #%{
-      #calculatedTransactionPercent: 2.6,
-      #defaultAccountId: "ACP USD IN",
-      #defaultFeeCurrency: "USD",
-      #defaultPaymentType: "In",
-      #delimiter: ";",
-      #mappedCurrency: "Channel currency",
-      #mappedDate: "Date and time of completion of transaction",
-      #mappedId: "Transaction ID",
-      #mappedStatus: "Transaction status",
-      #mappedStatusOk: "success",
-      #mappedSum: "Channel amount",
-      #name: "ACP WMZ_In",
-      #oneGamepayPaymentSystem: "WMZ",
-      #processingScript: "acp"
-    #},
-    #%{
-      #calculatedTransactionPercent: 1.5,
-      #defaultAccountId: "ACP USD OUT",
-      #defaultFeeCurrency: "USD",
-      #defaultPaymentType: "Out",
-      #delimiter: ";",
-      #mappedCurrency: "Channel currency",
-      #mappedDate: "Date and time of completion of transaction",
-      #mappedId: "Transaction ID",
-      #mappedStatus: "Transaction status",
-      #mappedStatusOk: "success",
-      #mappedSum: "Channel amount",
-      #name: "ACP WMZ_Out",
-      #oneGamepayPaymentSystem: "WMZ",
-      #processingScript: "acp"
-    #},
-    #%{
-      #calculatedTransactionPercent: 1.5,
-      #defaultAccountId: "ACP EUR OUT",
-      #defaultFeeCurrency: "EUR",
-      #defaultPaymentType: "Out",
-      #delimiter: ";",
-      #mappedCurrency: "Channel currency",
-      #mappedDate: "Date and time of completion of transaction",
-      #mappedId: "Transaction ID",
-      #mappedStatus: "Transaction status",
-      #mappedStatusOk: "success",
-      #mappedSum: "Channel amount",
-      #name: "ACP WME_Out",
-      #oneGamepayPaymentSystem: "WME",
-      #processingScript: "acp"
-    #},
+    {
+      "ACP WME_Out",
+      nil,
+      %PaymentSystemFields{
+        map_id: "Transaction ID",
+        date: "Date and time of completion of transaction",
+        sum: "Channel amount",
+        currency: "Channel currency",
+        default_payment_type: "In",
+        default_account_id: "ACP EUR OUT",
+        type_in: "purchase",
+        state: "Transaction status",
+        state_ok: "success"
+      },
+      %PaymentSystemCsv{},
+      %PaymentSystemOneGamepay{
+        payment_system: "WME"
+      },
+      %PaymentSystemFee{
+        types: ["In", "Out"],
+        percent: 1.5,
+        divide_100: true,
+        fee_report: false,
+      },
+      %PaymentSystemReport{
+        divide_100: false,
+      }
+    },
+    {
+      "ACP WMZ_In",
+      nil,
+      %PaymentSystemFields{
+        map_id: "Transaction ID",
+        date: "Date and time of completion of transaction",
+        sum: "Channel amount",
+        currency: "Channel currency",
+        default_payment_type: "In",
+        default_account_id: "ACP USD IN",
+        type_in: "purchase",
+        state: "Transaction status",
+        state_ok: "success"
+      },
+      %PaymentSystemCsv{},
+      %PaymentSystemOneGamepay{
+        payment_system: "WMZ"
+      },
+      %PaymentSystemFee{
+        types: ["In", "Out"],
+        percent: 2.6,
+        divide_100: true,
+        fee_report: false,
+      },
+      %PaymentSystemReport{
+        divide_100: false,
+      }
+    },
+    {
+      "ACP WMZ_Out",
+      nil,
+      %PaymentSystemFields{
+        map_id: "Transaction ID",
+        date: "Date and time of completion of transaction",
+        sum: "Channel amount",
+        currency: "Channel currency",
+        default_payment_type: "In",
+        default_account_id: "ACP USD OUT",
+        type_in: "purchase",
+        state: "Transaction status",
+        state_ok: "success"
+      },
+      %PaymentSystemCsv{},
+      %PaymentSystemOneGamepay{
+        payment_system: "WMZ"
+      },
+      %PaymentSystemFee{
+        types: ["In", "Out"],
+        percent: 1.5,
+        divide_100: true,
+        fee_report: false,
+      },
+      %PaymentSystemReport{
+        divide_100: false,
+      }
+    },
     #%{
       #defaultAccountId: "Zimpler %%currency%%",
       #defaultPaymentType: "In",
