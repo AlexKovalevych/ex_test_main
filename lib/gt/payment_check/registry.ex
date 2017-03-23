@@ -12,8 +12,8 @@ defmodule Gt.PaymentCheckRegistry do
     :ets.insert(get_key(id), {key, value})
   end
 
-  def save(id, %PaymentCheckTransaction{id: transaction_id} = transaction) do
-    :ets.insert(get_key(id), {"transaction_#{transaction_id}", "transaction", transaction})
+  def save(id, {:transaction, transaction, i}) do
+    :ets.insert(get_key(id), {"transaction_#{i}", "transaction", transaction.one_gamepay_id, transaction})
   end
 
   def save(id, {:report, report}) do
@@ -28,6 +28,14 @@ defmodule Gt.PaymentCheckRegistry do
     :ets.update_counter(get_key(id), key, {2, value})
   end
 
+  def delete(id, key) do
+    try do
+      :ets.delete(get_key(id), key)
+    rescue
+      _ in ArgumentError -> nil
+    end
+  end
+
   def delete(id) do
     try do
       :ets.delete(get_key(id))
@@ -37,7 +45,11 @@ defmodule Gt.PaymentCheckRegistry do
   end
 
   def find(id, "transaction" = key) do
-    :ets.match(get_key(id), {:"_", key, :"$1"}) |> Enum.concat
+    :ets.match(get_key(id), {:"_", key, :"_", :"$1"}) |> Enum.concat
+  end
+
+  def find(id, "transaction" = key, one_gamepay_id) do
+    :ets.match(get_key(id), {:"_", key, one_gamepay_id, :"$1"}) |> Enum.concat
   end
 
   def find(id, "report" = key) do

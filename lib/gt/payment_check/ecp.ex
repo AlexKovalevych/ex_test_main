@@ -1,5 +1,5 @@
 defmodule Gt.PaymentCheck.Ecp do
-  defstruct [:payment_check]
+  defstruct [:payment_check, :total_files]
 
   alias Gt.PaymentCheck.Processor
   alias Gt.OneGamepayTransaction
@@ -58,7 +58,7 @@ defmodule Gt.PaymentCheck.Ecp do
     end
   end
 
-  def process_report_file(payment_check, {path, index}, total_files) do
+  def process_report_file(%{payment_check: payment_check, total_files: total_files} = struct, {path, index}) do
     Logger.metadata(filename: path)
     Logger.info("Parsing file #{path}")
     case Path.extname(path) do
@@ -71,7 +71,7 @@ defmodule Gt.PaymentCheck.Ecp do
             end)
             |> Enum.with_index
             |> Enum.map(fn {path, index} ->
-              process_report_file(payment_check, {to_string(path), index}, total_files + Enum.count(files) - 1)
+              process_report_file(%{struct | total_files: struct.total_files + Enum.count(files) - 1}, {to_string(path), index})
             end)
           {:error, reason} -> {:error, reason}
         end
@@ -345,22 +345,20 @@ defmodule Gt.PaymentCheck.Ecp do
 end
 
 defimpl Gt.PaymentCheck.Script, for: Gt.PaymentCheck.Ecp do
-  import Gt.PaymentCheck.Ecp
+  alias Gt.PaymentCheck.Ecp
   alias Gt.PaymentCheckSourceReport
   alias Gt.PaymentCheckRegistry
+  alias Gt.PaymentCheck.Script
   alias Gt.Repo
   require Logger
 
-  def run(%{payment_check: payment_check}) do
-    total_files = Enum.count(payment_check.files)
-    Logger.info("Processing #{total_files} files")
-    PaymentCheckRegistry.save(payment_check.id, :total, 0)
+  def preprocess(%{payment_check: payment_check, total_files: total_files} = struct) do
     source_reports = payment_check.files
     |> Enum.with_index
     |> Enum.reduce(%{}, fn {filename, index}, acc ->
       Logger.info("Processing #{filename} file")
       path = Gt.Uploaders.PaymentCheck.local_path(payment_check.id, filename)
-      source_report = process_report_file(payment_check, {path, index}, total_files)
+      source_report = Ecp.process_report_file(struct, {path, index})
       cond do
         is_list(source_report) ->
           source_report
@@ -390,7 +388,7 @@ defimpl Gt.PaymentCheck.Script, for: Gt.PaymentCheck.Ecp do
     source_reports
     |> Enum.filter_map(
       fn {_, report} -> Map.has_key?(report, :error) end,
-      &(process_secondary_file(payment_check, success_reports, &1))
+      &(Ecp.process_secondary_file(payment_check, success_reports, &1))
     )
     |> Enum.map(fn report ->
       report = if !Map.has_key?(report, :error) do
@@ -414,15 +412,7 @@ defimpl Gt.PaymentCheck.Script, for: Gt.PaymentCheck.Ecp do
       end
     end)
 
-    PaymentCheckRegistry.find(payment_check.id, "log")
-    |> Enum.with_index
-    |> Enum.map(fn {path, index} ->
-      filename = Path.basename(path)
-      Logger.info("Processing #{filename} file")
-      process_file(payment_check, {path, index}, total_files)
-    end)
-  end
-
-  def process_file(payment_check, {path, index}, total_files) do
+    files = PaymentCheckRegistry.find(payment_check.id, "log") |> Enum.map(&Path.basename/1)
+    {%{struct | total_files: Enum.count(files)}, files}
   end
 end

@@ -41,13 +41,15 @@ defmodule Gt.PaymentCheckWorker do
 
     {:ok, timer} = :timer.apply_interval(500, __MODULE__, :send_socket, [payment_check])
     script = payment_check.ps["script"]
-    if script do
+    total_files = Enum.count(payment_check.files)
+    module = if script do
       Module.concat("Gt.PaymentCheck", String.capitalize(script))
-      |> struct(%{payment_check: payment_check})
-      |> Script.run
     else
-      %Processor{payment_check: payment_check} |> Script.run
+      Module.concat("Gt.PaymentCheck", "Processor")
     end
+    module
+    |> struct(%{payment_check: payment_check, total_files: total_files})
+    |> Processor.run
 
     :timer.cancel(timer)
     Logger.info("Complete worker")

@@ -1,3 +1,4 @@
 <%= case @status.state do %>
   <%= ":normal" -> %><span class="tag green lighten-2"><%= dgettext "payment_checks", "completed" %></span>
+  <%= "danger" -> %><span class="tag red lighten-2"><%= dgettext "payment_checks", "error" %></span>
 <%= end %>

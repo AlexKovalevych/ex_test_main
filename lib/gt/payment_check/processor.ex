@@ -1,5 +1,5 @@
 defmodule Gt.PaymentCheck.Processor do
-  defstruct [:payment_check]
+  defstruct [:payment_check, :total_files]
 
   alias Gt.OneGamepayTransaction
   alias Gt.PaymentCheck
@@ -13,12 +13,42 @@ defmodule Gt.PaymentCheck.Processor do
   require Logger
   use Timex
 
-  def unarchive(path) do
-    Logger.info("Extracting #{path}")
-    :zip.unzip(path |> String.to_charlist, [{:cwd, Path.dirname(path) |> String.to_charlist}])
+  def run(%{payment_check: payment_check, total_files: total_files} = struct) do
+    Logger.info("Processing #{total_files} files")
+    PaymentCheckRegistry.save(payment_check.id, :total, 0)
+
+    {struct, files} = Script.preprocess(struct)
+    files
+    |> Enum.with_index
+    |> Enum.map(fn {filename, index} ->
+      Logger.info("Processing #{filename} file")
+      process_file(struct, {Gt.Uploaders.PaymentCheck.local_path(payment_check.id, filename), index})
+    end)
   end
 
-  def process_csv_file(path, index, total_files, payment_check) do
+  def process_file(struct, {path, index}) do
+    Logger.metadata(filename: path)
+    Logger.info("Parsing file #{path}")
+    PaymentCheckRegistry.delete(struct.payment_check.id, :headers)
+    PaymentCheckRegistry.delete(struct.payment_check.id, :source_headers)
+    case Path.extname(path) do
+      ".zip" ->
+        case unarchive(path) do
+          {:ok, files} ->
+            files
+            |> Enum.with_index
+            |> Enum.each(fn {path, index} ->
+              process_file(%{struct | total_files: struct.total_files + Enum.count(files) - 1}, {to_string(path), index})
+            end)
+          {:error, reason} -> {:error, reason}
+        end
+      ".csv" -> process_csv_file(struct, path, index)
+      ".xls" -> process_excel_file(struct, path, index)
+      ".xlsx" -> process_excel_file(struct, path, index)
+    end
+  end
+
+  def process_csv_file(%{payment_check: payment_check, total_files: total_files} = struct, path, index) do
     encoding = if payment_check.ps["csv"]["encoding"], do: payment_check.ps["csv"]["encoding"], else: "utf-8"
     separator = get_separator(payment_check)
     double_qoute = get_double_qoute(payment_check)
@@ -30,13 +60,13 @@ defmodule Gt.PaymentCheck.Processor do
     PaymentCheckRegistry.save(payment_check.id, :processed, index * rows_number * 2)
     PaymentCheckRegistry.save(payment_check.id, :total, total_files * rows_number * 2)
     with :ok <- process_rows_stream(lines, payment_check) do
-         process_one_gamepay(payment_check)
+         process_one_gamepay(struct)
     else
       {:error, reason} -> raise reason
     end
   end
 
-  def process_excel_file(path, index, total_files, payment_check) do
+  def process_excel_file(%{payment_check: payment_check, total_files: total_files} = struct, path, index) do
     path
     |> Exoffice.parse()
     |> Enum.with_index()
@@ -45,6 +75,8 @@ defmodule Gt.PaymentCheck.Processor do
           rows_number = Exoffice.count_rows(pid, parser)
           if rows_number > 0 do
             Logger.info("Found #{rows_number} rows in sheet #{sheet}")
+            IO.inspect(:processed, index * rows_number * 2)
+            IO.inspect(:total, total_files * rows_number * 2)
             PaymentCheckRegistry.save(payment_check.id, :processed, index * rows_number * 2)
             PaymentCheckRegistry.save(payment_check.id, :total, total_files * rows_number * 2)
             with :ok <- Exoffice.get_rows(pid, parser) |> process_rows_stream(payment_check),
@@ -59,6 +91,11 @@ defmodule Gt.PaymentCheck.Processor do
     end)
   end
 
+  def unarchive(path) do
+    Logger.info("Extracting #{path}")
+    :zip.unzip(path |> String.to_charlist, [{:cwd, Path.dirname(path) |> String.to_charlist}])
+  end
+
   def process_rows_stream(stream, payment_check) do
     processed_rows = stream
     |> Stream.drop_while(fn row ->
@@ -71,12 +108,15 @@ defmodule Gt.PaymentCheck.Processor do
       end
     end)
     |> Stream.chunk(10, 10, [])
-    |> Stream.each(fn chunk ->
-      ParallelStream.each(chunk, fn row ->
+    |> Enum.with_index
+    |> Stream.map(fn {chunk, i} ->
+      chunk
+      |> Enum.with_index
+      |> ParallelStream.each(fn {row, j} ->
         PaymentCheckRegistry.increment(payment_check.id, :processed)
-        parse_row(payment_check, row)
+        if !Enum.all?(row, &is_nil/1), do: parse_row(payment_check, row, i * 10 + j)
       end)
-      |> Enum.reduce(nil, fn _, _ -> nil end)
+      |> Enum.reduce(0, fn _, acc -> acc + 1 end)
     end)
     |> Enum.reduce(0, fn _, acc -> acc + 1 end)
     if processed_rows > 0, do: :ok, else: {:error, "config doesn't match"}
@@ -133,11 +173,12 @@ defmodule Gt.PaymentCheck.Processor do
     end
   end
 
-  def parse_row(payment_check, row) do
+  def parse_row(payment_check, row, i) do
     headers = PaymentCheckRegistry.find(payment_check.id, :headers)
     source_headers = PaymentCheckRegistry.find(payment_check.id, :source_headers)
     fields = payment_check.ps["fields"]
     transaction = %PaymentCheckTransaction{
+      id: i,
       payment_check_id: payment_check.id,
       source: Enum.zip(source_headers, row) |> Enum.into(%{}),
       type: fields["default_payment_type"]
@@ -176,8 +217,7 @@ defmodule Gt.PaymentCheck.Processor do
     |> set_account(payment_check.ps["fields"]["default_account_id"], :account_id)
     |> set_account(payment_check.ps["fee"]["default_account_id"], :fee_account_id)
     |> check_skipped(payment_check)
-    transaction = PaymentCheckTransaction.changeset(transaction) |> Repo.insert!()
-    PaymentCheckRegistry.save(payment_check.id, transaction)
+    PaymentCheckRegistry.save(payment_check.id, {:transaction, transaction, i})
   end
 
   @doc """
@@ -193,8 +233,10 @@ defmodule Gt.PaymentCheck.Processor do
                      |> set_1gp_trans_id()
     {transaction, _, errors} = compare_result
     transaction
+    |> Map.delete(:id)
+    |> PaymentCheckTransaction.changeset()
     |> Ecto.Changeset.put_embed(:errors, errors)
-    |> Repo.update!()
+    |> Repo.insert!
     PaymentCheckRegistry.increment(payment_check.id, :processed)
   end
 
@@ -215,9 +257,9 @@ defmodule Gt.PaymentCheck.Processor do
   def one_gamepay_duplicates({_, nil, _} = result, _), do: result
 
   def one_gamepay_duplicates({transaction, one_gamepay_transaction, errors} = result, payment_check) do
-    duplicate = PaymentCheckTransaction.duplicate(payment_check.id, transaction.id, one_gamepay_transaction.trans_id)
-    |> Repo.one
-    if duplicate do
+    duplicates = PaymentCheckRegistry.find(payment_check.id, "transaction", one_gamepay_transaction.trans_id)
+                 |> Enum.filter(fn trans -> trans.id != transaction.id end)
+    if !Enum.empty?(duplicates) do
       {transaction, one_gamepay_transaction, [add_1gp_error(:duplicate) | errors]}
     else
       result
@@ -252,11 +294,11 @@ defmodule Gt.PaymentCheck.Processor do
     end
   end
 
-  def set_1gp_trans_id({transaction, nil, errors}), do: {PaymentCheckTransaction.changeset(transaction), nil, errors}
+  def set_1gp_trans_id({transaction, nil, errors}), do: {transaction, nil, errors}
 
   def set_1gp_trans_id({transaction, one_gamepay_transaction, errors}) do
     {
-      PaymentCheckTransaction.changeset(transaction, %{one_gamepay_transaction_id: one_gamepay_transaction.id}),
+      %{transaction | one_gamepay_transaction_id: one_gamepay_transaction.id},
       one_gamepay_transaction,
       errors
     }
@@ -270,11 +312,7 @@ defmodule Gt.PaymentCheck.Processor do
               |> Ecto.Query.preload(:project_user)
               |> Repo.one
     if payment do
-      transaction = transaction
-      |> PaymentCheckTransaction.changeset(%{
-        lang: payment.project_user.lang
-      })
-      {transaction, one_gamepay_transaction, errors}
+      {%{transaction | lang: payment.project_user.lang}, one_gamepay_transaction, errors}
     else
       result
     end
@@ -391,6 +429,7 @@ defmodule Gt.PaymentCheck.Processor do
     value = value
     |> String.replace("(", "")
     |> String.replace(")", "")
+    |> String.replace(".", "-")
     case String.length(value) do
       19 -> Timex.parse!(value, "{ISOdate} {ISOtime}")
       25 -> Timex.parse!(value, "{ISOdate} {ISOtime}{Z:}")
@@ -530,39 +569,5 @@ defmodule Gt.PaymentCheck.Processor do
 end
 
 defimpl Gt.PaymentCheck.Script, for: Any do
-  alias Gt.PaymentCheckRegistry
-  alias Gt.PaymentCheck.Processor
-  require Logger
-
-  def run(%{payment_check: payment_check}) do
-    total_files = Enum.count(payment_check.files)
-    Logger.info("Processing #{total_files} files")
-    PaymentCheckRegistry.save(payment_check.id, :total, 0)
-    payment_check.files
-    |> Enum.with_index
-    |> Enum.map(fn {filename, index} ->
-      Logger.info("Processing #{filename} file")
-      process_file(payment_check, {Gt.Uploaders.PaymentCheck.local_path(payment_check.id, filename), index}, total_files)
-    end)
-  end
-
-  def process_file(payment_check, {path, index}, total_files) do
-    Logger.metadata(filename: path)
-    Logger.info("Parsing file #{path}")
-    case Path.extname(path) do
-      ".zip" ->
-        case Processor.unarchive(path) do
-          {:ok, files} ->
-            files
-            |> Enum.with_index
-            |> Enum.each(fn {path, index} ->
-              process_file(payment_check, {to_string(path), index}, total_files + Enum.count(files) - 1)
-            end)
-          {:error, reason} -> {:error, reason}
-        end
-      ".csv" -> Processor.process_csv_file(path, index, total_files, payment_check)
-      ".xls" -> Processor.process_excel_file(path, index, total_files, payment_check)
-      ".xlsx" -> Processor.process_excel_file(path, index, total_files, payment_check)
-    end
-  end
+  def preprocess(%{payment_check: payment_check} = struct), do: {struct, payment_check.files}
 end

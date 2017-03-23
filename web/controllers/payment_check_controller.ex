@@ -13,7 +13,7 @@ defmodule Gt.PaymentCheckController do
 
   def index(conn, params, user) do
     {payment_checks, page} = PaymentCheck
-                             |> order_by([pc], asc: pc.updated_at)
+                             |> order_by([pc], desc: pc.updated_at)
                              |> preload(:payment_system)
                              |> preload(:user)
                              |> Repo.paginate(params)
@@ -160,6 +160,7 @@ defmodule Gt.PaymentCheckController do
       |> redirect(to: payment_check_path(conn, :show, payment_check))
     else
       Repo.delete!(payment_check)
+      Gt.Uploaders.PaymentCheck.storage_dir(nil, {nil, payment_check}) |> File.rm_rf
       conn
       |> put_flash(:info, gettext("worker_deleted"))
       |> redirect(to: payment_check_path(conn, :index))
