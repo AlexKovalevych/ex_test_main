@@ -52,7 +52,8 @@ defmodule Gt.PaymentCheck.Ecp do
                     fee <- secondary_fee_out(content) do
                     add_secondary_report(matched_report, content, currency, out, fee)
       else
-        {:error, reason} -> Map.put(matched_report, :error, "pdf_error")
+        {:error, reason} ->
+          Map.put(matched_report, :error, "pdf_error")
       end
     end
   end
@@ -105,11 +106,11 @@ defmodule Gt.PaymentCheck.Ecp do
              %{"fee" => reverse_fee_out, "sum" => reverse_sum} <- reverse_fee_out(content),
              %{"merchant" => merchant} <- parse_merchant(content) do
                create_source_report(report, from, to, merchant, currency)
-               |> source_report_extra(usd_rub_rate, usd_eur_rate, service_commission, reverse_sum)
+               |> source_report_extra(usd_rub_rate, usd_eur_rate, service_commission, reverse_fee_out)
                |> source_report_in(in_sum, currency)
                |> source_report_out(out, reverse_volume)
                |> source_report_fee_in(fee_in + transaction_fee, currency)
-               |> source_report_fee_out(fee_out_commission + fee_out_transaction, reverse_fee_out, usd_rub_rate)
+               |> source_report_fee_out(fee_out_commission + fee_out_transaction, reverse_sum, usd_rub_rate)
         else
           {:error, reason} ->
             Logger.info(reason)
@@ -254,17 +255,17 @@ defmodule Gt.PaymentCheck.Ecp do
   end
 
   defp secondary_fee_out(content) do
-    fee = case Regex.named_captures(~r/Service commission for transaction[s]?\s+([\d.]+)%\s([\d\s.]+)\s([-\d.\s]+)\s(?<fee>[-\d\s.]+)\s/i, content) do
+    fee = case Regex.named_captures(~r/Service commission for transaction[s]?\s+([\d.]+)%\s([\d\s.]+)\s([-\d.\s]+)\n(?<fee>[-\d\s.]+)\s/i, content) do
       nil -> 0
       %{"fee" => fee} -> get_number(fee)
     end
 
-    fee = fee + case Regex.named_captures(~r/Transaction[s]?al fee for transaction[s]?\s+([\d.]+)\s([\d\s.]+)\s([-\d.\s]+)\s(?<fee>[-\d\s.]+)\s/i, content) do
+    fee = fee + case Regex.named_captures(~r/Transaction[s]?al fee for transaction[s]?\s+([\d.]+)\s([\d\s.]+)\s([-\d.\s]+)\n(?<fee>[-\d\s.]+)\s/i, content) do
       nil -> 0
       %{"fee" => fee} -> get_number(fee)
     end
 
-    fee + case Regex.named_captures(~r/Transaction[s]?al fee for minimal transaction[s]?\s+([\d.]+)\s([\d\s.]+)\s([-\d.\s]+)\s(?<fee>[-\d\s.]+)\s/i, content) do
+    fee + case Regex.named_captures(~r/Transaction[s]?al fee for minimal transaction[s]?\s+([\d.]+)\s([\d\s.]+)\s([-\d.\s]+)\n(?<fee>[-\d\s.]+)\s/i, content) do
       nil -> 0
       %{"fee" => fee} -> get_number(fee)
     end
