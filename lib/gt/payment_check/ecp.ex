@@ -58,7 +58,7 @@ defmodule Gt.PaymentCheck.Ecp do
     end
   end
 
-  def process_report_file(%{payment_check: payment_check, total_files: total_files} = struct, {path, index}) do
+  def process_report_file(%{payment_check: payment_check} = struct, path) do
     Logger.metadata(filename: path)
     Logger.info("Parsing file #{path}")
     case Path.extname(path) do
@@ -66,17 +66,16 @@ defmodule Gt.PaymentCheck.Ecp do
         case Processor.unarchive(path) do
           {:ok, files} ->
             files
-            |> Enum.filter(fn file_path ->
-              Path.dirname(file_path) == Path.dirname(path)
-            end)
-            |> Enum.with_index
-            |> Enum.map(fn {path, index} ->
-              process_report_file(%{struct | total_files: struct.total_files + Enum.count(files) - 1}, {to_string(path), index})
-            end)
+            |> Enum.filter_map(
+              fn file_path -> Path.dirname(file_path) == Path.dirname(path) end,
+              fn file_path -> process_report_file(struct, to_string(file_path)) end
+            )
           {:error, reason} -> {:error, reason}
         end
       ".pdf" -> process_pdf_file(path, payment_check)
-      _ -> PaymentCheckRegistry.save(payment_check.id, {:log, path})
+      _ ->
+        PaymentCheckRegistry.save(payment_check.id, {:log, path})
+        nil
     end
   end
 
@@ -354,16 +353,16 @@ defimpl Gt.PaymentCheck.Script, for: Gt.PaymentCheck.Ecp do
 
   def preprocess(%{payment_check: payment_check, total_files: total_files} = struct) do
     source_reports = payment_check.files
-    |> Enum.with_index
-    |> Enum.reduce(%{}, fn {filename, index}, acc ->
+    |> Enum.reduce(%{}, fn filename, acc ->
       Logger.info("Processing #{filename} file")
       path = Gt.Uploaders.PaymentCheck.local_path(payment_check.id, filename)
-      source_report = Ecp.process_report_file(struct, {path, index})
+      source_report = Ecp.process_report_file(struct, path)
       cond do
         is_list(source_report) ->
           source_report
           |> Enum.filter(fn
             {:error, reason} -> false
+            nil -> false
             _ -> true
           end)
           |> Enum.reduce(acc, fn {filename, report}, reports ->

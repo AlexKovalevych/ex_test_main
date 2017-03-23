@@ -60,10 +60,15 @@ defmodule Gt.OneGamepayTransaction do
     else
       query
     end
-    ps_value = "(#{String.replace(payment_check.ps["one_gamepay"]["payment_system"], ",", "|")})"
-    query = query
-            |> or_where([ogt], ogt.ps_trans_id == ^transaction.ps_trans_id and
+
+    ps = payment_check.ps["one_gamepay"]["payment_system"]
+    query = if ps do
+      ps_value = "(#{String.replace(ps, ",", "|")})"
+      query |> or_where([ogt], ogt.ps_trans_id == ^transaction.ps_trans_id and
               fragment("? ~* ?", ogt.ps_name, ^ps_value))
+    else
+      query
+    end
 
     if transaction.pguid do
       query |> or_where([ogt], ogt.project_trans_id == ^transaction.pguid)

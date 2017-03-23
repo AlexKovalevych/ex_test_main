@@ -8,15 +8,11 @@ defmodule Gt.PaymentCheckRegistry do
     :ets.new(get_key(id), [:named_table, :public])
   end
 
-  def save(id, key, value) do
-    :ets.insert(get_key(id), {key, value})
+  def save(id, {:transaction, transaction, file_index, i}) do
+    :ets.insert(get_key(id), {"transaction_#{file_index}_#{i}", :raw_transaction, transaction.one_gamepay_id, transaction})
   end
 
-  def save(id, {:transaction, transaction, i}) do
-    :ets.insert(get_key(id), {"transaction_#{i}", :raw_transaction, transaction.one_gamepay_id, transaction})
-  end
-
-  def save(id, {:transaction, %PaymentCheckTransaction{id: id} = transaction}) do
+  def save(id, :transaction, %PaymentCheckTransaction{id: id} = transaction) do
     :ets.insert(get_key(id), {"transaction_#{id}", :transaction, transaction.one_gamepay_id, transaction})
   end
 
@@ -26,6 +22,10 @@ defmodule Gt.PaymentCheckRegistry do
 
   def save(id, {:log, path}) do
     :ets.insert(get_key(id), {"log_#{path}", :log, path})
+  end
+
+  def save(id, key, value) do
+    :ets.insert(get_key(id), {key, value})
   end
 
   def increment(id, key, value \\ 1) do
