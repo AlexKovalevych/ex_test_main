@@ -412,7 +412,7 @@ defimpl Gt.PaymentCheck.Script, for: Gt.PaymentCheck.Ecp do
       end
     end)
 
-    files = PaymentCheckRegistry.find(payment_check.id, "log") |> Enum.map(&Path.basename/1)
+    files = PaymentCheckRegistry.find(payment_check.id, :log) |> Enum.map(&Path.basename/1)
     {%{struct | total_files: Enum.count(files)}, files}
   end
 end

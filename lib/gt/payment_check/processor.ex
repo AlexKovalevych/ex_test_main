@@ -29,8 +29,10 @@ defmodule Gt.PaymentCheck.Processor do
   def process_file(struct, {path, index}) do
     Logger.metadata(filename: path)
     Logger.info("Parsing file #{path}")
-    PaymentCheckRegistry.delete(struct.payment_check.id, :headers)
-    PaymentCheckRegistry.delete(struct.payment_check.id, :source_headers)
+    id = struct.payment_check.id
+    PaymentCheckRegistry.delete(id, :headers)
+    PaymentCheckRegistry.delete(id, :source_headers)
+    PaymentCheckRegistry.delete(id, :raw_transaction)
     case Path.extname(path) do
       ".zip" ->
         case unarchive(path) do
@@ -75,8 +77,6 @@ defmodule Gt.PaymentCheck.Processor do
           rows_number = Exoffice.count_rows(pid, parser)
           if rows_number > 0 do
             Logger.info("Found #{rows_number} rows in sheet #{sheet}")
-            IO.inspect(:processed, index * rows_number * 2)
-            IO.inspect(:total, total_files * rows_number * 2)
             PaymentCheckRegistry.save(payment_check.id, :processed, index * rows_number * 2)
             PaymentCheckRegistry.save(payment_check.id, :total, total_files * rows_number * 2)
             with :ok <- Exoffice.get_rows(pid, parser) |> process_rows_stream(payment_check),
@@ -124,7 +124,7 @@ defmodule Gt.PaymentCheck.Processor do
 
   def process_one_gamepay(payment_check) do
     Logger.info("Matching with 1gamepay")
-    PaymentCheckRegistry.find(payment_check.id, "transaction")
+    PaymentCheckRegistry.find(payment_check.id, :raw_transaction)
     |> Enum.chunk(10, 10, [])
     |> Enum.each(fn chunk ->
       chunk
@@ -232,11 +232,12 @@ defmodule Gt.PaymentCheck.Processor do
                      |> set_lang()
                      |> set_1gp_trans_id()
     {transaction, _, errors} = compare_result
-    transaction
+    transaction = transaction
     |> Map.delete(:id)
     |> PaymentCheckTransaction.changeset()
     |> Ecto.Changeset.put_embed(:errors, errors)
     |> Repo.insert!
+    PaymentCheckRegistry.save(payment_check.id, {:transaction, transaction, transaction.id})
     PaymentCheckRegistry.increment(payment_check.id, :processed)
   end
 
@@ -257,7 +258,7 @@ defmodule Gt.PaymentCheck.Processor do
   def one_gamepay_duplicates({_, nil, _} = result, _), do: result
 
   def one_gamepay_duplicates({transaction, one_gamepay_transaction, errors} = result, payment_check) do
-    duplicates = PaymentCheckRegistry.find(payment_check.id, "transaction", one_gamepay_transaction.trans_id)
+    duplicates = PaymentCheckRegistry.find(payment_check.id, :raw_transaction, one_gamepay_transaction.trans_id)
                  |> Enum.filter(fn trans -> trans.id != transaction.id end)
     if !Enum.empty?(duplicates) do
       {transaction, one_gamepay_transaction, [add_1gp_error(:duplicate) | errors]}
