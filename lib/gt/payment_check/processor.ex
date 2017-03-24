@@ -354,7 +354,6 @@ defmodule Gt.PaymentCheck.Processor do
   Skip transaction in cases:
     - its state is not amoung defined "OK" states
     - date is empty
-    - no mapped state, but there are defined "OK" states
     - type is not valid
   """
   def check_skipped(transaction, payment_check) do
@@ -366,9 +365,7 @@ defmodule Gt.PaymentCheck.Processor do
     cond do
       !transaction.date ->
         skip_transaction(transaction, :bad_date)
-      !Enum.member?(state_ok, transaction.state) ->
-        skip_transaction(transaction, :bad_state)
-      Enum.count(state_ok) > 0 && !payment_check.ps["fields"]["state"] ->
+      !Enum.empty?(state_ok) && !is_nil(transaction.state) && !Enum.member?(state_ok, transaction.state) ->
         skip_transaction(transaction, :bad_state)
       !Enum.member?(PaymentCheckTransaction.types(), transaction.type) ->
         skip_transaction(transaction, :bad_type)
@@ -434,6 +431,8 @@ defmodule Gt.PaymentCheck.Processor do
     {:ok, reg} = Regex.compile("^" <> <<239, 187, 191>>)
     String.replace(value, reg, "")
   end
+
+  def parse_float(nil), do: 0.0
 
   def parse_float(value) when is_float(value), do: value
 
@@ -528,8 +527,8 @@ defmodule Gt.PaymentCheck.Processor do
           fee_currency = if transaction.fee_currency, do: :fee_currency, else: :currency
           {:sum, fee_currency}
       end
-      fixed_fee = get_float(Map.get(payment_check.ps["fee"], "sum"))
-      percent_fee = get_float(Map.get(payment_check.ps["fee"], "percent")) / 100 * Map.get(transaction, fee_sum)
+      fixed_fee = parse_float(Map.get(payment_check.ps["fee"], "sum"))
+      percent_fee = parse_float(Map.get(payment_check.ps["fee"], "percent")) / 100 * Map.get(transaction, fee_sum)
       fee = fixed_fee + percent_fee
       max_fee = Map.get(payment_check.ps["fee"], "max_fee")
       fee = if max_fee && fee > max_fee, do: max_fee, else: fee
@@ -581,12 +580,6 @@ defmodule Gt.PaymentCheck.Processor do
       _ -> transaction
     end
   end
-
-  def get_float(nil), do: 0.0
-
-  def get_float(value) when is_float(value), do: value
-
-  def get_float(value) when is_integer(value), do: value / 1
 
   defp parse_headers_block(fields, payment_check, block, prefix, headers) do
     fields

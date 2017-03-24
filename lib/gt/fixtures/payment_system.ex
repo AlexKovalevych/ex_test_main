@@ -593,7 +593,6 @@ defmodule Gt.Fixtures.PaymentSystem do
         sum: "Amount,TR_AMOUNT",
         date: "Date and time of completion of transaction,TR_DATE_TIME",
         type: "TR_TYPE,Transaction type",
-        state: "Transaction status",
         map_id: "Transaction ID,TRX. ID ADMIN,TRX. ID",
         type_in: "rebill,purchase,05",
         currency: "Currency,TR_CCY",
