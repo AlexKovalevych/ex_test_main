@@ -24,6 +24,12 @@ defmodule Gt.OneGamepayTransaction do
     timestamps()
   end
 
+  @type_in "purchase"
+  @type_out "payout"
+
+  def type(:in), do: @type_in
+  def type(:out), do: @type_out
+
   @required_fields ~w(trans_id
                       project_trans_id
                       ps_name

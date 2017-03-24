@@ -42,7 +42,6 @@ defmodule Gt.PaymentCheck.Processor do
     total_rows = Enum.reduce(opened_files, 0, fn {_, _, _, rows_number}, acc ->
       acc + rows_number
     end)
-    IO.inspect(total_rows * @steps)
     PaymentCheckRegistry.save(payment_check.id, :total, total_rows * @steps)
 
     Enum.with_index(opened_files)
@@ -51,9 +50,9 @@ defmodule Gt.PaymentCheck.Processor do
       PaymentCheckRegistry.delete(id, :source_headers)
       case file do
         {nil, nil, rows, _} ->
-          process_rows_stream(rows, payment_check, index)
+          process_rows_stream(struct, rows, index)
         {pid, parser, rows, _} ->
-          with :ok <- process_rows_stream(rows, payment_check, index) do
+          with :ok <- process_rows_stream(struct, rows, index) do
                Exoffice.close(pid, parser)
           else
             {:error, reason} ->
@@ -63,7 +62,7 @@ defmodule Gt.PaymentCheck.Processor do
       end
     end)
 
-    process_one_gamepay(payment_check)
+    process_one_gamepay(struct)
     PaymentCheckRegistry.delete(id, :raw_transaction)
   end
 
@@ -122,7 +121,7 @@ defmodule Gt.PaymentCheck.Processor do
     :zip.unzip(path |> String.to_charlist, [{:cwd, Path.dirname(path) |> String.to_charlist}])
   end
 
-  def process_rows_stream(stream, payment_check, index) do
+  def process_rows_stream(%{payment_check: payment_check} = struct, stream, index) do
     processed_rows = stream
     |> Stream.drop_while(fn row ->
       case parse_headers(payment_check, row) do
@@ -141,7 +140,7 @@ defmodule Gt.PaymentCheck.Processor do
       |> ParallelStream.each(fn {row, j} ->
         if !Enum.all?(row, &is_nil/1) do
           PaymentCheckRegistry.increment(payment_check.id, :processed)
-          parse_row(payment_check, row, {index, i * 10 + j})
+          parse_row(struct, row, {index, i * 10 + j})
         else
           PaymentCheckRegistry.increment(payment_check.id, :processed, @steps)
         end
@@ -152,13 +151,13 @@ defmodule Gt.PaymentCheck.Processor do
     if processed_rows > 0, do: :ok, else: {:error, "config doesn't match"}
   end
 
-  def process_one_gamepay(payment_check) do
+  def process_one_gamepay(%{payment_check: payment_check} = struct) do
     Logger.info("Matching with 1gamepay")
     PaymentCheckRegistry.find(payment_check.id, :raw_transaction)
     |> Enum.chunk(10, 10, [])
     |> Enum.each(fn chunk ->
       chunk
-      |> ParallelStream.each(&compare_1gp(payment_check, &1))
+      |> ParallelStream.each(&compare_1gp(struct, &1))
       |> Enum.reduce(nil, fn _, _ -> nil end)
     end)
   end
@@ -203,7 +202,7 @@ defmodule Gt.PaymentCheck.Processor do
     end
   end
 
-  def parse_row(payment_check, row, {file_index, i}) do
+  def parse_row(%{payment_check: payment_check} = struct, row, {file_index, i}) do
     headers = PaymentCheckRegistry.find(payment_check.id, :headers)
     source_headers = PaymentCheckRegistry.find(payment_check.id, :source_headers)
     fields = payment_check.ps["fields"]
@@ -225,7 +224,7 @@ defmodule Gt.PaymentCheck.Processor do
               "map_id" -> %{acc | ps_trans_id: to_string(cell)}
               "sum" -> %{acc | sum: parse_float(cell)}
               "currency" -> %{acc | currency: parse_currency(cell)}
-              "date" -> %{acc | date: parse_date(cell)}
+              "date" -> %{acc | date: Script.parse_date(struct, cell)}
               "type" -> %{acc | type: parse_type(fields["default_payment_type"], fields["type_in"], fields["type_out"], cell)}
               "account_id" -> %{acc | account_id: cell}
               "state" -> %{acc | state: cell}
@@ -243,22 +242,23 @@ defmodule Gt.PaymentCheck.Processor do
     end)
     |> negative_out_type(payment_check)
     |> divide_100(payment_check)
-    |> calculate_fee(payment_check)
-    |> set_account(payment_check.ps["fields"]["default_account_id"], :account_id)
-    |> set_account(payment_check.ps["fee"]["default_account_id"], :fee_account_id)
-    |> check_skipped(payment_check)
+
+    transaction = Script.calculate_fee(struct, transaction)
+                  |> set_account(payment_check.ps["fields"]["default_account_id"], :account_id)
+                  |> set_account(payment_check.ps["fee"]["default_account_id"], :fee_account_id)
+                  |> check_skipped(payment_check)
     PaymentCheckRegistry.save(payment_check.id, {:transaction, transaction, file_index, i})
   end
 
   @doc """
   Compare with 1Gamepay transactions
   """
-  def compare_1gp(payment_check, transaction) do
+  def compare_1gp(%{payment_check: payment_check} = struct, transaction) do
     compare_result = find_1gp_transaction(payment_check, transaction)
                      |> validate_date()
                      |> one_gamepay_duplicates(payment_check)
-                     |> compare_sum()
-                     |> compare_currency()
+                     |> compare_sum(struct)
+                     |> compare_currency(struct)
                      |> set_lang()
                      |> set_1gp_trans_id()
     {transaction, _, errors} = compare_result
@@ -300,25 +300,43 @@ defmodule Gt.PaymentCheck.Processor do
   @doc"""
   Compare transaction sum with 1Gamepay sum
   """
-  def compare_sum({_, nil, _} = result) , do: result
+  def compare_sum({_, nil, _} = result, _) , do: result
 
-  def compare_sum({transaction, one_gamepay_transaction, _} = result) do
-    if abs(transaction.sum) != abs(one_gamepay_transaction.sum) &&
-       abs(transaction.sum) != abs(one_gamepay_transaction.channel_sum) do
+  def compare_sum({transaction, one_gamepay_transaction, _} = result, struct) do
+    one_gamepay_channel_sum = Script.channel_sum_1gp(struct, one_gamepay_transaction)
+    one_gamepay_sum = Script.sum_1gp(struct, one_gamepay_transaction)
+    if !Script.match_1gp_sum(struct, transaction, one_gamepay_sum, one_gamepay_channel_sum) do
       {transaction, one_gamepay_transaction, [add_1gp_error(:invalid_sum)]}
     else
       result
     end
   end
 
+  def channel_sum_1gp(one_gamepay_transaction) do
+    abs(one_gamepay_transaction.channel_sum)
+  end
+
+  def sum_1gp(one_gamepay_transaction) do
+    abs(one_gamepay_transaction.sum)
+  end
+
+  def match_1gp_sum(transaction, one_gamepay_sum, one_gamepay_channel_sum) do
+    transaction.sum == one_gamepay_channel_sum ||
+    transaction.sum == one_gamepay_sum ||
+    transaction.report_sum == one_gamepay_channel_sum ||
+    transaction.report_sum == one_gamepay_sum
+  end
+
   @doc"""
   Compare transaction currency with 1Gamepay currency
   """
-  def compare_currency({_, nil, _} = result), do: result
+  def compare_currency({_, nil, _} = result, _), do: result
 
-  def compare_currency({transaction, one_gamepay_transaction, errors} = result) do
-    if transaction.currency != one_gamepay_transaction.currency &&
-       transaction.currency != one_gamepay_transaction.channel_currency do
+  def compare_currency({transaction, one_gamepay_transaction, errors} = result, struct) do
+    one_gamepay_currency = Script.currency_1gp(struct, one_gamepay_transaction)
+    one_gamepay_channel_currency = Script.channel_currency_1gp(struct, one_gamepay_transaction)
+    if transaction.currency != one_gamepay_currency &&
+       transaction.currency != one_gamepay_channel_currency do
       {transaction, one_gamepay_transaction, [add_1gp_error(:invalid_currency)]}
     else
       result
@@ -455,7 +473,7 @@ defmodule Gt.PaymentCheck.Processor do
     end
   end
 
-  def parse_date(value) when is_binary(value) do
+  def parse_date(_, value) when is_binary(value) do
     value = value
     |> String.replace("(", "")
     |> String.replace(")", "")
@@ -469,7 +487,7 @@ defmodule Gt.PaymentCheck.Processor do
     end
   end
 
-  def parse_date({date, time} = value) when is_tuple(date) and is_tuple(time) do
+  def parse_date(_, {date, time} = value) when is_tuple(date) and is_tuple(time) do
     case NaiveDateTime.from_erl(value) do
       {:ok, date} -> date
       _ ->
@@ -478,7 +496,7 @@ defmodule Gt.PaymentCheck.Processor do
     end
   end
 
-  def parse_date(value) when is_tuple(value) do
+  def parse_date(_, value) when is_tuple(value) do
     case Date.from_erl(value) do
       {:ok, date} -> date |> Timex.to_naive_datetime
       _ ->
@@ -487,7 +505,7 @@ defmodule Gt.PaymentCheck.Processor do
     end
   end
 
-  def parse_date(value) do
+  def parse_date(_, value) do
     case value do
       %NaiveDateTime{} -> value
     end
@@ -518,7 +536,7 @@ defmodule Gt.PaymentCheck.Processor do
 
   def parse_one_gamepay_id(value) when is_integer(value), do: value
 
-  def calculate_fee(transaction, payment_check) do
+  def calculate_fee(%{payment_check: payment_check} = struct, transaction) do
     if Enum.member?(payment_check.ps["fee"]["types"], transaction.type) do
       {fee_sum, fee_currency} = case payment_check.ps["fee"]["fee_report"] do
         true ->
@@ -593,5 +611,27 @@ defmodule Gt.PaymentCheck.Processor do
 end
 
 defimpl Gt.PaymentCheck.Script, for: Any do
+  alias Gt.PaymentCheck.Processor
+
   def preprocess(%{payment_check: payment_check} = struct), do: {struct, payment_check.files}
+
+  def channel_sum_1gp(_struct, _transaction, one_gamepay_transaction) do
+    Processor.channel_sum_1gp(one_gamepay_transaction)
+  end
+
+  def sum_1gp(_struct, _transaction, one_gamepay_transaction) do
+    Processor.sum_1gp(one_gamepay_transaction)
+  end
+
+  def currency_1gp(_struct, %{currency: currency}), do: currency
+
+  def channel_currency_1gp(_struct, %{channel_currency: currency}), do: currency
+
+  def match_1gp_sum(_struct, transaction, one_gamepay_sum, one_gamepay_channel_sum) do
+    Processor.match_1gp_sum(transaction, one_gamepay_sum, one_gamepay_channel_sum)
+  end
+
+  def calculate_fee(struct, transaction), do: Processor.calculate_fee(struct, transaction)
+
+  def parse_date(struct, cell), do: Processor.parse_date(struct, cell)
 end
