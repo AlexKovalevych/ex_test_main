@@ -25,11 +25,11 @@
         <div id="payment_check"></div>
         <div class="col-sm-12"></div>
 
-        <%= if Gt.Auth.Permissions.has(@current_user.permissions, "payment_systems", @payment_check.payment_system.id) do %>
-          <% ps_link = link(@payment_check.payment_system.name, to: payment_system_path(@conn, :edit, @payment_check.payment_system))  %>
-        <%= else %>
-          <% ps_link = @payment_check.payment_system %>
-        <%= end %>
+        <% ps_link = if Gt.Auth.Permissions.has(@current_user.permissions, "payment_systems", @payment_check.payment_system.id) do
+          link(@payment_check.payment_system.name, to: payment_system_path(@conn, :edit, @payment_check.payment_system))
+        else
+          @payment_check.payment_system
+        end %>
 
         <%= render "status_block.html",
             label: dgettext("payment_checks", "payment_system"),

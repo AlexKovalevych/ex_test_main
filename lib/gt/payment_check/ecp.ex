@@ -2,21 +2,11 @@ defmodule Gt.PaymentCheck.Ecp do
   defstruct [:payment_check, :total_files]
 
   alias Gt.PaymentCheck.Processor
-  alias Gt.OneGamepayTransaction
-  alias Gt.PaymentCheck
   alias Gt.PaymentCheckRegistry
-  alias Gt.PaymentCheckTransaction
-  alias Gt.PaymentCheckTransactionError
   alias Gt.PaymentCheckSourceReport
   alias Gt.PaymentCheckSourceValue
-  import Ecto.Changeset
   require Logger
   use Timex
-
-  @min_in_usd_fee 0.6
-  @min_out_rub_fee 75.01
-  @base_eur_fee 0.15
-  @min_service_out_rub_modifier 25
 
   def process_secondary_file(payment_check, reports, {filename, report}) do
     path = Gt.Uploaders.PaymentCheck.local_path(payment_check.id, filename)
@@ -30,18 +20,20 @@ defmodule Gt.PaymentCheck.Ecp do
             {:error, "Can't parse pdf"}
           pages ->
             content = pages |> Enum.map(&to_string/1) |> Enum.join("")
-            report = with %{"from" => from, "to" => to} <- period(content),
+            with %{"from" => from, "to" => to} <- period(content),
                  %{"merchant" => merchant} <- parse_merchant(content) do
-                   update_matched_report(payment_check, reports, content, filename, merchant, from, to)
+                   update_matched_report(reports, content, filename, merchant, from, to)
             else
-              {:error, reason} -> Map.put(report, :error, "pdf_error")
+              {:error, reason} ->
+                Logger.info(reason)
+                Map.put(report, :error, "pdf_error")
             end
         end
       _ -> nil
     end
   end
 
-  defp update_matched_report(payment_check, reports, content, filename, merchant, from, to) do
+  defp update_matched_report(reports, content, filename, merchant, from, to) do
     matched_report = Enum.find(reports, fn report ->
       case :binary.match(report.merchant, merchant) do
         :nomatch -> false
@@ -59,6 +51,7 @@ defmodule Gt.PaymentCheck.Ecp do
                     add_secondary_report(matched_report, content, currency, out, fee)
       else
         {:error, reason} ->
+          Logger.info(reason)
           Map.put(matched_report, :error, "pdf_error")
       end
     end
@@ -161,7 +154,7 @@ defmodule Gt.PaymentCheck.Ecp do
     reverse_value = %PaymentCheckSourceValue{value: reverse_volume, currency: "USD"}
     out_values = Enum.map(out, fn {value, currency, alternative_value, alternative_currency} ->
       alternative = %PaymentCheckSourceValue{value: alternative_value, currency: alternative_currency}
-      out_value = %PaymentCheckSourceValue{value: value, currency: currency, alternatives: [alternative]}
+      %PaymentCheckSourceValue{value: value, currency: currency, alternatives: [alternative]}
     end)
     Map.put(source_report, :out, [reverse_value | out_values])
   end
@@ -190,11 +183,11 @@ defmodule Gt.PaymentCheck.Ecp do
   defp period(content) do
     case Regex.named_captures(~r/Period(?: \(transaction date\))?:\s*(?<from>[\d\/]+)-(?<to>[\d\/]+)/i, content) do
       nil -> {:error, "Failed to parse period"}
-      %{"from" => from, "to" => to} -> %{"from" => parse_date(from), "to" => parse_date(to)}
+      %{"from" => from, "to" => to} -> %{"from" => parse_pdf_date(from), "to" => parse_pdf_date(to)}
     end
   end
 
-  defp parse_date(value) do
+  defp parse_pdf_date(value) do
     case String.length(value) do
       10 -> Timex.parse!(value, "{0D}/{0M}/{YYYY}") |> Timex.to_date
     end
@@ -352,12 +345,22 @@ end
 defimpl Gt.PaymentCheck.Script, for: Gt.PaymentCheck.Ecp do
   alias Gt.PaymentCheck.Ecp
   alias Gt.PaymentCheckSourceReport
+  alias Gt.PaymentCheck.Processor
   alias Gt.PaymentCheckRegistry
-  alias Gt.PaymentCheck.Script
+  alias Gt.PaymentCheckTransaction
+  alias Gt.OneGamepayTransaction
   alias Gt.Repo
   require Logger
 
-  def preprocess(%{payment_check: payment_check, total_files: total_files} = struct) do
+  @min_in_usd_fee 0.6
+  @min_out_rub_fee 75.01
+  @base_eur_fee 0.15
+  @min_service_out_rub_modifier 25
+
+  @merchant_darmako "DARMACO TRADING LIMITED"
+  @merchant_ggs "GGS NET LTD"
+
+  def preprocess(%{payment_check: payment_check} = struct) do
     source_reports = payment_check.files
     |> Enum.reduce(%{}, fn filename, acc ->
       Logger.info("Processing #{filename} file")
@@ -367,7 +370,7 @@ defimpl Gt.PaymentCheck.Script, for: Gt.PaymentCheck.Ecp do
         is_list(source_report) ->
           source_report
           |> Enum.filter(fn
-            {:error, reason} -> false
+            {:error, _} -> false
             nil -> false
             _ -> true
           end)
@@ -421,25 +424,25 @@ defimpl Gt.PaymentCheck.Script, for: Gt.PaymentCheck.Ecp do
     {%{struct | total_files: Enum.count(files)}, files}
   end
 
-  def sum_1gp(struct, transaction, one_gamepay_transaction) do
+  def sum_1gp(_struct, transaction, one_gamepay_transaction) do
     if transaction.type == PaymentCheckTransaction.type(:in) do
       Gt.CbrProvider.to_usd(one_gamepay_transaction.currency,
                             Timex.to_date(one_gamepay_transaction.date),
                             abs(one_gamepay_transaction.sum))
       |> Float.round(2)
     else
-      Processor.sum_1gp(struct, transaction, one_gamepay_transaction)
+      Processor.sum_1gp(one_gamepay_transaction)
     end
   end
 
-  def channel_sum_1gp(struct, transaction, one_gamepay_transaction) do
+  def channel_sum_1gp(_struct, transaction, one_gamepay_transaction) do
     if transaction.type == PaymentCheckTransaction.type(:in) do
       Gt.CbrProvider.to_usd(one_gamepay_transaction.channel_currency,
                             Timex.to_date(one_gamepay_transaction.date),
                             abs(one_gamepay_transaction.channel_sum))
       |> Float.round(2)
     else
-      Processor.channel_sum_1gp(struct, transaction, one_gamepay_transaction)
+      Processor.channel_sum_1gp(one_gamepay_transaction)
     end
   end
 
@@ -480,27 +483,32 @@ defimpl Gt.PaymentCheck.Script, for: Gt.PaymentCheck.Ecp do
     end
   end
 
-  def calculate_fee(%{payment_check: payment_check} = struct, transaction) do
-    #if ($transaction->getType() === PaymentSystem::ONE_S_STATUS_IN) {
-        #// Time is shifted by 23 minutes for in transactions
-        #$transaction->getDate()->subMinutes(23);
-    #}
+  def calculate_fee(%{payment_check: payment_check}, transaction) do
+    transaction = if transaction.type == PaymentCheckTransaction.type(:in) do
+      # Time is shifted by 23 minutes for in transactions
+      %{transaction | date: Timex.shift(transaction.date, minutes: 23)}
+    else
+      transaction
+    end
 
     #$sourceRow = $transaction->getSourceRow();
-    #$isRefund = (isset($sourceRow["Refund"]) && $sourceRow["Refund"] != 0) || (isset($sourceRow["Purchase Reversal"]) && $sourceRow["Purchase Reversal"]);
-    #if ($transaction->getType() == PaymentSystem::ONE_S_STATUS_OUT && !$isRefund) {
-        #$transaction->setSum(((float) $transaction->getSum()) / 100);
-        #$transaction->setFee(((float) $transaction->getFee()) / 100);
-        #$transaction->setReportSum((float) $transaction->getReportSum() / 100);
-    #}
+    IO.inspect(transaction.source_row)
+    is_refund = Map.get(transaction.source_row, "Refund", 0) != 0 || Map.get(transaction.source_row, "Purchase Reversal")
+    transaction = if transaction.type == PaymentCheckTransaction.type(:out) do
+      case is_refund do
+        true ->
+          report = find_source_report(transaction, payment_check)
+          %{transaction | fee: report.extra_data["refund_commission"]}
+        false ->
+          %{transaction | sum: transaction.sum / 100,
+                          fee: transaction.fee / 100,
+                          report_sum: transaction.report_sum / 100}
+      end
+    else
+      transaction
+    end
 
-    #if ($transaction->getType() == PaymentSystem::ONE_S_STATUS_OUT && $isRefund) {
-        #$totalReportSource = $this->getTotalReportSource($transaction, $paymentSystem);
-        #$transaction->setFee($totalReportSource->getExtraData()['refund_comission']);
-    #}
-    #
-
-    if Enum.member?(payment_check.ps["fee"]["types"], transaction.type) && !is_refund do
+    transaction = if Enum.member?(payment_check.ps["fee"]["types"], transaction.type) && !is_refund do
       {fee_sum, fee_currency} = case payment_check.ps["fee"]["fee_report"] do
         true ->
           {:report_sum, :report_currency}
@@ -509,50 +517,52 @@ defimpl Gt.PaymentCheck.Script, for: Gt.PaymentCheck.Ecp do
           {:sum, fee_currency}
       end
 
-      fixed_fee = parse_float(Map.get(payment_check.ps["fee"], "sum"))
+      transaction = %{transaction | fee_currency: fee_currency,
+                                    fee: transaction.fee + Processor.parse_float(Map.get(payment_check.ps["fee"], "sum"))}
 
       # transaction have minimal fee, or percent + fix price fee
       # in and out have different minimal transactions sum
-
       source_report = find_source_report(transaction, payment_check)
       in_transaction_percent = get_service_commission(source_report)
       out_transaction_percent = payment_check.ps["fields"]["fee_out_percent"]
       type_in = PaymentCheckTransaction.type(:in)
       type_out = PaymentCheckTransaction.type(:out)
-      fee = cond do
+      cond do
         minimal_in_transaction?(payment_check, transaction, in_transaction_percent, source_report) ->
           rate = get_rate(source_report, "USD", transaction.currency)
-          convert_value(rate, @min_in_usd_fee)
+          %{transaction | fee: convert_value(rate, @min_in_usd_fee)}
         minimal_out_transaction?(payment_check, transaction, out_transaction_percent, source_report) ->
           rate = get_rate(source_report, "RUB", transaction.currency)
-          convert_value(rate, @min_out_rub_fee)
+          %{transaction | fee: convert_value(rate, @min_out_rub_fee)}
         true ->
           # calculate default fee rules
-          {trans_percent, fee} = case transaction.type do
+          {trans_percent, transaction} = case transaction.type do
             ^type_out ->
               fix_out_fee = payment_check.ps["fields"]["fee_sum_rub"]
               rate = get_rate(source_report, "RUB", transaction.currency)
-              {out_transaction_percent, Float.round(convert_value(rate, fix_out_fee), 2)}
+              fee = Float.round(convert_value(rate, fix_out_fee), 2)
+              {out_transaction_percent, %{transaction | fee: transaction.fee + fee}}
             _ ->
-              {in_transaction_percent, 0}
+              {in_transaction_percent, transaction}
           end
           fee_sum = case payment_check.ps["fee"]["fee_report"] do
             true -> transaction.report_sum
             false -> transaction.sum
           end
-          fee_sum = fee_sum + fee
           fee_percent = trans_percent / 100 * fee_sum
-          fee_sum + fee_percent + case transaction.type do
+          fee_sum = fee_sum + fee_percent + case transaction.type do
             ^type_in ->
               rate = get_rate(source_report, "EUR", "USD")
               Float.round(convert_value(rate, @base_eur_fee), 2)
             _ -> 0
           end
+          %{transaction | fee: transaction.fee + fee_sum}
       end
+    end
 
-      #max_fee = Map.get(payment_check.ps["fee"], "max_fee")
-      #fee = if max_fee && fee > max_fee, do: max_fee, else: fee
-      #%{transaction | fee: fee, fee_currency: Map.get(transaction, fee_currency)}
+    max_fee = Map.get(payment_check.ps["fee"], "max_fee")
+    fee = if max_fee && transaction.fee > max_fee, do: max_fee, else: transaction.fee
+    %{transaction | fee: fee}
   end
 
   defp minimal_in_transaction?(payment_check, transaction, percent_in, source_report) do
@@ -560,8 +570,6 @@ defimpl Gt.PaymentCheck.Script, for: Gt.PaymentCheck.Ecp do
     type_in = PaymentCheckTransaction.type(:in)
     case transaction.type do
       ^type_in ->
-        sum = transaction.sum
-        currency = transaction.currency
         {sum, currency} = case payment_check.ps["fee"]["fee_report"] do
           true -> {transaction.report_sum, transaction.report_currency}
           false -> {transaction.sum, transaction.currency}
@@ -576,7 +584,6 @@ defimpl Gt.PaymentCheck.Script, for: Gt.PaymentCheck.Ecp do
   end
 
   defp minimal_out_transaction?(payment_check, transaction, percent_out, source_report) do
-    type_out =
     if transaction.type != PaymentCheckTransaction.type(:out) do
       false
     else
@@ -596,7 +603,6 @@ defimpl Gt.PaymentCheck.Script, for: Gt.PaymentCheck.Ecp do
   defp get_rate(report, from, to) do
     key = "#{from}_#{to}"
     reverse_key = "#{to}_#{from}"
-    rate =
     case Map.get(report.extra_data, key) do
       nil ->
         case Map.get(report.extra_data, reverse_key) do
@@ -680,17 +686,18 @@ defimpl Gt.PaymentCheck.Script, for: Gt.PaymentCheck.Ecp do
     end
   end
 
-  def parse_date(_struct, cell) do
-    #if (preg_match("/(?P<from>\d{4}'\d{2}'\d{2})-(?P<to>\d{4}'\d{2}'\d{2})/", $transaction->getSourceRow()[GatewayManager::SOURCE_ROW_COLUMN], $matches)) {
-    #$from = new GloboDate(str_replace('\'', '-', $matches['from']) . ' 10:00:00');
-    #$to = new GloboDate(str_replace('\'', '-', $matches['to']) . ' 23:59:59');
-    #$date = $transaction->getDate();
-    #if ($date < $from) {
-        #$transaction->setDate($from);
-    #} elseif ($date > $to) {
-        #$transaction->setDate($to);
-    #}
-  #}
-
+  def parse_date(struct, path, cell) do
+    date = Processor.parse_date(struct, cell)
+    case Regex.named_captures(~r/(?<from>\d{4}'\d{2}'\d{2})-(?P<to>\d{4}'\d{2}'\d{2})/, Path.basename(path)) do
+      %{"from" => from, "to" => to} ->
+        from = String.replace(from, "'", "-") |> Timex.parse!("{YYYY}-{0M}-{0D}") |> Timex.set(hour: 10)
+        to = String.replace(to, "'", "-") |> Timex.parse!("{YYYY}-{0M}-{0D}") |> Timex.set(hour: 23, minutes: 59, second: 59)
+        cond do
+          Timex.diff(date, from) < 0 -> from
+          Timex.diff(date, to) > 0 -> to
+          true -> date
+        end
+      nil -> date
+    end
   end
 end

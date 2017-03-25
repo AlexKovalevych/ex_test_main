@@ -1,7 +1,6 @@
 defmodule Gt.PaymentCheckRegistry do
   use GenServer
   alias Gt.PaymentCheckTransaction
-  alias Gt.PaymentCheckSourceReport
   import String, only: [to_atom: 1]
 
   def create(id) do
@@ -12,16 +11,16 @@ defmodule Gt.PaymentCheckRegistry do
     :ets.insert(get_key(id), {"transaction_#{file_index}_#{i}", :raw_transaction, transaction.one_gamepay_id, transaction})
   end
 
-  def save(id, :transaction, %PaymentCheckTransaction{id: id} = transaction) do
-    :ets.insert(get_key(id), {"transaction_#{id}", :transaction, transaction.one_gamepay_id, transaction})
-  end
-
   def save(id, {:report, report}) do
     :ets.insert(get_key(id), {"report_#{report.filename}", :report, report.merchant, report.from, report.to, report})
   end
 
   def save(id, {:log, path}) do
     :ets.insert(get_key(id), {"log_#{path}", :log, path})
+  end
+
+  def save(id, :transaction, %PaymentCheckTransaction{id: id} = transaction) do
+    :ets.insert(get_key(id), {"transaction_#{id}", :transaction, transaction.one_gamepay_id, transaction})
   end
 
   def save(id, key, value) do

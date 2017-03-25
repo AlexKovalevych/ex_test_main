@@ -46,7 +46,7 @@ defmodule Gt.ConsolidatedReportController do
     end
   end
 
-  defp show_page(conn, params, changeset, user, report \\ nil) do
+  defp show_page(conn, _params, changeset, user, report \\ nil) do
     render conn, "index.html",
       changeset: changeset,
       projects: Project.options(Project, Project.allowed(user, "consolidated_report")),
@@ -54,11 +54,11 @@ defmodule Gt.ConsolidatedReportController do
       report: report,
       breadcrumbs: [
         Gt.DashboardController.add_breadcrumb(conn),
-        add_breadcrumb(conn),
+        add_breadcrumb(),
       ]
   end
 
-  defp add_breadcrumb(conn, active \\ true) do
+  defp add_breadcrumb() do
     [name: dgettext("menu", "consolidated_report")]
   end
 

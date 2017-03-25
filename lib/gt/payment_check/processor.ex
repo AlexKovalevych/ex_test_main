@@ -2,7 +2,6 @@ defmodule Gt.PaymentCheck.Processor do
   defstruct [:payment_check, :total_files]
 
   alias Gt.OneGamepayTransaction
-  alias Gt.PaymentCheck
   alias Gt.PaymentCheckRegistry
   alias Gt.PaymentCheckTransaction
   alias Gt.PaymentCheckTransactionError
@@ -27,10 +26,9 @@ defmodule Gt.PaymentCheck.Processor do
 
     {struct, files} = Script.preprocess(struct)
     opened_files = files
-    |> Enum.with_index
     # TODO Use ParallelStream here
-    |> Enum.map(fn {filename, index} ->
-      open_file(struct, {Gt.Uploaders.PaymentCheck.local_path(id, filename), index})
+    |> Enum.map(fn filename ->
+      open_file(struct, Gt.Uploaders.PaymentCheck.local_path(id, filename))
     end)
 
     opened_files = if Enum.any?(opened_files, &is_list/1) do
@@ -49,10 +47,10 @@ defmodule Gt.PaymentCheck.Processor do
       PaymentCheckRegistry.delete(id, :headers)
       PaymentCheckRegistry.delete(id, :source_headers)
       case file do
-        {nil, nil, rows, _} ->
-          process_rows_stream(struct, rows, index)
-        {pid, parser, rows, _} ->
-          with :ok <- process_rows_stream(struct, rows, index) do
+        {path, nil, nil, rows, _} ->
+          process_rows_stream(struct, path, rows, index)
+        {path, pid, parser, rows, _} ->
+          with :ok <- process_rows_stream(struct, path, rows, index) do
                Exoffice.close(pid, parser)
           else
             {:error, reason} ->
@@ -66,7 +64,7 @@ defmodule Gt.PaymentCheck.Processor do
     PaymentCheckRegistry.delete(id, :raw_transaction)
   end
 
-  def open_file(struct, {path, index}) do
+  def open_file(struct, path) do
     Logger.metadata(filename: path)
     Logger.info("Opening file #{path}")
     case Path.extname(path) do
@@ -74,21 +72,20 @@ defmodule Gt.PaymentCheck.Processor do
         case unarchive(path) do
           {:ok, files} ->
             files
-            |> Enum.with_index
             # TODO Use ParallelStream here
-            |> Enum.map(fn {path, index} ->
-              open_file(%{struct | total_files: struct.total_files + Enum.count(files) - 1}, {to_string(path), index})
+            |> Enum.map(fn path ->
+              open_file(%{struct | total_files: struct.total_files + Enum.count(files) - 1}, to_string(path))
             end)
             |> Enum.concat
           {:error, reason} -> {:error, reason}
         end
-      ".csv" -> open_csv_file(struct, path, index)
-      ".xls" -> open_excel_file(struct, path, index)
-      ".xlsx" -> open_excel_file(struct, path, index)
+      ".csv" -> open_csv_file(struct, path)
+      ".xls" -> open_excel_file(struct, path)
+      ".xlsx" -> open_excel_file(struct, path)
     end
   end
 
-  def open_csv_file(%{payment_check: payment_check, total_files: total_files} = struct, path, index) do
+  def open_csv_file(%{payment_check: payment_check}, path) do
     encoding = if payment_check.ps["csv"]["encoding"], do: payment_check.ps["csv"]["encoding"], else: "utf-8"
     separator = get_separator(payment_check)
     double_qoute = get_double_qoute(payment_check)
@@ -97,10 +94,10 @@ defmodule Gt.PaymentCheck.Processor do
             |> CSV.decode(separator: separator, double_qoute: double_qoute)
     rows_number = lines |> Enum.reduce(0, fn _, i -> i + 1 end)
     Logger.info("Found #{rows_number} rows")
-    [{nil, nil, lines, rows_number}]
+    [{path, nil, nil, lines, rows_number}]
   end
 
-  def open_excel_file(%{payment_check: payment_check, total_files: total_files} = struct, path, index) do
+  def open_excel_file(_, path) do
     path
     |> Exoffice.parse()
     |> Enum.with_index()
@@ -109,9 +106,9 @@ defmodule Gt.PaymentCheck.Processor do
           rows_number = Exoffice.count_rows(pid, parser)
           if rows_number > 0 do
             Logger.info("Found #{rows_number} rows in sheet #{sheet}")
-            {pid, parser, Exoffice.get_rows(pid, parser), rows_number}
+            {path, pid, parser, Exoffice.get_rows(pid, parser), rows_number}
           else
-            {nil, nil, [], 0}
+            {path, nil, nil, [], 0}
           end
     end)
   end
@@ -121,7 +118,7 @@ defmodule Gt.PaymentCheck.Processor do
     :zip.unzip(path |> String.to_charlist, [{:cwd, Path.dirname(path) |> String.to_charlist}])
   end
 
-  def process_rows_stream(%{payment_check: payment_check} = struct, stream, index) do
+  def process_rows_stream(%{payment_check: payment_check} = struct, path, stream, index) do
     processed_rows = stream
     |> Stream.drop_while(fn row ->
       case parse_headers(payment_check, row) do
@@ -140,7 +137,7 @@ defmodule Gt.PaymentCheck.Processor do
       |> ParallelStream.each(fn {row, j} ->
         if !Enum.all?(row, &is_nil/1) do
           PaymentCheckRegistry.increment(payment_check.id, :processed)
-          parse_row(struct, row, {index, i * 10 + j})
+          parse_row(struct, path, row, {index, i * 10 + j})
         else
           PaymentCheckRegistry.increment(payment_check.id, :processed, @steps)
         end
@@ -183,7 +180,7 @@ defmodule Gt.PaymentCheck.Processor do
       |> Enum.reduce(%{}, fn {cell, index}, acc ->
         cell = sanitize(cell)
         new_acc = headers
-        |> Enum.filter(fn {k, values} ->
+        |> Enum.filter(fn {_, values} ->
           !is_nil(Enum.find_index(values, fn v -> v == cell end))
         end)
         |> Enum.reduce(acc, fn {key, _}, acc ->
@@ -202,7 +199,7 @@ defmodule Gt.PaymentCheck.Processor do
     end
   end
 
-  def parse_row(%{payment_check: payment_check} = struct, row, {file_index, i}) do
+  def parse_row(%{payment_check: payment_check} = struct, path, row, {file_index, i}) do
     headers = PaymentCheckRegistry.find(payment_check.id, :headers)
     source_headers = PaymentCheckRegistry.find(payment_check.id, :source_headers)
     fields = payment_check.ps["fields"]
@@ -224,7 +221,7 @@ defmodule Gt.PaymentCheck.Processor do
               "map_id" -> %{acc | ps_trans_id: to_string(cell)}
               "sum" -> %{acc | sum: parse_float(cell)}
               "currency" -> %{acc | currency: parse_currency(cell)}
-              "date" -> %{acc | date: Script.parse_date(struct, cell)}
+              "date" -> %{acc | date: Script.parse_date(struct, path, cell)}
               "type" -> %{acc | type: parse_type(fields["default_payment_type"], fields["type_in"], fields["type_out"], cell)}
               "account_id" -> %{acc | account_id: cell}
               "state" -> %{acc | state: cell}
@@ -303,8 +300,8 @@ defmodule Gt.PaymentCheck.Processor do
   def compare_sum({_, nil, _} = result, _) , do: result
 
   def compare_sum({transaction, one_gamepay_transaction, _} = result, struct) do
-    one_gamepay_channel_sum = Script.channel_sum_1gp(struct, one_gamepay_transaction)
-    one_gamepay_sum = Script.sum_1gp(struct, one_gamepay_transaction)
+    one_gamepay_channel_sum = Script.channel_sum_1gp(struct, transaction, one_gamepay_transaction)
+    one_gamepay_sum = Script.sum_1gp(struct, transaction, one_gamepay_transaction)
     if !Script.match_1gp_sum(struct, transaction, one_gamepay_sum, one_gamepay_channel_sum) do
       {transaction, one_gamepay_transaction, [add_1gp_error(:invalid_sum)]}
     else
@@ -337,7 +334,7 @@ defmodule Gt.PaymentCheck.Processor do
     one_gamepay_channel_currency = Script.channel_currency_1gp(struct, one_gamepay_transaction)
     if transaction.currency != one_gamepay_currency &&
        transaction.currency != one_gamepay_channel_currency do
-      {transaction, one_gamepay_transaction, [add_1gp_error(:invalid_currency)]}
+      {transaction, one_gamepay_transaction, [add_1gp_error(:invalid_currency) | errors]}
     else
       result
     end
@@ -536,7 +533,7 @@ defmodule Gt.PaymentCheck.Processor do
 
   def parse_one_gamepay_id(value) when is_integer(value), do: value
 
-  def calculate_fee(%{payment_check: payment_check} = struct, transaction) do
+  def calculate_fee(%{payment_check: payment_check}, transaction) do
     if Enum.member?(payment_check.ps["fee"]["types"], transaction.type) do
       {fee_sum, fee_currency} = case payment_check.ps["fee"]["fee_report"] do
         true ->
@@ -550,7 +547,7 @@ defmodule Gt.PaymentCheck.Processor do
       fee = fixed_fee + percent_fee
       max_fee = Map.get(payment_check.ps["fee"], "max_fee")
       fee = if max_fee && fee > max_fee, do: max_fee, else: fee
-      %{transaction | fee: fee, fee_currency: Map.get(transaction, fee_currency)}
+      %{transaction | fee: fee, fee_currency: fee_currency}
     else
       transaction
     end
@@ -633,5 +630,5 @@ defimpl Gt.PaymentCheck.Script, for: Any do
 
   def calculate_fee(struct, transaction), do: Processor.calculate_fee(struct, transaction)
 
-  def parse_date(struct, cell), do: Processor.parse_date(struct, cell)
+  def parse_date(struct, _path, cell), do: Processor.parse_date(struct, cell)
 end

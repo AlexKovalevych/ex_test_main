@@ -5,7 +5,7 @@ defprotocol Gt.PaymentCheck.Script do
 
   def preprocess(struct)
 
-  def channe_sum_1gp(struct, transaction, one_gamepay_transaction)
+  def channel_sum_1gp(struct, transaction, one_gamepay_transaction)
 
   def sum_1gp(struct, transaction, one_gamepay_transaction)
 
@@ -17,5 +17,5 @@ defprotocol Gt.PaymentCheck.Script do
 
   def calculate_fee(struct, transaction)
 
-  def parse_date(struct, cell)
+  def parse_date(struct, path, cell)
 end

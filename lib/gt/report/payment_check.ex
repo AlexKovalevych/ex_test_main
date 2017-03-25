@@ -90,7 +90,9 @@ defmodule Gt.Report.PaymentCheck do
     ]
   end
 
-  defp get_sum(sum, abs \\ false) when is_number(sum) do
+  defp get_sum(sum, abs \\ false)
+
+  defp get_sum(sum, abs) when is_number(sum) do
     val = if abs, do: abs(sum), else: sum
     Money.new(round(val * 100)) |> Money.to_string(symbol: false, fractional_unit: true)
   end
