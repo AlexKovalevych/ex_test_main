@@ -37,7 +37,7 @@ defmodule Gt.PaymentCheck.Processor do
       opened_files
     end
 
-    total_rows = Enum.reduce(opened_files, 0, fn {_, _, _, rows_number}, acc ->
+    total_rows = Enum.reduce(opened_files, 0, fn {_, _, _, _, rows_number}, acc ->
       acc + rows_number
     end)
     PaymentCheckRegistry.save(payment_check.id, :total, total_rows * @steps)

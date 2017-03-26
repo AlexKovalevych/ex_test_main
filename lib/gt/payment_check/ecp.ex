@@ -491,15 +491,13 @@ defimpl Gt.PaymentCheck.Script, for: Gt.PaymentCheck.Ecp do
       transaction
     end
 
-    #$sourceRow = $transaction->getSourceRow();
-    IO.inspect(transaction.source_row)
-    is_refund = Map.get(transaction.source_row, "Refund", 0) != 0 || Map.get(transaction.source_row, "Purchase Reversal")
+    is_refund = Map.get(transaction.source, "Refund", 0) != 0 || Map.get(transaction.source, "Purchase Reversal")
     transaction = if transaction.type == PaymentCheckTransaction.type(:out) do
       case is_refund do
         true ->
           report = find_source_report(transaction, payment_check)
           %{transaction | fee: report.extra_data["refund_commission"]}
-        false ->
+        _ ->
           %{transaction | sum: transaction.sum / 100,
                           fee: transaction.fee / 100,
                           report_sum: transaction.report_sum / 100}
@@ -624,8 +622,8 @@ defimpl Gt.PaymentCheck.Script, for: Gt.PaymentCheck.Ecp do
 
   def find_source_report(transaction, payment_check) do
     account = transaction.account_id
-    ggs_merchants = Enum.split(payment_check.ps["fields"]["ggs_merchants"], ",")
-    darmako_merchants = Enum.split(payment_check.ps["fields"]["darmako_merchants"], ",")
+    ggs_merchants = String.split(payment_check.ps["fields"]["ggs_merchants"], ",")
+    darmako_merchants = String.split(payment_check.ps["fields"]["darmako_merchants"], ",")
 
     merchant = Enum.reduce_while(ggs_merchants, nil, fn ggs_merchant, acc ->
       case :binary.match(account, ggs_merchant) do
@@ -658,6 +656,10 @@ defimpl Gt.PaymentCheck.Script, for: Gt.PaymentCheck.Ecp do
                         source_report_in = if !Enum.empty?(report.in) do
                           report.in
                           |> Enum.reduce_while(0, fn in_value, acc ->
+                            in_value = case in_value do
+                              {_, v} -> v
+                              v -> v
+                            end
                             if in_value.value != 0 && in_value.currency == "USD" do
                               {:halt, in_value.value}
                             else
