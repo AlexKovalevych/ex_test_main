@@ -176,52 +176,52 @@ msgstr "Urls"
 
 #: web/templates/payment_system/ecp.html.eex:22
 msgid "darmako_merchants"
-msgstr ""
+msgstr "Darmako merchants"
 
 #: web/templates/payment_system/index.html.eex:13
 msgid "default"
-msgstr ""
+msgstr "Без скрипта"
 
 #: web/templates/payment_system/index.html.eex:14
 msgid "ecp"
-msgstr ""
+msgstr "Ecp"
 
 #: web/templates/payment_system/fields.html.eex:161
 msgid "encoding"
-msgstr ""
+msgstr "Кодировка"
 
 #: web/templates/payment_system/ecp.html.eex:4
 msgid "fee_in_percent"
-msgstr ""
+msgstr "Процент комиссии для \"IN\" транзакций"
 
 #: web/templates/payment_system/ecp.html.eex:10
 msgid "fee_out_percent"
-msgstr ""
+msgstr "Процент комиссии для \"OUT\" транзакций"
 
 #: web/templates/payment_system/ecp.html.eex:16
 msgid "fee_sum_rub"
-msgstr ""
+msgstr "Сумма комиссии для выплат (RUB)"
 
 #: web/templates/payment_system/ecp.html.eex:28
 msgid "ggs_merchants"
-msgstr ""
+msgstr "Ggs merchants"
 
 #: web/templates/payment_system/fields.html.eex:219
 msgid "is_out_negative"
-msgstr ""
+msgstr "Транзакция имеет тип \"OUT\" если ее сумма отрицательня"
 
 #: web/templates/payment_system/fields.html.eex:47
 msgid "pguid"
-msgstr ""
+msgstr "Pguid"
 
 #: web/templates/payment_system/index.html.eex:15
 msgid "qiwi"
-msgstr ""
+msgstr "Qiwi"
 
 #: web/templates/payment_system/fields.html.eex:18
 msgid "script_parameters"
-msgstr ""
+msgstr "Настройки скрипта"
 
 #: web/templates/payment_system/index.html.eex:16
 msgid "skrill"
-msgstr ""
+msgstr "Skrill"

@@ -200,7 +200,7 @@ msgstr "\"Out\" transactions percent"
 
 #: web/templates/payment_system/ecp.html.eex:16
 msgid "fee_sum_rub"
-msgstr ""
+msgstr "Out fee (RUB)"
 
 #: web/templates/payment_system/ecp.html.eex:28
 msgid "ggs_merchants"
@@ -208,7 +208,7 @@ msgstr "Ggs merchants"
 
 #: web/templates/payment_system/fields.html.eex:219
 msgid "is_out_negative"
-msgstr "Use \"OUT\" status if the transaction value is negative"
+msgstr "Transaction is \"OUT\" if the sum is negative"
 
 #: web/templates/payment_system/fields.html.eex:47
 msgid "pguid"

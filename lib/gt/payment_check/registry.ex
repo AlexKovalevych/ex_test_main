@@ -67,10 +67,6 @@ defmodule Gt.PaymentCheckRegistry do
     :ets.match(get_key(id), {:"_", key, :"$1"}) |> Enum.concat
   end
 
-  def find(id, :raw_transaction = key, one_gamepay_id) do
-    :ets.match(get_key(id), {:"_", key, one_gamepay_id, :"$1"}) |> Enum.concat
-  end
-
   def find(id, {merchant, from, to}) do
     :ets.match(get_key(id), {:"_", :report, :"_", from, to, :"$1"})
     |> Enum.concat
@@ -91,6 +87,10 @@ defmodule Gt.PaymentCheckRegistry do
     rescue
       _ in ArgumentError -> nil
     end
+  end
+
+  def find(id, :raw_transaction = key, one_gamepay_id) do
+    :ets.match(get_key(id), {:"_", key, one_gamepay_id, :"$1"}) |> Enum.concat
   end
 
   ###
