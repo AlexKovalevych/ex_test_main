@@ -616,13 +616,13 @@ defmodule Gt.Fixtures.PaymentSystem do
       %PaymentSystemFee{
         types: ["In", "Out"],
         currency: "Channel currency,TR_CCY",
-        divide_100: true,
+        divide_100: false,
         fee_report: true,
       },
       %PaymentSystemReport{
         sum: "Channel amount,TR_AMOUNT",
         currency: "Channel currency,TR_CCY",
-        divide_100: true
+        divide_100: false
       }
     },
     {

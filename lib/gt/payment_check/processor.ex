@@ -535,19 +535,18 @@ defmodule Gt.PaymentCheck.Processor do
 
   def calculate_fee(%{payment_check: payment_check}, transaction) do
     if Enum.member?(payment_check.ps["fee"]["types"], transaction.type) do
-      {fee_sum, fee_currency} = case payment_check.ps["fee"]["fee_report"] do
+      fee_sum = case payment_check.ps["fee"]["fee_report"] do
         true ->
-          {:report_sum, :report_currency}
+          :report_sum
         _ ->
-          fee_currency = if transaction.fee_currency, do: :fee_currency, else: :currency
-          {:sum, fee_currency}
+          :sum
       end
       fixed_fee = parse_float(Map.get(payment_check.ps["fee"], "sum"))
       percent_fee = parse_float(Map.get(payment_check.ps["fee"], "percent")) / 100 * Map.get(transaction, fee_sum)
       fee = fixed_fee + percent_fee
       max_fee = Map.get(payment_check.ps["fee"], "max_fee")
       fee = if max_fee && fee > max_fee, do: max_fee, else: fee
-      %{transaction | fee: fee, fee_currency: fee_currency}
+      %{transaction | fee: fee}
     else
       transaction
     end
