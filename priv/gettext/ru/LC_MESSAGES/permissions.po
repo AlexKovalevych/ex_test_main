@@ -38,15 +38,13 @@ msgstr "Права доступа"
 msgid "permissions_updated"
 msgstr "Права доступа были сохранены"
 
-#: web/controllers/permissions_controller.ex:54
 #: web/templates/permissions/index.html.eex:24
-#: web/templates/permissions/index.html.eex:31
+#: web/templates/permissions/index.html.eex:31 web/views/permissions_view.ex:11
 msgid "project"
 msgstr "Проект"
 
-#: web/controllers/permissions_controller.ex:55
 #: web/templates/permissions/index.html.eex:26
-#: web/templates/permissions/index.html.eex:53
+#: web/templates/permissions/index.html.eex:53 web/views/permissions_view.ex:12
 msgid "role"
 msgstr "Роль"
 
@@ -54,9 +52,8 @@ msgstr "Роль"
 msgid "type"
 msgstr "Тип"
 
-#: web/controllers/permissions_controller.ex:53
 #: web/templates/permissions/index.html.eex:25
-#: web/templates/permissions/index.html.eex:42
+#: web/templates/permissions/index.html.eex:42 web/views/permissions_view.ex:10
 msgid "user"
 msgstr "Пользователь"
 
@@ -64,6 +61,6 @@ msgstr "Пользователь"
 msgid "download"
 msgstr "Скачать"
 
-#: web/controllers/permissions_controller.ex:56
+#: web/views/permissions_view.ex:13
 msgid "value"
 msgstr "Значение"

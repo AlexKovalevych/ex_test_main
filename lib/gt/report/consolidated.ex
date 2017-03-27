@@ -22,7 +22,6 @@ defmodule Gt.Report.Consolidated do
   use Timex
   alias Gt.Repo
   alias Gt.MonthlyStats
-  import Gt.Gettext
 
   def create(allowed_projects, %Gt.Report.ConsolidatedModel{} = model) do
     case model.project_id in allowed_projects do

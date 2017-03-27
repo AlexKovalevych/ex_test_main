@@ -10,42 +10,42 @@
 msgid ""
 msgstr ""
 
-#: lib/gt/report/payment_check.ex:40
 #: web/templates/payment_check/one_gamepay_errors.html.eex:17
+#: web/views/payment_check_view.ex:44
 msgid "1gp_channel_currency"
 msgstr ""
 
-#: lib/gt/report/payment_check.ex:41
 #: web/templates/payment_check/one_gamepay_errors.html.eex:18
+#: web/views/payment_check_view.ex:45
 msgid "1gp_channel_sum"
 msgstr ""
 
-#: lib/gt/report/payment_check.ex:39
 #: web/templates/payment_check/one_gamepay_errors.html.eex:16
+#: web/views/payment_check_view.ex:43
 msgid "1gp_currency"
 msgstr ""
 
-#: web/templates/payment_check/show.html.eex:45
+#: web/templates/payment_check/show.html.eex:51
 msgid "1gp_errors"
 msgstr ""
 
-#: lib/gt/report/payment_check.ex:30
 #: web/templates/payment_check/one_gamepay_errors.html.eex:7
+#: web/views/payment_check_view.ex:34
 msgid "1gp_id"
 msgstr ""
 
-#: lib/gt/report/payment_check.ex:38
 #: web/templates/payment_check/one_gamepay_errors.html.eex:15
+#: web/views/payment_check_view.ex:42
 msgid "1gp_sum"
 msgstr ""
 
-#: lib/gt/report/payment_check.ex:31
 #: web/templates/payment_check/one_gamepay_errors.html.eex:8
+#: web/views/payment_check_view.ex:35
 msgid "account_id"
 msgstr ""
 
-#: lib/gt/report/payment_check.ex:37
 #: web/templates/payment_check/one_gamepay_errors.html.eex:14
+#: web/views/payment_check_view.ex:41
 msgid "comment"
 msgstr ""
 
@@ -53,27 +53,27 @@ msgstr ""
 msgid "confirm_delete"
 msgstr ""
 
-#: lib/gt/report/payment_check.ex:35
 #: web/templates/payment_check/one_gamepay_errors.html.eex:12
+#: web/views/payment_check_view.ex:39
 msgid "currency"
 msgstr ""
 
-#: lib/gt/report/payment_check.ex:32
 #: web/templates/payment_check/one_gamepay_errors.html.eex:9
+#: web/views/payment_check_view.ex:36
 msgid "date"
 msgstr ""
 
 #: web/templates/payment_check/download_button.html.eex:4
-#: web/templates/payment_check/show.html.eex:74
+#: web/templates/payment_check/show.html.eex:80
 msgid "download"
 msgstr ""
 
-#: web/views/payment_check_view.ex:15
+#: web/views/payment_check_view.ex:67
 msgid "duplicate"
 msgstr ""
 
-#: lib/gt/report/payment_check.ex:42
 #: web/templates/payment_check/one_gamepay_errors.html.eex:19
+#: web/views/payment_check_view.ex:46
 msgid "errors"
 msgstr ""
 
@@ -85,15 +85,15 @@ msgstr ""
 msgid "inserted_at"
 msgstr ""
 
-#: web/views/payment_check_view.ex:17
+#: web/views/payment_check_view.ex:69
 msgid "invalid_currency"
 msgstr ""
 
-#: web/views/payment_check_view.ex:18
+#: web/views/payment_check_view.ex:70
 msgid "invalid_date"
 msgstr ""
 
-#: web/views/payment_check_view.ex:16
+#: web/views/payment_check_view.ex:68
 msgid "invalid_sum"
 msgstr ""
 
@@ -101,7 +101,7 @@ msgstr ""
 msgid "list"
 msgstr ""
 
-#: web/views/payment_check_view.ex:14
+#: web/views/payment_check_view.ex:66
 msgid "not_found"
 msgstr ""
 
@@ -115,26 +115,26 @@ msgstr ""
 
 #: web/templates/payment_check/form.html.eex:8
 #: web/templates/payment_check/index.html.eex:18
-#: web/templates/payment_check/show.html.eex:29
+#: web/templates/payment_check/show.html.eex:35
 msgid "payment_system"
 msgstr ""
 
-#: web/templates/payment_check/show.html.eex:36
-#: web/templates/payment_check/show.html.eex:66
+#: web/templates/payment_check/show.html.eex:42
+#: web/templates/payment_check/show.html.eex:72
 msgid "period"
 msgstr ""
 
-#: lib/gt/report/payment_check.ex:29
 #: web/templates/payment_check/one_gamepay_errors.html.eex:6
+#: web/views/payment_check_view.ex:33
 msgid "ps_id"
 msgstr ""
 
-#: lib/gt/report/payment_check.ex:33
 #: web/templates/payment_check/one_gamepay_errors.html.eex:10
+#: web/views/payment_check_view.ex:37
 msgid "site"
 msgstr ""
 
-#: web/templates/payment_check/show.html.eex:42
+#: web/templates/payment_check/show.html.eex:48
 msgid "skipped_transactions"
 msgstr ""
 
@@ -146,25 +146,33 @@ msgstr ""
 msgid "status"
 msgstr ""
 
-#: lib/gt/report/payment_check.ex:36
 #: web/templates/payment_check/one_gamepay_errors.html.eex:13
+#: web/views/payment_check_view.ex:40
 msgid "sum"
 msgstr ""
 
-#: web/templates/payment_check/show.html.eex:39
+#: web/templates/payment_check/show.html.eex:45
 msgid "total_transactions"
 msgstr ""
 
-#: lib/gt/report/payment_check.ex:34
 #: web/templates/payment_check/one_gamepay_errors.html.eex:11
+#: web/views/payment_check_view.ex:38
 msgid "type"
 msgstr ""
 
 #: web/templates/payment_check/index.html.eex:20
-#: web/templates/payment_check/show.html.eex:32
+#: web/templates/payment_check/show.html.eex:38
 msgid "user"
 msgstr ""
 
-#: web/templates/payment_check/show.html.eex:51
+#: web/templates/payment_check/show.html.eex:57
 msgid "one_s_report"
+msgstr ""
+
+#: web/templates/payment_check/status_tag.html.eex:3
+msgid "completed"
+msgstr ""
+
+#: web/templates/payment_check/status_tag.html.eex:4
+msgid "error"
 msgstr ""

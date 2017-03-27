@@ -18,51 +18,51 @@ msgstr "Last 12 months"
 msgid "30_days"
 msgstr "Last 30 days"
 
-#: web/templates/dashboard/stats_block.html.eex:225
+#: web/templates/dashboard/stats_block.html.eex:230
 msgid "authorizations"
 msgstr "Authorizations number"
 
-#: web/templates/dashboard/stats_block.html.eex:237
+#: web/templates/dashboard/stats_block.html.eex:242
 msgid "authorizations_by_period_daily"
 msgstr "Authorizations number by the period from %{from} to %{to} daily"
 
-#: web/templates/dashboard/stats_block.html.eex:241
+#: web/templates/dashboard/stats_block.html.eex:246
 msgid "authorizations_by_period_monthly"
 msgstr "Authorizations number by the period from %{from} to %{to} monthly"
 
-#: web/templates/dashboard/stats_block.html.eex:78
+#: web/templates/dashboard/stats_block.html.eex:83
 msgid "avg_arpu"
 msgstr "ARPU"
 
-#: web/templates/dashboard/stats_block.html.eex:90
+#: web/templates/dashboard/stats_block.html.eex:95
 msgid "avg_arpu_by_period_daily"
 msgstr "ARPU by the period from %{from} to %{to} daily"
 
-#: web/templates/dashboard/stats_block.html.eex:94
+#: web/templates/dashboard/stats_block.html.eex:99
 msgid "avg_arpu_by_period_monthly"
 msgstr "ARPU by the period from %{from} to %{to} monthly"
 
-#: web/templates/dashboard/stats_block.html.eex:57
+#: web/templates/dashboard/stats_block.html.eex:62
 msgid "avg_dep"
 msgstr "Average deposit"
 
-#: web/templates/dashboard/stats_block.html.eex:69
+#: web/templates/dashboard/stats_block.html.eex:74
 msgid "avg_dep_by_period_daily"
 msgstr "Average deposit by the period from %{from} to %{to} daily"
 
-#: web/templates/dashboard/stats_block.html.eex:73
+#: web/templates/dashboard/stats_block.html.eex:78
 msgid "avg_dep_by_period_monthly"
 msgstr "Average deposit by the period from %{from} to %{to} monthly"
 
-#: web/templates/dashboard/stats_block.html.eex:99
+#: web/templates/dashboard/stats_block.html.eex:104
 msgid "avg_first_dep"
 msgstr "Average first deposit"
 
-#: web/templates/dashboard/stats_block.html.eex:111
+#: web/templates/dashboard/stats_block.html.eex:116
 msgid "avg_first_dep_by_period_daily"
 msgstr "Average first deposit by the period from %{from} to %{to} daily"
 
-#: web/templates/dashboard/stats_block.html.eex:115
+#: web/templates/dashboard/stats_block.html.eex:120
 msgid "avg_first_dep_by_period_monthly"
 msgstr "Average first deposit by the period from %{from} to %{to} monthly"
 
@@ -78,7 +78,7 @@ msgstr "Bets by the period from %{from} to %{to} daily"
 msgid "bets_by_period_monthly"
 msgstr "Bets by the period from %{from} to %{to} monthly"
 
-#: web/templates/dashboard/stats_block.html.eex:51
+#: web/templates/dashboard/stats_block.html.eex:56
 msgid "charts"
 msgstr "Charts"
 
@@ -86,55 +86,55 @@ msgstr "Charts"
 msgid "current"
 msgstr "Current"
 
-#: web/templates/dashboard/stats_block.html.eex:141
+#: web/templates/dashboard/stats_block.html.eex:146
 msgid "depositors"
 msgstr "Depositors number"
 
-#: web/templates/dashboard/stats_block.html.eex:153
+#: web/templates/dashboard/stats_block.html.eex:158
 msgid "depositors_by_period_daily"
 msgstr "Depositors number by the period from %{from} to %{to} daily"
 
-#: web/templates/dashboard/stats_block.html.eex:157
+#: web/templates/dashboard/stats_block.html.eex:162
 msgid "depositors_by_period_monthly"
 msgstr "Depositors number by the period from %{from} to %{to} monthly"
 
-#: web/templates/dashboard/stats_block.html.eex:120
+#: web/templates/dashboard/stats_block.html.eex:125
 msgid "deps_num"
 msgstr "Deposits number"
 
-#: web/templates/dashboard/stats_block.html.eex:132
+#: web/templates/dashboard/stats_block.html.eex:137
 msgid "deps_num_by_period_daily"
 msgstr "Deposits number by the period from %{from} to %{to} daily"
 
-#: web/templates/dashboard/stats_block.html.eex:136
+#: web/templates/dashboard/stats_block.html.eex:141
 msgid "deps_num_by_period_monthly"
 msgstr "Deposits number by the period from %{from} to %{to} monthly"
 
-#: web/templates/dashboard/stats_block.html.eex:50
+#: web/templates/dashboard/stats_block.html.eex:55
 msgid "difference"
 msgstr "Difference"
 
-#: web/templates/dashboard/stats_block.html.eex:162
+#: web/templates/dashboard/stats_block.html.eex:167
 msgid "first_depositors"
 msgstr "First depositors number"
 
-#: web/templates/dashboard/stats_block.html.eex:174
+#: web/templates/dashboard/stats_block.html.eex:179
 msgid "first_depositors_by_period_daily"
 msgstr "First depositors number by the period from %{from} to %{to} daily"
 
-#: web/templates/dashboard/stats_block.html.eex:178
+#: web/templates/dashboard/stats_block.html.eex:183
 msgid "first_depositors_by_period_monthly"
 msgstr "First depositors number by the period from %{from} to %{to} monthly"
 
-#: web/templates/dashboard/stats_block.html.eex:204
+#: web/templates/dashboard/stats_block.html.eex:209
 msgid "first_deps_sum"
 msgstr "First deposits amount"
 
-#: web/templates/dashboard/stats_block.html.eex:216
+#: web/templates/dashboard/stats_block.html.eex:221
 msgid "first_deps_sum_by_period_daily"
 msgstr "First deposits amount by the period from %{from} to %{to} daily"
 
-#: web/templates/dashboard/stats_block.html.eex:220
+#: web/templates/dashboard/stats_block.html.eex:225
 msgid "first_deps_sum_by_period_monthly"
 msgstr "First deposits amount by the period from %{from} to %{to} monthly"
 
@@ -190,15 +190,15 @@ msgstr "Projects:"
 msgid "rake"
 msgstr "Rake"
 
-#: web/templates/dashboard/stats_block.html.eex:183
+#: web/templates/dashboard/stats_block.html.eex:188
 msgid "signups"
 msgstr "Signups number"
 
-#: web/templates/dashboard/stats_block.html.eex:195
+#: web/templates/dashboard/stats_block.html.eex:200
 msgid "signups_by_period_daily"
 msgstr "Signups number by the period from %{from} to %{to} daily"
 
-#: web/templates/dashboard/stats_block.html.eex:199
+#: web/templates/dashboard/stats_block.html.eex:204
 msgid "signups_by_period_monthly"
 msgstr "Signups number by the period from %{from} to %{to} monthly"
 
@@ -234,11 +234,11 @@ msgstr "Withdrawals amount"
 msgid "sort_by_wins_sum"
 msgstr "Wins amount"
 
-#: web/templates/dashboard/index.html.eex:292
+#: web/templates/dashboard/index.html.eex:293
 msgid "title"
 msgstr "Project indicators"
 
-#: web/templates/dashboard/index.html.eex:301
+#: web/templates/dashboard/index.html.eex:302
 msgid "total"
 msgstr "Total"
 

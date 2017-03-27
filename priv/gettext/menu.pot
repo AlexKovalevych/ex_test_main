@@ -183,13 +183,13 @@ msgstr ""
 msgid "new_data_source"
 msgstr ""
 
-#: web/controllers/payment_system_controller.ex:31
-#: web/controllers/payment_system_controller.ex:53
+#: web/controllers/payment_system_controller.ex:33
+#: web/controllers/payment_system_controller.ex:56
 #: web/templates/payment_system/new.html.eex:2
 msgid "new_payment_system"
 msgstr ""
 
-#: web/controllers/payment_system_controller.ex:111
+#: web/controllers/payment_system_controller.ex:129
 msgid "payment_systems"
 msgstr ""
 
@@ -199,6 +199,6 @@ msgstr ""
 msgid "new_payment_check"
 msgstr ""
 
-#: web/controllers/payment_check_controller.ex:195
+#: web/controllers/payment_check_controller.ex:186
 msgid "payment_checks"
 msgstr ""

@@ -183,13 +183,13 @@ msgstr "Новый тип"
 msgid "new_data_source"
 msgstr "Новый источник данных"
 
-#: web/controllers/payment_system_controller.ex:31
-#: web/controllers/payment_system_controller.ex:53
+#: web/controllers/payment_system_controller.ex:33
+#: web/controllers/payment_system_controller.ex:56
 #: web/templates/payment_system/new.html.eex:2
 msgid "new_payment_system"
 msgstr "Новая платежная система"
 
-#: web/controllers/payment_system_controller.ex:111
+#: web/controllers/payment_system_controller.ex:129
 msgid "payment_systems"
 msgstr "Платежные системы"
 
@@ -199,6 +199,6 @@ msgstr "Платежные системы"
 msgid "new_payment_check"
 msgstr "Новая сверка платежей"
 
-#: web/controllers/payment_check_controller.ex:195
+#: web/controllers/payment_check_controller.ex:186
 msgid "payment_checks"
 msgstr "Сверки платежей"

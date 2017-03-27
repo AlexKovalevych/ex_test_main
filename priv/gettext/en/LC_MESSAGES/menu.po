@@ -183,13 +183,13 @@ msgstr "New calendar type"
 msgid "new_data_source"
 msgstr "New data source"
 
-#: web/controllers/payment_system_controller.ex:31
-#: web/controllers/payment_system_controller.ex:53
+#: web/controllers/payment_system_controller.ex:33
+#: web/controllers/payment_system_controller.ex:56
 #: web/templates/payment_system/new.html.eex:2
 msgid "new_payment_system"
 msgstr "New payment system"
 
-#: web/controllers/payment_system_controller.ex:111
+#: web/controllers/payment_system_controller.ex:129
 msgid "payment_systems"
 msgstr "Payment systems"
 
@@ -199,6 +199,6 @@ msgstr "Payment systems"
 msgid "new_payment_check"
 msgstr "New payment check"
 
-#: web/controllers/payment_check_controller.ex:195
+#: web/controllers/payment_check_controller.ex:186
 msgid "payment_checks"
 msgstr "Payment checks"

@@ -38,15 +38,13 @@ msgstr ""
 msgid "permissions_updated"
 msgstr ""
 
-#: web/controllers/permissions_controller.ex:54
 #: web/templates/permissions/index.html.eex:24
-#: web/templates/permissions/index.html.eex:31
+#: web/templates/permissions/index.html.eex:31 web/views/permissions_view.ex:11
 msgid "project"
 msgstr ""
 
-#: web/controllers/permissions_controller.ex:55
 #: web/templates/permissions/index.html.eex:26
-#: web/templates/permissions/index.html.eex:53
+#: web/templates/permissions/index.html.eex:53 web/views/permissions_view.ex:12
 msgid "role"
 msgstr ""
 
@@ -54,9 +52,8 @@ msgstr ""
 msgid "type"
 msgstr ""
 
-#: web/controllers/permissions_controller.ex:53
 #: web/templates/permissions/index.html.eex:25
-#: web/templates/permissions/index.html.eex:42
+#: web/templates/permissions/index.html.eex:42 web/views/permissions_view.ex:10
 msgid "user"
 msgstr ""
 
@@ -64,6 +61,6 @@ msgstr ""
 msgid "download"
 msgstr ""
 
-#: web/controllers/permissions_controller.ex:56
+#: web/views/permissions_view.ex:13
 msgid "value"
 msgstr ""

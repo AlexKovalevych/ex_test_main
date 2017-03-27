@@ -4,7 +4,6 @@ defmodule Gt.PaymentCheckWorker do
   alias Gt.PaymentCheckRegistry
   alias Gt.PaymentCheckTransaction
   alias Gt.PaymentCheck.Processor
-  alias Gt.PaymentCheck.Script
   alias Gt.Repo
   use Timex
   require Logger

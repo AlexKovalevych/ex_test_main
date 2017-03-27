@@ -42,8 +42,8 @@ msgstr "Сохранить"
 #: web/controllers/data_source_controller.ex:90
 #: web/controllers/data_source_controller.ex:164
 #: web/controllers/payment_check_controller.ex:86
-#: web/controllers/payment_system_controller.ex:46
-#: web/controllers/payment_system_controller.ex:84
+#: web/controllers/payment_system_controller.ex:48
+#: web/controllers/payment_system_controller.ex:88
 #: web/controllers/permissions_controller.ex:27
 #: web/controllers/project_controller.ex:60
 #: web/controllers/project_controller.ex:98
@@ -120,7 +120,7 @@ msgstr "Отменить"
 #: web/templates/calendar_type/index.html.eex:34
 #: web/templates/layout/confirm_delete.html.eex:2
 #: web/templates/payment_check/index.html.eex:38
-#: web/templates/payment_system/index.html.eex:38
+#: web/templates/payment_system/index.html.eex:47
 msgid "delete"
 msgstr "Удалить"
 
@@ -134,7 +134,7 @@ msgstr "Поиск"
 #: web/templates/calendar_group/index.html.eex:32
 #: web/templates/calendar_type/index.html.eex:30
 #: web/templates/data_source/index.html.eex:51
-#: web/templates/payment_system/index.html.eex:34
+#: web/templates/payment_system/index.html.eex:42
 #: web/templates/project/index.html.eex:52 web/templates/user/index.html.eex:52
 msgid "edit"
 msgstr "Редактировать"
@@ -145,7 +145,7 @@ msgstr "Редактировать"
 #: web/templates/calendar_type/index.html.eex:9
 #: web/templates/data_source/index.html.eex:10
 #: web/templates/payment_check/index.html.eex:9
-#: web/templates/payment_system/index.html.eex:9
+#: web/templates/payment_system/index.html.eex:10
 #: web/templates/project/index.html.eex:9 web/templates/user/index.html.eex:9
 msgid "create"
 msgstr "Создать"
@@ -174,13 +174,13 @@ msgstr "Выберите файлы"
 
 #: web/controllers/cache_controller.ex:151
 #: web/controllers/data_source_controller.ex:182
-#: web/controllers/payment_check_controller.ex:164
+#: web/controllers/payment_check_controller.ex:159
 msgid "cant_delete_active_worker"
 msgstr "Нельзя удалить активный воркер. Его необходимо сначала остановить"
 
 #: web/controllers/cache_controller.ex:156
 #: web/controllers/data_source_controller.ex:187
-#: web/controllers/payment_check_controller.ex:169
+#: web/controllers/payment_check_controller.ex:165
 msgid "worker_deleted"
 msgstr "Процесс был удален"
 
@@ -209,35 +209,35 @@ msgstr "Запустить"
 msgid "stop_worker"
 msgstr "Остановить"
 
-#: web/views/data_source_view.ex:30 web/views/payment_system_view.ex:22
+#: web/views/data_source_view.ex:30 web/views/payment_system_view.ex:26
 msgid "colon"
 msgstr "Двоеточие (:)"
 
-#: web/views/data_source_view.ex:28 web/views/payment_system_view.ex:20
+#: web/views/data_source_view.ex:28 web/views/payment_system_view.ex:24
 msgid "comma"
 msgstr "Запятая (,)"
 
-#: web/views/data_source_view.ex:39 web/views/payment_system_view.ex:31
+#: web/views/data_source_view.ex:39 web/views/payment_system_view.ex:35
 msgid "double_qoute"
 msgstr "Двойная кавычка (\")"
 
-#: web/views/data_source_view.ex:31 web/views/payment_system_view.ex:23
+#: web/views/data_source_view.ex:31 web/views/payment_system_view.ex:27
 msgid "pipe"
 msgstr "Вертикальная черта (|)"
 
-#: web/views/data_source_view.ex:33 web/views/payment_system_view.ex:25
+#: web/views/data_source_view.ex:33 web/views/payment_system_view.ex:29
 msgid "semicolon"
 msgstr "Точка с запятой (;)"
 
-#: web/views/data_source_view.ex:40 web/views/payment_system_view.ex:32
+#: web/views/data_source_view.ex:40 web/views/payment_system_view.ex:36
 msgid "single_qoute"
 msgstr "Одинарная кавычка (')"
 
-#: web/views/data_source_view.ex:32 web/views/payment_system_view.ex:24
+#: web/views/data_source_view.ex:32 web/views/payment_system_view.ex:28
 msgid "space"
 msgstr "Пробел ( )"
 
-#: web/views/data_source_view.ex:29 web/views/payment_system_view.ex:21
+#: web/views/data_source_view.ex:29 web/views/payment_system_view.ex:25
 msgid "tab"
 msgstr "Таб (-->|)"
 
@@ -253,3 +253,7 @@ msgstr "Просмотр"
 #: web/templates/consolidated_report/index.html.eex:38
 msgid "download"
 msgstr "Скачать"
+
+#: web/templates/payment_system/index.html.eex:43
+msgid "copy"
+msgstr "Копировать"
