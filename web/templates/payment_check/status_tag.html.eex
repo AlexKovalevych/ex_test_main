@@ -1,6 +1,7 @@
 <%= if !is_nil(@status) do %>
   <%= case @status.state do %>
-    <%= ":normal" -> %><span class="tag green lighten-2"><%= dgettext "payment_checks", "completed" %></span>
+    <%= "stopped" -> %><span class="tag orange darken-1"><%= dgettext "payment_checks", "stopped" %></span>
+    <%= "normal" -> %><span class="tag green lighten-2"><%= dgettext "payment_checks", "completed" %></span>
     <%= "danger" -> %><span class="tag red lighten-2"><%= dgettext "payment_checks", "error" %></span>
   <%= end %>
 <%= end %>

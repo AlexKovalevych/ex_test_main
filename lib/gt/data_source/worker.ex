@@ -17,6 +17,7 @@ defmodule Gt.DataSourceWorker do
   end
 
   def init(state) do
+    GenServer.call(Gt.Monitor, {:monitor, state.data_source})
     {:ok, state}
   end
 
@@ -144,27 +145,6 @@ defmodule Gt.DataSourceWorker do
     else
       data_source |> Repo.update!
     end
-  end
-
-  def terminate(:normal, state) do
-    %Gt.WorkerStatus{state: ":normal"} |> terminate(state)
-  end
-
-  def terminate(%Gt.WorkerStatus{} = status, state) do
-    data_source = state.data_source
-    data_source = data_source
-    |> DataSource.changeset(%{active: false})
-    |> Ecto.Changeset.put_embed(:status, status)
-    |> Repo.update!
-    DataSourceRegistry.delete(data_source.id)
-    Gt.Endpoint.broadcast("data_source:#{data_source.id}", "data_source:update", data_source)
-    data_source
-  end
-
-  def terminate(reason, state) do
-    DataSourceRegistry.delete(state.data_source.id)
-    %Gt.WorkerStatus{state: "danger", text: inspect(reason, pretty: true, width: 0) |> String.replace("\n", "<br>")}
-    |> terminate(state)
   end
 
   defp init_worker(data_source) do

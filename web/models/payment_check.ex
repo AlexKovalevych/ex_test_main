@@ -87,7 +87,7 @@ defmodule Gt.PaymentCheck do
   end
 
   def is_completed(payment_check) do
-    payment_check.status && payment_check.status.state == ":normal"
+    payment_check.status && payment_check.status.state == "normal"
   end
 
 end

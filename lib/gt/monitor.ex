@@ -1,8 +1,12 @@
 defmodule Gt.Monitor do
   use GenServer
+  alias Gt.Cache
+  alias Gt.DataSource
   alias Gt.PaymentCheck
   alias Gt.Repo
   alias Gt.PaymentCheckRegistry
+  alias Gt.CacheRegistry
+  alias Gt.DataSourceRegistry
   alias Gt.WorkerStatus
 
   def start_link do
@@ -24,6 +28,20 @@ defmodule Gt.Monitor do
     {:noreply, new_state}
   end
 
+  def terminate_worker(%WorkerStatus{} = status, %Cache{id: id}) do
+    case Repo.get(Cache, id) do
+      nil ->
+        CacheRegistry.delete(id)
+      cache ->
+        cache
+        |> Cache.changeset(%{active: false})
+        |> Ecto.Changeset.put_embed(:status, status)
+        |> Repo.update!
+        CacheRegistry.delete(id)
+        Gt.Endpoint.broadcast("cache:#{id}", "cache:update", cache)
+    end
+  end
+
   def terminate_worker(%WorkerStatus{} = status, %PaymentCheck{id: id}) do
     case Repo.get(PaymentCheck, id) do
       nil ->
@@ -38,14 +56,57 @@ defmodule Gt.Monitor do
     end
   end
 
+  def terminate_worker(%WorkerStatus{} = status, %DataSource{id: id}) do
+    case Repo.get(DataSource, id) do
+      nil ->
+        DataSourceRegistry.delete(id)
+      data_source ->
+        data_source
+        |> DataSource.changeset(%{active: false})
+        |> Ecto.Changeset.put_embed(:status, status)
+        |> Repo.update!
+        DataSourceRegistry.delete(id)
+        Gt.Endpoint.broadcast("data_source:#{id}", "data_source:update", data_source)
+    end
+  end
+
+  @doc """
+  Completed
+  """
   def terminate_worker(:normal, struct) do
-    %WorkerStatus{state: ":normal"} |> terminate_worker(struct)
+    %WorkerStatus{state: "normal"} |> terminate_worker(struct)
+  end
+
+  @doc """
+  Cancelled
+  """
+  def terminate_worker(:shutdown, struct) do
+    %WorkerStatus{state: "stopped"} |> terminate_worker(struct)
   end
 
   def terminate_worker(reason, %PaymentCheck{id: id} = payment_check) do
     PaymentCheckRegistry.delete(id)
-    %WorkerStatus{state: "danger", text: inspect(reason, pretty: true, width: 0) |> String.replace("\n", "<br>")}
+    %WorkerStatus{state: "danger", text: handle_error(reason)}
     |> terminate_worker(payment_check)
+  end
+
+  def terminate_worker(reason, %Cache{id: id} = cache) do
+    CacheRegistry.delete(id)
+    %WorkerStatus{state: "danger", text: handle_error(reason)}
+    |> terminate_worker(cache)
+  end
+
+  def terminate_worker(reason, %DataSource{id: id} = data_source) do
+    DataSourceRegistry.delete(id)
+    %WorkerStatus{state: "danger", text: handle_error(reason)}
+    |> terminate_worker(data_source)
+  end
+
+  @doc """
+  Returns all types of errors in printable format
+  """
+  defp handle_error(reason) do
+    inspect(reason, pretty: true, width: 0) |> String.replace("\n", "<br>")
   end
 
 end

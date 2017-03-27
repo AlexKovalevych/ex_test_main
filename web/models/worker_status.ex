@@ -11,7 +11,7 @@ defmodule Gt.WorkerStatus do
   defimpl Poison.Encoder, for: __MODULE__ do
     def encode(%{state: state, text: text}, options) do
       status = case state do
-        ":normal" -> %{state: "success", text: gettext "process_completed"}
+        "normal" -> %{state: "success", text: gettext "process_completed"}
         "stopped" -> %{state: "warning", text: gettext "worker_stopped"}
         _ -> %{state: "danger", text: to_string(text)}
       end

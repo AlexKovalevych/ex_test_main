@@ -26,6 +26,7 @@ defmodule Gt.CacheWorker do
   end
 
   def init(state) do
+    GenServer.call(Gt.Monitor, {:monitor, state.cache})
     {:ok, state}
   end
 
@@ -163,27 +164,6 @@ defmodule Gt.CacheWorker do
     Cache.changeset(cache, %{active: false, total: total, processed: processed, completed: true}) |> Repo.update!
     Logger.info("Compete worker")
     {:stop, :normal, state}
-  end
-
-  def terminate(:normal, state) do
-    %Gt.WorkerStatus{state: ":normal"} |> terminate(state)
-  end
-
-  def terminate(%Gt.WorkerStatus{} = status, state) do
-    cache = state.cache
-    cache
-    |> Cache.changeset(%{active: false})
-    |> Ecto.Changeset.put_embed(:status, status)
-    |> Repo.update
-    CacheRegistry.delete(cache.id)
-    Gt.Endpoint.broadcast("cache:#{cache.id}", "cache:update", cache)
-    cache
-  end
-
-  def terminate(reason, state) do
-    CacheRegistry.delete(state.cache.id)
-    %Gt.WorkerStatus{state: "danger", text: inspect(reason, pretty: true, width: 0) |> String.replace("\n", "<br>")}
-    |> terminate(state)
   end
 
   defp init_worker(cache) do

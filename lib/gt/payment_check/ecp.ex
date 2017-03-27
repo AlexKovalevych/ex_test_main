@@ -575,7 +575,6 @@ defimpl Gt.PaymentCheck.Script, for: Gt.PaymentCheck.Ecp do
       usd_sum = convert_value(rate, sum)
       rate = get_rate(source_report, "EUR", "USD")
       min_trans_sum = Float.round((@min_in_usd_fee - Float.round(@base_eur_fee * rate, 2)) / percent_in * 100, 2)
-      IO.inspect([usd_sum, min_trans_sum])
       usd_sum < min_trans_sum
     end
   end
