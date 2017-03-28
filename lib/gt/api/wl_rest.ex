@@ -2,12 +2,15 @@ defmodule Gt.Api.WlRest do
   use HTTPotion.Base
   alias Gt.Api.Wl.Player
   alias Gt.Api.Wl.BonusOffer
+  alias Gt.Api.Wl.BonusBalance
   alias Gt.Api.Wl.Comment
   alias Gt.Api.Wl.AuthToken
   alias Gt.Api.Wl.Subresource
   alias Gt.Api.Wl.Portrait
   alias Gt.Api.Wl.RealBalance
   alias Gt.Api.Wl.FilterQuery
+  alias Gt.Api.Wl.Compoints
+  alias Gt.Api.Wl.LevelCompoints
 
   @enforce_keys [:url]
   defstruct [url: nil, client: "", key: "", body: "", filter: nil]
@@ -159,86 +162,42 @@ defmodule Gt.Api.WlRest do
   end
 
   def get_bonus_balance(%__MODULE__{} = struct, id) when is_binary(id) do
-    wl_request(:post, "players/#{id}/balance/bonuses", struct, fn res ->
+    wl_request(:get, "players/#{id}/balance/bonuses", struct, fn res ->
       {:ok, Poison.decode!(res.body, as: %BonusBalance{})}
     end)
   end
 
+  def add_bonus_balance(%__MODULE__{} = struct, id, %BonusBalance{} = balance) when is_binary(id) do
+    body = Poison.encode!(balance)
+    wl_request(:post, "players/#{id}/balance/bonuses", %{struct | body: body}, fn res ->
+      {:ok, Poison.decode!(res.body, as: %BonusBalance{})}
+    end)
+  end
 
-    #/**
-     #* @param  string $id
-     #* @return \Globotunes\WLRestApi\Response\BonusBalance
-     #*/
-    #public function getBonusBalance($id)
-    #{
-        #$url = $this->getUrl(sprintf('players/%s/balance/bonuses', $id));
-        #$response = $this->getRequest($url);
+  def get_compoints(%__MODULE__{} = struct, id) when is_binary(id) do
+    wl_request(:get, "players/#{id}/balance/compoints", struct, fn res ->
+      {:ok, Poison.decode!(res.body, as: %Compoints{})}
+    end)
+  end
 
-        #return $this->parseResponse((string) $response->getBody(), 'Globotunes\WLRestApi\Response\BonusBalance');
-    #}
+  def add_compoints(%__MODULE__{} = struct, id, %Compoints{} = compoints) when is_binary(id) do
+    body = Poison.encode!(compoints)
+    wl_request(:post, "players/#{id}/balance/compoints", %{struct | body: body}, fn res ->
+      {:ok, res}
+    end)
+  end
 
-    #/**
-     #* @todo Not tested, may not work
-     #*
-     #* @param string $id
-     #* @param BonusBalance $balance
-     #*/
-    #public function addBonusBalance($id, BonusBalance $balance)
-    #{
-        #$url = $this->getUrl(sprintf('players/%s/balance/bonuses', $id));
-        #$body = $this->serializer->serialize($balance, 'json');
+  def get_level_compoints(%__MODULE__{} = struct) do
+    wl_request(:get, "levels/compoints", struct, fn res ->
+      {:ok, Poison.decode!(res.body, as: [%LevelCompoints{}])}
+    end)
+  end
 
-        #return $this->postRequest($url, $body);
-    #}
-
-    #/**
-     #* @param  string $id
-     #* @return \Globotunes\WLRestApi\Response\Compoints
-     #*/
-    #public function getCompoints($id)
-    #{
-        #$url = $this->getUrl(sprintf('players/%s/balance/compoints', $id));
-        #$response = $this->getRequest($url);
-
-        #return $this->parseResponse((string) $response->getBody(), 'Globotunes\WLRestApi\Response\Compoints');
-    #}
-
-    #/**
-     #* @todo Not tested, may not work
-     #*
-     #* @param string $id
-     #* @param Compoints $compoints
-     #*/
-    #public function addCompoints($id, Compoints $compoints)
-    #{
-        #$url = $this->getUrl(sprintf('players/%s/balance/compoints', $id));
-        #$body = $this->serializer->serialize($compoints, 'json');
-
-        #return $this->postRequest($url, $body);
-    #}
-
-    #/**
-     #* @return array
-     #*/
-    #public function getLevelCompoints()
-    #{
-        #$url = $this->getUrl('levels/compoints');
-        #$response = $this->getRequest($url);
-
-        #return $this->parseResponse((string) $response->getBody(),
-            #'array<Globotunes\WLRestApi\Response\LevelCompoints>');
-    #}
-
-    #/**
-     #* @return array
-     #*/
-    #public function getChargeReasons()
-    #{
-        #$url = $this->getUrl('players/balance/charge-reasons');
-        #$response = $this->getRequest($url);
-
-        #return $this->parseResponse((string) $response->getBody(), 'array');
-    #}
+  def get_charge_reasons(%__MODULE__{} = struct) do
+    wl_request(:get, "players/balance/charge-reasons", struct, fn res ->
+      {:ok, Poison.decode!(res.body)}
+    end)
+  end
 
     #/**
      #* @param  array $id
