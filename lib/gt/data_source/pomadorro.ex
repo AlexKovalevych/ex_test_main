@@ -32,6 +32,14 @@ defmodule Gt.DataSource.Pomadorro do
     "payout" => Payment.type(:withdrawal),
   }
 
+  @payment_money_types %{
+    "cash" => Payment.type(:deposit),
+    "cash_payout" => Payment.type(:withdrawal),
+    "first_deposit" => Payment.type(:deposit)
+  }
+
+  @rollback_money_types ~w(cash_rollback cash_rolledback cash_payout_rollback cash_payout_rolledback)
+
   def process_file(data_source, {filename, index}, total_files) do
     Gt.Uploaders.DataSource.local_path(data_source.id, filename)
     |> File.read!()
@@ -50,7 +58,8 @@ defmodule Gt.DataSource.Pomadorro do
     |> ParallelStream.each(fn data ->
       case subtype do
         "casino_users" -> parse_users(data_source, data)
-        "casino_invoices" -> parse_payments(data_source, data)
+        "casino_invoices" -> parse_invoices(data_source, data)
+        "casino_money" -> parse_money(data_source, data)
         "casino_bonuses" -> parse_casino_bonuses(data_source, data)
         "casino_games" -> parse_games(data_source, data)
         "poker_bonuses" -> parse_poker_bonuses(data_source, data)
@@ -140,7 +149,7 @@ defmodule Gt.DataSource.Pomadorro do
     DataSourceRegistry.increment(data_source.id, :processed, 2)
   end
 
-  defp parse_payments(data_source, data) do
+  defp parse_invoices(data_source, data) do
     %{"status" => state,
       "user_id" => user_item_id,
       "payment_group_id" => group_id,
@@ -198,6 +207,93 @@ defmodule Gt.DataSource.Pomadorro do
     end
     GenServer.call(DataSourceRegistry, {:new_user_stats, {project_user, Timex.to_date(date)}, data_source.id})
     DataSourceRegistry.increment(data_source.id, :processed)
+  end
+
+  defp parse_money(data_source, data) do
+    %{"user_id" => user_item_id,
+      "payment_group_id" => group_id,
+      "finish_date" => commit_date,
+      "ip" => ip,
+      "currency" => currency,
+      "date" => date,
+      "amount" => user_sum,
+      "tid" => tid,
+      "invoice_id" => item_id,
+      "type" => type
+    } = data
+
+    date = parse_date(date)
+    project_user = ProjectUser.get_or_create(data_source.project.id, user_item_id, date)
+
+    if type do
+      cond do
+        Map.has_key?(@payment_money_types, type) ->
+          type = Map.get(@payment_money_types, type)
+          state = Payment.state(:approved)
+          commit_date = parse_date(commit_date)
+          sum = XeProvider.convert(currency, "USD", date, user_sum) |> round
+          user_sum = round(user_sum)
+          case Payment.by_project_item_id(Payment, data_source.project.id, item_id) |> Repo.one do
+            nil ->
+              Payment.changeset(%Payment{}, %{
+                state: state,
+                group_id: group_id,
+                commit_date: commit_date,
+                ip: ip,
+                currency: currency,
+                date: date,
+                user_sum: user_sum,
+                sum: abs(sum),
+                type: type,
+                project_id: project_user.project.id,
+                project_user_id: project_user.id,
+                item_id: item_id,
+                info: %{"tid" => tid},
+              })
+              |> Repo.insert!
+              |> Repo.preload(:project)
+              |> Gt.Amqp.Messages.Dmp.create_by_payment(user_item_id)
+            payment ->
+              Payment.changeset(payment, %{
+                state: state,
+                group_id: group_id,
+                commit_date: commit_date,
+                ip: ip,
+                currency: currency,
+                date: date,
+                user_sum: user_sum,
+                sum: abs(sum),
+                type: type,
+                project_id: project_user.project.id,
+                project_user_id: project_user.id,
+                info: %{"tid" => tid},
+              })
+              |> Repo.update!
+          end
+          GenServer.call(DataSourceRegistry, {:new_user_stats, {project_user, Timex.to_date(date)}, data_source.id})
+
+        Enum.member?(@rollback_money_types, type) ->
+          money_rollback(data_source, project_user, date, data)
+
+        true ->
+          raise "Invalid type #{type}"
+      end
+    else
+      money_rollback(data_source, project_user, date, data)
+    end
+    DataSourceRegistry.increment(data_source.id, :processed)
+  end
+
+  defp money_rollback(data_source, project_user, date, data) do
+    case Payment.by_project_item_id(Payment, data_source.project.id, data["invoice_id"]) |> Repo.one do
+      nil ->
+        DataSourceRegistry.increment(data_source.id, :processed)
+      matched_payment ->
+        Logger.info("Cancel transaction #{matched_payment.id}")
+        Payment.changeset(matched_payment, %{state: Payment.state(:cancelled)})
+        |> Repo.update!
+        GenServer.call(DataSourceRegistry, {:new_user_stats, {project_user, Timex.to_date(date)}, data_source.id})
+    end
   end
 
   defp parse_casino_bonuses(data_source, data) do

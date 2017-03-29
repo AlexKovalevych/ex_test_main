@@ -102,9 +102,7 @@ defmodule Gt.Monitor do
     |> terminate_worker(data_source)
   end
 
-  @doc """
-  Returns all types of errors in printable format
-  """
+  # Returns all types of errors in printable format
   defp handle_error(reason) do
     inspect(reason, pretty: true, width: 0) |> String.replace("\n", "<br>")
   end

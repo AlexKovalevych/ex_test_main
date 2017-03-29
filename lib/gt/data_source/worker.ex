@@ -141,10 +141,21 @@ defmodule Gt.DataSourceWorker do
       end_at: to,
     })
     if new_dates do
-      %Gt.WorkerStatus{state: ":normal"} |> terminate(%{data_source: Repo.update!(data_source)})
+      %Gt.WorkerStatus{state: ":normal"} |> update_status(%{data_source: Repo.update!(data_source)})
     else
       data_source |> Repo.update!
     end
+  end
+
+  def update_status(%Gt.WorkerStatus{} = status, state) do
+    data_source = state.data_source
+    data_source = data_source
+    |> DataSource.changeset(%{active: false})
+    |> Ecto.Changeset.put_embed(:status, status)
+    |> Repo.update!
+    DataSourceRegistry.delete(data_source.id)
+    Gt.Endpoint.broadcast("data_source:#{data_source.id}", "data_source:update", data_source)
+    data_source
   end
 
   defp init_worker(data_source) do

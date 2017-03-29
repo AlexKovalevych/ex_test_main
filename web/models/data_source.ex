@@ -48,6 +48,7 @@ defmodule Gt.DataSource do
   @pomadorro_types ~w(casino_bonuses
                       casino_games
                       casino_invoices
+                      casino_money
                       casino_users
                       poker_bonuses
                       poker_games_raw)
