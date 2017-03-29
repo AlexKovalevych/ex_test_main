@@ -32,6 +32,7 @@ config :logger,
     {Gt.LoggerFileBackend, :cache_vip},
     {Gt.LoggerFileBackend, :payment_check},
     {Gt.LoggerFileBackend, :amqp},
+    {Gt.LoggerFileBackend, :wl_rest},
   ]
 
 config :logger, :payment_check,
@@ -39,6 +40,14 @@ config :logger, :payment_check,
   level: :info,
   metadata: [:id, :filename],
   metadata_filter: [channel: :payment_check],
+  format: "$time [$level] $metadata| $message\n",
+  rotate: %{period: :date, keep: 10}
+
+config :logger, :wl_rest,
+  path: Path.expand("./logs/wl_rest.log"),
+  level: :info,
+  metadata: [:url],
+  metadata_filter: [channel: :wl_rest],
   format: "$time [$level] $metadata| $message\n",
   rotate: %{period: :date, keep: 10}
 

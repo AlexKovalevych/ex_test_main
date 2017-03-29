@@ -9,7 +9,7 @@ defmodule Gt.Api.Wl.FilterQuery do
     |> Keyword.put(:"Rest-Fields", struct.fields)
     |> Enum.filter_map(
       fn {_, v} ->
-        !is_nil(v) || !Enum.empty(v)
+        !is_nil(v) || !Enum.empty?(v)
       end,
       fn {k, v} ->
         v = cond do
@@ -19,5 +19,16 @@ defmodule Gt.Api.Wl.FilterQuery do
         {k, v}
       end
     )
+  end
+end
+
+defmodule Gt.Api.Wl.StatsQuery do
+  defstruct [:year, :month]
+
+  def get_headers(%__MODULE__{} = struct) do
+    headers = %{"year" => struct.year, "month" => struct.month}
+              |> Enum.filter(fn {_, v} -> !is_nil(v) end)
+              |> Enum.into(%{})
+    Keyword.new() |> Keyword.put(:"Rest-Filter", headers)
   end
 end

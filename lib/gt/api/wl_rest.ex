@@ -1,6 +1,7 @@
 defmodule Gt.Api.WlRest do
   use HTTPotion.Base
   alias Gt.Api.Wl.Player
+  alias Gt.Api.Wl.EapiGame
   alias Gt.Api.Wl.BonusOffer
   alias Gt.Api.Wl.BonusBalance
   alias Gt.Api.Wl.Comment
@@ -8,9 +9,24 @@ defmodule Gt.Api.WlRest do
   alias Gt.Api.Wl.Subresource
   alias Gt.Api.Wl.Portrait
   alias Gt.Api.Wl.RealBalance
+  alias Gt.Api.Wl.PlayerAction
   alias Gt.Api.Wl.FilterQuery
+  alias Gt.Api.Wl.StatsQuery
   alias Gt.Api.Wl.Compoints
+  alias Gt.Api.Wl.GiftSpin
   alias Gt.Api.Wl.LevelCompoints
+  alias Gt.Api.Wl.Wallet
+  alias Gt.Api.Wl.WalletEvent
+  alias Gt.Api.Wl.SubscriptionConfig
+  alias Gt.Api.Wl.UserSubscriptions
+  alias Gt.Api.Wl.Stats
+  alias Gt.Api.Wl.PaymentSystemGroup
+  alias Gt.Api.Wl.PaymentSystem
+  alias Gt.Api.Wl.Transaction
+  alias Gt.Api.Wl.PayoutConfirmation
+  alias Gt.Api.Wl.PayoutRefusal
+  alias Gt.Api.Wl.BatchPayoutRefusal
+  require Logger
 
   @enforce_keys [:url]
   defstruct [url: nil, client: "", key: "", body: "", filter: nil]
@@ -27,20 +43,25 @@ defmodule Gt.Api.WlRest do
       on_success = unquote(on_success)
       res = apply(__MODULE__, method, [url, [headers: [struct: struct]]])
       case HTTPotion.Response.success?(res) do
-        true -> apply(on_success, [res])
-        _ -> {:error, res}
+        true ->
+          Logger.info("Success request", channel: :wl_rest, url: url)
+          apply(on_success, [res])
+        _ ->
+          Logger.info("Code: #{res.status_code}, body: #{res.body}", channel: :wl_rest, url: url)
+          {:error, res}
       end
     end
   end
 
   def process_request_headers([struct: struct] = headers) do
     filter_headers = case struct.filter do
+      %StatsQuery{} -> StatsQuery.get_headers(struct.filter)
       %FilterQuery{} -> FilterQuery.get_headers(struct.filter)
       _ -> Keyword.new()
     end
 
     token = :crypto.hmac(:sha256, struct.key, struct.body) |> Base.encode16(case: :lower)
-    headers = headers
+    headers
     |> Keyword.delete(:struct)
     |> Keyword.put(:"Request", "Content-Type")
     |> Keyword.put(:"Response", "Accept")
@@ -76,7 +97,20 @@ defmodule Gt.Api.WlRest do
       limit = String.to_integer(limit)
       total = String.to_integer(total)
       {:ok, %{
-        players: Poison.decode!(res.body, as: [%Player{}]),
+        players: Poison.decode(res.body, as: [%Player{}]),
+        limit: limit,
+        total: total,
+      }}
+    end)
+  end
+
+  def get_games(%__MODULE__{} = struct) do
+    wl_request(:get, "eapi/round", struct, fn res ->
+      %{"limit" => limit, "total" => total} = Regex.named_captures(~r/(?<offset>\d+)-(?<limit>\d+)\/(?<total>\d+)/, res.headers[:"content-range"])
+      limit = String.to_integer(limit)
+      total = String.to_integer(total)
+      {:ok, %{
+        games: Poison.decode(res.body, as: [%EapiGame{chances: %EapiGame{}}]),
         limit: limit,
         total: total,
       }}
@@ -85,34 +119,34 @@ defmodule Gt.Api.WlRest do
 
   def get_player(%__MODULE__{} = struct, id) when is_binary(id) do
     wl_request(:get, "players/#{id}", struct, fn res ->
-      {:ok, Poison.decode!(res.body, as: %Player{})}
+      Poison.decode(res.body, as: %Player{})
     end)
   end
 
   def new_player(%__MODULE__{} = struct, %Player{} = player) do
     body = Poison.encode!(player)
     wl_request(:post, "registrations",%{struct | body: body}, fn res ->
-      {:ok, Poison.decode!(res.body, as: %Player{})}
+      Poison.decode(res.body, as: %Player{})
     end)
   end
 
   def update_player(%__MODULE__{} = struct, id, %Player{} = player) when is_binary(id) do
     body = Poison.encode!(player)
     wl_request(:put, "players/#{id}", %{struct | body: body}, fn res ->
-      {:ok, Poison.decode!(res.body, as: %Player{})}
+      Poison.decode(res.body, as: %Player{})
     end)
   end
 
   def new_auth_token(%__MODULE__{} = struct, username, password) when is_binary(username) and is_binary(password) do
     body = %{"username" => username, "password" => password} |> Poison.encode!
     wl_request(:post, "auth-tokens", %{struct | body: body}, fn res ->
-      {:ok, Poison.decode!(res.body, as: %AuthToken{})}
+      Poison.decode(res.body, as: %AuthToken{})
     end)
   end
 
   def get_subresource(%__MODULE__{} = struct, id, subresource) when is_binary(id) and is_binary(subresource) do
     wl_request(:get, "players/#{id}/#{subresource}", struct, fn res ->
-      {:ok, res.body}
+      {:ok, res}
     end)
   end
 
@@ -132,51 +166,51 @@ defmodule Gt.Api.WlRest do
 
   def get_portraits(%__MODULE__{} = struct, id) when is_binary(id) do
     wl_request(:get, "players/#{id}/portraits", struct, fn res ->
-      {:ok, Poison.decode!(res.body, as: [%Portrait{}])}
+      Poison.decode(res.body, as: [%Portrait{}])
     end)
   end
 
   def get_comments(%__MODULE__{} = struct, id) when is_binary(id)do
     wl_request(:get, "players/#{id}/comments", struct, fn res ->
-      {:ok, Poison.decode!(res.body, as: [%Comment{}])}
+      Poison.decode(res.body, as: [%Comment{}])
     end)
   end
 
   def get_bonus_offsers(%__MODULE__{} = struct, id) when is_binary(id) do
     wl_request(:get, "players/#{id}/bonusoffers", struct, fn res ->
-      {:ok, Poison.decode!(res.body, as: [%BonusOffer{}])}
+      Poison.decode(res.body, as: [%BonusOffer{}])
     end)
   end
 
   def get_real_balance(%__MODULE__{} = struct, id) when is_binary(id) do
     wl_request(:get, "players/#{id}/balance/real", struct, fn res ->
-      {:ok, Poison.decode!(res.body, as: %RealBalance{})}
+      Poison.decode(res.body, as: %RealBalance{})
     end)
   end
 
   def add_real_balance(%__MODULE__{} = struct, id, %RealBalance{} = real_balance) when is_binary(id) do
     body = Poison.encode!(real_balance)
     wl_request(:post, "players/#{id}/balance/real", %{struct | body: body}, fn res ->
-      {:ok, Poison.decode!(res.body, as: %Player{})}
+      Poison.decode(res.body, as: %Player{})
     end)
   end
 
   def get_bonus_balance(%__MODULE__{} = struct, id) when is_binary(id) do
     wl_request(:get, "players/#{id}/balance/bonuses", struct, fn res ->
-      {:ok, Poison.decode!(res.body, as: %BonusBalance{})}
+      Poison.decode(res.body, as: %BonusBalance{})
     end)
   end
 
   def add_bonus_balance(%__MODULE__{} = struct, id, %BonusBalance{} = balance) when is_binary(id) do
     body = Poison.encode!(balance)
     wl_request(:post, "players/#{id}/balance/bonuses", %{struct | body: body}, fn res ->
-      {:ok, Poison.decode!(res.body, as: %BonusBalance{})}
+      Poison.decode(res.body, as: %BonusBalance{})
     end)
   end
 
   def get_compoints(%__MODULE__{} = struct, id) when is_binary(id) do
     wl_request(:get, "players/#{id}/balance/compoints", struct, fn res ->
-      {:ok, Poison.decode!(res.body, as: %Compoints{})}
+      Poison.decode(res.body, as: %Compoints{})
     end)
   end
 
@@ -189,240 +223,107 @@ defmodule Gt.Api.WlRest do
 
   def get_level_compoints(%__MODULE__{} = struct) do
     wl_request(:get, "levels/compoints", struct, fn res ->
-      {:ok, Poison.decode!(res.body, as: [%LevelCompoints{}])}
+      Poison.decode(res.body, as: [%LevelCompoints{}])
     end)
   end
 
   def get_charge_reasons(%__MODULE__{} = struct) do
     wl_request(:get, "players/balance/charge-reasons", struct, fn res ->
-      {:ok, Poison.decode!(res.body)}
+      Poison.decode(res.body)
     end)
   end
 
-    #/**
-     #* @param  array $id
-     #* @return array
-     #*/
-    #public function getBalanceHistory($id)
-    #{
-        #$url = $this->getUrl(sprintf('players/%s/balance/history', $id));
-        #$response = $this->getRequest($url);
+  def get_balance_history(%__MODULE__{} = struct, id) when is_binary(id) do
+    wl_request(:get, "players/#{id}/balance/history", struct, fn res ->
+      Poison.decode(res.body, as: [%Wallet{event: %WalletEvent{}}])
+    end)
+  end
 
-        #return $this->parseResponse((string) $response->getBody(), 'array<Globotunes\WLRestApi\Response\Wallet>');
-    #}
+  def get_gift_spins(%__MODULE__{} = struct, id) when is_binary(id) do
+    wl_request(:get, "players/#{id}/gift-spins", struct, fn res ->
+      Poison.decode(res.body, as: [%GiftSpin{}])
+    end)
+  end
 
-    #/**
-     #* @param  array $id
-     #* @return array
-     #*/
-    #public function getGiftSpins($id)
-    #{
-        #$url = $this->getUrl(sprintf('players/%s/gift-spins', $id));
-        #$response = $this->getRequest($url);
+  def get_player_history(%__MODULE__{} = struct, id) when is_binary(id) do
+    wl_request(:get, "players/#{id}/history", struct, fn res ->
+      Poison.decode(res.body, as: [%PlayerAction{}])
+    end)
+  end
 
-        #return $this->parseResponse((string) $response->getBody(), 'array<Globotunes\WLRestApi\Response\GiftSpin>');
-    #}
+  def update_subscriptions(%__MODULE__{} = struct, id, %SubscriptionConfig{} = config) when is_binary(id) do
+    body = Poison.encode!(config)
+    wl_request(:put, "players/#{id}/subscriptions/0", %{struct | body: body}, fn res ->
+      Poison.decode(res.body, as: %UserSubscriptions{})
+    end)
+  end
 
-    #/**
-     #* @param  array $id
-     #* @return array
-     #*/
-    #public function getPlayerHistory($id)
-    #{
-        #$url = $this->getUrl(sprintf('players/%s/history', $id));
-        #$response = $this->getRequest($url);
+  def get_stats(%__MODULE__{} = struct) do
+    wl_request(:get, "stats", struct, fn res ->
+      Poison.decode(res.body, as: [%Stats{}])
+    end)
+  end
 
-        #return $this->parseResponse((string) $response->getBody(), 'array<Globotunes\WLRestApi\Response\PlayerAction>');
-    #}
+  def get_games_stats(%__MODULE__{} = struct) do
+    wl_request(:get, "stats/games", struct, fn res ->
+      Poison.decode(res.body)
+    end)
+  end
 
-    #/**
-     #* @param string $id
-     #* @param SubscriptionConfig $config
-     #* @return array
-     #*/
-    #public function updateSubscriptions($id, SubscriptionConfig $config)
-    #{
-        #$url = $this->getUrl(sprintf('players/%s/subscriptions/0', $id));
-        #$body = $this->serializer->serialize($config, 'json');
+  def get_game_stats(%__MODULE__{} = struct, slug) do
+    wl_request(:get, "stats/games/#{slug}", struct, fn res ->
+      Poison.decode(res.body)
+    end)
+  end
 
-        #$response = $this->putRequest($url, $body);
+  def get_payment_systems(%__MODULE__{} = struct) do
+    wl_request(:get, "transactions/payment-systems", struct, fn res ->
+      Poison.decode(res.body, as: [%PaymentSystemGroup{paymentSystems: %PaymentSystem{}}])
+    end)
+  end
 
-        #return $this->parseResponse((string) $response->getBody(), 'Globotunes\WLRestApi\Response\UserSubscriptions');
-    #}
-      #/**
-     #* @param  FilterQueryBuilder|null  $queryBuilder
-     #* @return \Globotunes\WLRestApi\Response\EapiGamesResponse
-     #*/
-    #public function getGames(FilterQueryBuilder $queryBuilder = null)
-    #{
-        #$url = $this->getUrl('api/eapi/round');
-        #$response = $this->getRequest($url, $queryBuilder);
+  def get_deposits(%__MODULE__{} = struct) do
+    wl_request(:get, "transactions/deposits", struct, fn res ->
+      Poison.decode(res.body, as: [%Transaction{}])
+    end)
+  end
 
-        #$contentRange = $response->getHeader('Content-Range');
-        #if (is_array($contentRange)) {
-            #$contentRange = array_shift($contentRange);
-        #}
+  def get_payouts(%__MODULE__{} = struct) do
+    wl_request(:get, "transactions/payouts", struct, fn res ->
+      Poison.decode(res.body, as: [%Transaction{}])
+    end)
+  end
 
-        #preg_match('`(?<offset>\d+)-(?<limit>\d+)\/(?<total>\d+)`', $contentRange, $matched);
-        #$eapiGamesResponse = new EapiGamesResponse();
+  def get_refunds(%__MODULE__{} = struct) do
+    wl_request(:get, "transactions/refunds", struct, fn res ->
+      Poison.decode(res.body, as: [%Transaction{}])
+    end)
+  end
 
-        #return $eapiGamesResponse
-            #->setLimit((int) $matched['limit'])
-            #->setTotal((int) $matched['total'])
-            #->setGames($this->parseResponse((string) $response->getBody(), 'array<Globotunes\WLRestApi\Response\EapiGame>'));
-        #;
-    #}
+  def confirm_payout(%__MODULE__{} = struct, id, %PayoutConfirmation{} = confirmation) when is_binary(id) do
+    body = Poison.encode!(confirmation)
+    wl_request(:put, "transactions/payouts#{id}/status", %{struct | body: body}, fn res ->
+      Poison.decode(res.body)
+    end)
+  end
 
-        #/**
-     #* @param  StatsQueryBuilder|null $queryBuilder
-     #* @return array
-     #*/
-    #public function getStats(StatsQueryBuilder $queryBuilder = null)
-    #{
-        #$url = $this->getUrl('stats');
-        #$response = $this->getRequest($url, $queryBuilder);
+  def refuse_payout(%__MODULE__{} = struct, id, %PayoutRefusal{} = refusal) when is_binary(id) do
+    body = Poison.encode!(refusal)
+    wl_request(:put, "transactions/payouts#{id}/status", %{struct | body: body}, fn res ->
+      Poison.decode(res.body)
+    end)
+  end
 
-        #return $this->parseResponse((string) $response->getBody(), 'array<Globotunes\WLRestApi\Response\Stats>');
-    #}
+  def batch_payout_refusal(%__MODULE__{} = struct, id, %BatchPayoutRefusal{} = refusal) when is_binary(id) do
+    body = Poison.encode!(refusal)
+    wl_request(:put, "transactions/players#{id}/payouts/reject", %{struct | body: body}, fn res ->
+      Poison.decode(res.body)
+    end)
+  end
 
-    #/**
-     #* @todo  Not tested, may not work
-     #*
-     #* @param  StatsQueryBuilder|null $queryBuilder
-     #* @return \GuzzleHttp\Message\ResponseInterface
-     #*/
-    #public function getGamesStats(StatsQueryBuilder $queryBuilder = null)
-    #{
-        #$url = $this->getUrl('stats/games');
-        #$response = $this->getRequest($url, $queryBuilder);
-
-        #return $response;
-    #}
-
-    #/**
-     #* @todo  Not tested, may not work
-     #*
-     #* @param  string                 $gameSlug
-     #* @param  StatsQueryBuilder|null $queryBuilder
-     #* @return \GuzzleHttp\Message\ResponseInterface
-     #*/
-    #public function getGameStats($gameSlug, StatsQueryBuilder $queryBuilder = null)
-    #{
-        #$url = $this->getUrl(sprintf('stats/games/%s', $gameSlug));
-        #$response = $this->getRequest($url, $queryBuilder);
-
-        #return $response;
-    #}
-
-        #/**
-     #* @return array
-     #*/
-    #public function getPaymentSystems()
-    #{
-        #$url = $this->getUrl('transactions/payment-systems');
-        #$response = $this->getRequest($url);
-
-        #return $this->parseResponse((string) $response->getBody(), 'array<Globotunes\WLRestApi\Response\PaymentSystemGroup>');
-    #}
-
-    #/**
-     #* @param  FilterQueryBuilder|null $queryBuilder
-     #* @return array
-     #*/
-    #public function getDeposits(FilterQueryBuilder $queryBuilder = null)
-    #{
-        #$url = $this->getUrl('transactions/deposits');
-        #$response = $this->getRequest($url, $queryBuilder);
-
-        #return $this->parseResponse((string) $response->getBody(), 'array<Globotunes\WLRestApi\Response\Transaction>');
-    #}
-
-    #/**
-     #* @param  FilterQueryBuilder|null $queryBuilder
-     #* @return array
-     #*/
-    #public function getPayouts(FilterQueryBuilder $queryBuilder = null)
-    #{
-        #$url = $this->getUrl('transactions/payouts');
-        #$response = $this->getRequest($url, $queryBuilder);
-
-        #return $this->parseResponse((string) $response->getBody(), 'array<Globotunes\WLRestApi\Response\Transaction>');
-    #}
-
-    #/**
-     #* @param  FilterQueryBuilder|null $queryBuilder
-     #* @return array
-     #*/
-    #public function getRefunds(FilterQueryBuilder $queryBuilder = null)
-    #{
-        #$url = $this->getUrl('transactions/refunds');
-        #$response = $this->getRequest($url, $queryBuilder);
-
-        #return $this->parseResponse((string) $response->getBody(), 'array<Globotunes\WLRestApi\Response\Transaction>');
-    #}
-
-    #/**
-     #* @todo Not tested, may not work
-     #*
-     #* @param  string             $id
-     #* @param  PayoutConfirmation $payoutConfirmation
-     #* @return \GuzzleHttp\Message\ResponseInterface
-     #*/
-    #public function condirmPayout($id, PayoutConfirmation $payoutConfirmation)
-    #{
-        #$url = $this->getUrl(sprintf('transactions/payouts/%s/status', $id));
-        #$body = $this->serializer->serialize($payoutConfirmation, 'json');
-        #$response = $this->putRequest($url, $body);
-
-        #return $response;
-    #}
-
-    #/**
-     #* @todo Not tested, may not work
-     #*
-     #* @param  string        $id
-     #* @param  PayoutRefusal $payoutRefusal
-     #* @return \GuzzleHttp\Message\ResponseInterface
-     #*/
-    #public function refusePayout($id, PayoutRefusal $payoutRefusal)
-    #{
-        #$url = $this->getUrl(sprintf('transactions/payouts/%s/status', $id));
-        #$body = $this->serializer->serialize($payoutRefusal, 'json');
-        #$response = $this->putRequest($url, $body);
-
-        #return $response;
-    #}
-
-    #/**
-     #* @todo Not tested, may not work
-     #*
-     #* @param  string             $id
-     #* @param  BatchPayoutRefusal $payoutRefusal
-     #* @return \GuzzleHttp\Message\ResponseInterface
-     #*/
-    #public function batchRefusePayout($id, BatchPayoutRefusal $payoutRefusal)
-    #{
-        #$url = $this->getUrl(sprintf('transactions/players/%s/payouts/reject', $id));
-        #$body = $this->serializer->serialize($payoutRefusal, 'json');
-        #$response = $this->putRequest($url, $body);
-
-        #return $response;
-    #}
-
-    #/**
-     #* @todo Not tested, may not work
-     #*
-     #* @param  string                  $id
-     #* @param  FilterQueryBuilder|null $queryBuilder
-     #* @return \GuzzleHttp\Message\ResponseInterface
-     #*/
-    #public function getDetailedPayouts($id, FilterQueryBuilder $queryBuilder = null)
-    #{
-        #$url = $this->getUrl(sprintf('players/%s/payouts', $id));
-        #$response = $this->getRequest($url, $queryBuilder);
-
-        #return $response;
-    #}
-
-
+  def get_detailed_payouts(%__MODULE__{} = struct, id) when is_binary(id) do
+    wl_request(:get, "players/#{id}/payouts", struct, fn res ->
+      Poison.decode(res.body)
+    end)
+  end
 end
