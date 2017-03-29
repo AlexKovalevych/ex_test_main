@@ -24,6 +24,11 @@ defmodule Gt.Repo.Migrations.CreateDataSource do
       add :files, {:array, :string}, default: []
       add :processed, :integer, default: 0
       add :total, :integer, default: 0
+      add :uri, :string
+      add :client, :string
+      add :private_key, :string
+      add :wl_host, :string
+      add :divide_by_100, :boolean
 
       timestamps()
 

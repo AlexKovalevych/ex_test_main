@@ -1,0 +1,62 @@
+<% is_started = is_started(@changeset.data) %>
+<%= form_for @changeset, @action, fn f -> %>
+  <div id="status"></div>
+  <div class="col-sm-12"></div>
+
+  <div class="col-sm-12 col-md-12 col-lg-6">
+    <%= render Gt.LayoutView, "text_field.html", form: f,
+      field: :name,
+      label: dgettext("data_sources", "name"),
+      disabled: is_started %>
+
+    <%= render(Gt.LayoutView, "select_field.html",
+              form: f,
+              label: dgettext("data_sources", "project"),
+              field: :project_id,
+              options: @projects,
+              disabled: is_started,
+              ) %>
+
+    <%= render Gt.LayoutView, "text_field.html", form: f,
+      field: :host,
+      label: dgettext("data_sources", "host"),
+      disabled: is_started %>
+
+    <%= render Gt.LayoutView, "text_field.html", form: f,
+      field: :uri,
+      label: dgettext("data_sources", "uri"),
+      disabled: is_started %>
+
+    <%= render Gt.LayoutView, "text_field.html", form: f,
+      field: :client,
+      label: dgettext("data_sources", "client"),
+      disabled: is_started %>
+
+    <%= render Gt.LayoutView, "text_field.html", form: f,
+      field: :private_key,
+      label: dgettext("data_sources", "private_key"),
+      disabled: is_started %>
+
+    <%= render Gt.LayoutView, "text_field.html", form: f,
+      field: :wl_host,
+      label: dgettext("data_sources", "wl_host"),
+      disabled: is_started %>
+
+    <%= render Gt.LayoutView, "checkbox_field.html", form: f,
+      field: :divide_by_100,
+      label: dgettext("data_sources", "divide_by_100"),
+      disabled: is_started %>
+
+    <%= render Gt.LayoutView, "text_field.html", form: f,
+      field: :interval,
+      label: dgettext("data_sources", "interval"),
+      help: dgettext("data_sources", "interval_help"),
+      disabled: is_started %>
+
+  </div>
+
+  <div class="col-sm-12"></div>
+  <div class="col-sm-12 col-md-12 col-lg-6">
+    <%= render(Gt.LayoutView, "submit_button.html", disabled: is_started) %>
+  </div>
+<% end %>

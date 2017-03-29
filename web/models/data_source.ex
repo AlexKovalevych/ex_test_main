@@ -24,6 +24,11 @@ defmodule Gt.DataSource do
     field :port, :integer
     field :separator, :string, default: "comma"
     field :double_qoute, :string, default: "double_qoute"
+    field :uri, :string
+    field :client, :string
+    field :private_key, :string
+    field :wl_host, :string
+    field :divide_by_100, :boolean
 
     embeds_one :status, Gt.WorkerStatus, on_replace: :delete
 
@@ -43,7 +48,9 @@ defmodule Gt.DataSource do
   @types ~w(rate
             pomadorro
             one_gamepay_request
-            one_gamepay)
+            one_gamepay
+            event_log
+          )
 
   @pomadorro_types ~w(casino_bonuses
                       casino_games
@@ -81,6 +88,15 @@ defmodule Gt.DataSource do
   @required_one_gamepay_api ~w(host mailbox password port)a
 
   @optional_one_gamepay ~w(encryption)a
+
+  # Event log
+  @required_event_log ~w()
+
+  @required_event_log_api ~w(host uri project_id)a
+
+  @optional_event_log ~w(wl_host divide_by_100)a
+
+  @optional_event_log_api ~w(client private_key)a
 
   def is_started(data_source) do
     case data_source.id && Gt.DataSourceRegistry.find(data_source.id, :pid) do
@@ -174,6 +190,20 @@ defmodule Gt.DataSource do
       struct
       |> cast(params, @required_one_gamepay_api ++ @optional_one_gamepay)
       |> validate_required(@required_one_gamepay)
+    end
+  end
+
+  defp changeset_type(%{type: "event_log"} = struct, params) do
+    struct = struct
+             |> cast(params, @required_fields ++ @required_event_log ++ @optional_fields ++ @optional_event_log)
+             |> validate_required(@required_fields)
+
+    if Map.get(params, "is_files", !Enum.empty?(apply_changes(struct).files)) do
+      struct |> validate_files(params)
+    else
+      struct
+      |> cast(params, @required_event_log_api ++ @optional_event_log_api)
+      |> validate_required(@required_event_log)
     end
   end
 

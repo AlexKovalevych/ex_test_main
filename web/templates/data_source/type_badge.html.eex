@@ -3,4 +3,5 @@
   <%= "pomadorro" -> %><span class="tag grey darken-4"><%= dgettext "data_sources", "pomadorro" %></span>
   <%= "one_gamepay_request" -> %><span class="tag blue lighten-4"><%= dgettext "data_sources", "one_gamepay_request" %></span>
   <%= "one_gamepay" -> %><span class="tag blue darken-4"><%= dgettext "data_sources", "one_gamepay" %></span>
+  <%= "event_log" -> %><span class="tag indigo accent-2"><%= dgettext "data_sources", "event_log" %></span>
 <%= end %>

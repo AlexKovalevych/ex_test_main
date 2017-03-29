@@ -49,6 +49,38 @@ defmodule Gt.DataSourceWorker do
     end
   end
 
+  def handle_cast(:event_log, state) do
+    Logger.metadata(channel: :event_log, id: state.data_source.id)
+    Logger.info("Start worker")
+
+    # Load data_source from db since it may be called with delay
+    data_source = Repo.get!(DataSource, state.data_source.id)
+                  |> Repo.preload(:project)
+                  |> init_worker
+
+    {:ok, timer} = :timer.apply_interval(500, __MODULE__, :send_socket, [data_source])
+    case Enum.empty?(data_source.files) do
+      false ->
+        data_source.files
+        |> Enum.with_index
+        |> Enum.map(&Gt.DataSource.EventLog.process_file(data_source, &1, Enum.count(data_source.files)))
+      true ->
+        #period = "[#{data_source.start_at |> Timex.format!("{ISOdate}")}|#{data_source.end_at |> Timex.format!("{ISOdate}")}]"
+        #Logger.metadata(period: period)
+        #Gt.DataSource.Pomadorro.process_api(data_source)
+    end
+
+    :timer.cancel(timer)
+    Logger.info("Complete worker")
+    if data_source.interval do
+      data_source = complete(data_source, new_period(data_source))
+      Process.send_after(self(), {:"$gen_cast", :event_log}, data_source.interval * 60 * 1000)
+      {:noreply, %{cache: data_source}}
+    else
+      {:stop, :normal, %{state | data_source: complete(data_source)}}
+    end
+  end
+
   def handle_cast(:pomadorro, state) do
     Logger.metadata(channel: :data_source_pomadorro, id: state.data_source.id)
     Logger.info("Start worker")
