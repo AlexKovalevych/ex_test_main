@@ -31,6 +31,7 @@ defmodule Gt.ProjectUser do
     field :email_encrypted, :string
     field :email_valid, :integer
     field :email_not_found, :boolean
+    field :email_confirmed, :boolean
     field :login, :string
     field :nick, :string
     field :phone, :string
@@ -101,6 +102,10 @@ defmodule Gt.ProjectUser do
   @required_fields ~w(item_id project_id)a
 
   @optional_fields ~w(
+                      email_hash
+                      email_encrypted
+                      email_not_found
+                      email_confirmed
                       email_valid
                       lang
                       currency

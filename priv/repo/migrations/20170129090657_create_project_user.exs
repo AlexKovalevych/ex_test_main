@@ -9,6 +9,7 @@ defmodule Gt.Repo.Migrations.CreateProjectUser do
       add :email_encrypted, :string
       add :email_valid, :integer
       add :email_not_found, :boolean
+      add :email_confirmed, :boolean
       add :login, :string
       add :nick, :string
       add :phone, :string
