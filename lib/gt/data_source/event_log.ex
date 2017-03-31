@@ -115,11 +115,10 @@ defmodule Gt.DataSource.EventLog do
 
     # can't find user by glow_id, load item_id from proxy
     user = if !user do
-        #if ($this->wlClient) {
-            #$user = $this->fetchUserFromWlRestApi($projectUserItemId);
-        #} else {
-            #$user = $this->fetchUserRegisterEvent($projectUserItemId);
-        #}
+      case data_source.wl_client do
+        nil -> fetch_user_register_event(user_item_id)
+        host -> fetch_user_from_wl_rest_api(user_item_id)
+      end
     else
       user
     end

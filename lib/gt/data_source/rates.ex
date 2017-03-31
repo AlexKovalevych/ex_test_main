@@ -100,7 +100,11 @@ defmodule Gt.DataSource.Rates do
             save_xe_rate(currency, date, rate)
           end)
         false ->
-          Logger.error("Can't get xe rate for date #{date}; code: #{response.status_code}; body: #{response.body}")
+          if Map.has_keys?(response, :status_code) && Map.has_keys?(response, :body) do
+            Logger.error("Can't get xe rate for date #{date}; code: #{response.status_code}; body: #{response.body}")
+          else
+            Logger.error("Can't get xe rate for date #{date}; #{response.message}")
+          end
       end
       DataSourceRegistry.increment(data_source.id, :processed)
     end)

@@ -90,7 +90,7 @@ defmodule Gt.DataSource do
   @optional_one_gamepay ~w(encryption)a
 
   # Event log
-  @required_event_log ~w(project_id)
+  @required_event_log ~w(project_id)a
 
   @required_event_log_api ~w(host uri)a
 
