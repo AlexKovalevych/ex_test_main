@@ -24,12 +24,15 @@ msgstr "Двойная кавычка"
 msgid "encryption"
 msgstr "Шифрование"
 
+#: web/templates/data_source/form_event_log.html.eex:4
 #: web/templates/data_source/form_one_gamepay.html.eex:4
 #: web/templates/data_source/form_pomadorro.html.eex:4
 #: web/templates/data_source/form_rates.html.eex:4
 msgid "external"
 msgstr "Внешний источник"
 
+#: web/templates/data_source/event_log_file.html.eex:33
+#: web/templates/data_source/form_event_log.html.eex:7
 #: web/templates/data_source/form_one_gamepay.html.eex:7
 #: web/templates/data_source/form_pomadorro.html.eex:7
 #: web/templates/data_source/form_rates.html.eex:7
@@ -39,6 +42,7 @@ msgstr "Внешний источник"
 msgid "file"
 msgstr "Локальный источник"
 
+#: web/templates/data_source/event_log_api.html.eex:22
 #: web/templates/data_source/one_gamepay_api.html.eex:14
 #: web/templates/data_source/one_gamepay_request_api.html.eex:22
 #: web/templates/data_source/pomadorro_api.html.eex:39
@@ -46,7 +50,8 @@ msgstr "Локальный источник"
 msgid "host"
 msgstr "Хост"
 
-#: web/templates/data_source/index.html.eex:30
+#: web/templates/data_source/event_log_api.html.eex:52
+#: web/templates/data_source/index.html.eex:31
 #: web/templates/data_source/one_gamepay_api.html.eex:55
 #: web/templates/data_source/one_gamepay_request_api.html.eex:37
 #: web/templates/data_source/pomadorro_api.html.eex:44
@@ -54,6 +59,7 @@ msgstr "Хост"
 msgid "interval"
 msgstr "Интервал"
 
+#: web/templates/data_source/event_log_api.html.eex:53
 #: web/templates/data_source/one_gamepay_api.html.eex:56
 #: web/templates/data_source/one_gamepay_request_api.html.eex:38
 #: web/templates/data_source/pomadorro_api.html.eex:45
@@ -73,7 +79,9 @@ msgstr "Логин"
 msgid "mailbox"
 msgstr "Почтовый ящик"
 
-#: web/templates/data_source/index.html.eex:26
+#: web/templates/data_source/event_log_api.html.eex:9
+#: web/templates/data_source/event_log_file.html.eex:9
+#: web/templates/data_source/index.html.eex:27
 #: web/templates/data_source/one_gamepay_api.html.eex:9
 #: web/templates/data_source/one_gamepay_file.html.eex:9
 #: web/templates/data_source/one_gamepay_request_api.html.eex:9
@@ -99,7 +107,7 @@ msgstr "1Gamepay запрос"
 msgid "password"
 msgstr "Пароль"
 
-#: web/templates/data_source/index.html.eex:31
+#: web/templates/data_source/index.html.eex:32
 #: web/templates/data_source/one_gamepay_request_api.html.eex:15
 #: web/templates/data_source/pomadorro_api.html.eex:32
 #: web/templates/data_source/rates_api.html.eex:23
@@ -123,6 +131,8 @@ msgstr "Типы"
 msgid "port"
 msgstr "Порт"
 
+#: web/templates/data_source/event_log_api.html.eex:14
+#: web/templates/data_source/event_log_file.html.eex:14
 #: web/templates/data_source/pomadorro_api.html.eex:14
 #: web/templates/data_source/pomadorro_file.html.eex:14
 msgid "project"
@@ -142,11 +152,11 @@ msgstr "Тип"
 msgid "separator"
 msgstr "Разделитель"
 
-#: web/templates/data_source/index.html.eex:28
+#: web/templates/data_source/index.html.eex:29
 msgid "subtypes"
 msgstr "Подтипы"
 
-#: web/templates/data_source/index.html.eex:27
+#: web/templates/data_source/index.html.eex:28
 msgid "type"
 msgstr "Тип"
 
@@ -154,6 +164,33 @@ msgstr "Тип"
 msgid "data_source_worker_update"
 msgstr "Источник данных \"%{id}\" обновлен"
 
-#: web/templates/data_source/index.html.eex:29
+#: web/templates/data_source/index.html.eex:30
 msgid "projects"
 msgstr "Проекты"
+
+#: web/templates/data_source/event_log_api.html.eex:32
+msgid "client"
+msgstr "Ключ приложения"
+
+#: web/templates/data_source/event_log_api.html.eex:47
+#: web/templates/data_source/event_log_file.html.eex:27
+msgid "divide_by_100"
+msgstr "Делить на 100"
+
+#: web/templates/data_source/index.html.eex:17
+#: web/templates/data_source/type_badge.html.eex:6
+msgid "event_log"
+msgstr "Лог событий"
+
+#: web/templates/data_source/event_log_api.html.eex:37
+msgid "private_key"
+msgstr "Приватный ключ"
+
+#: web/templates/data_source/event_log_api.html.eex:27
+msgid "uri"
+msgstr "Путь"
+
+#: web/templates/data_source/event_log_api.html.eex:42
+#: web/templates/data_source/event_log_file.html.eex:22
+msgid "wl_host"
+msgstr "WL rest api base url"

@@ -169,10 +169,14 @@ msgstr "User"
 msgid "one_s_report"
 msgstr "1C report"
 
-#: web/templates/payment_check/status_tag.html.eex:3
+#: web/templates/payment_check/status_tag.html.eex:4
 msgid "completed"
 msgstr "Completed"
 
-#: web/templates/payment_check/status_tag.html.eex:4
+#: web/templates/payment_check/status_tag.html.eex:5
 msgid "error"
 msgstr "Error"
+
+#: web/templates/payment_check/status_tag.html.eex:3
+msgid "stopped"
+msgstr "Stopped"
