@@ -90,7 +90,7 @@ defmodule Gt.Mixfile do
      {:mochiweb, "~> 2.12.2", override: true},
      {:iconv, "~> 1.0"},
      {:mailroom, github: "andrewtimberlake/mailroom", branch: "master"},
-     {:xlsxir, github: "alexkovalevych/xlsxir", branch: "fix-empty-sheet", override: true},
+     {:xlsxir, github: "alexkovalevych/xlsxir", branch: "parallel-support", override: true},
      {:redix, ">= 0.0.0"},
      {:elixlsx, "~> 0.1.1"},
      {:export, "~> 0.1.0"},

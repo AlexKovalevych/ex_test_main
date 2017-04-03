@@ -27,9 +27,10 @@ defmodule Gt.PaymentCheck.Processor do
     {struct, files} = Script.preprocess(struct)
     opened_files = files
     # TODO Use ParallelStream here
-    |> Enum.map(fn filename ->
+    |> ParallelStream.map(fn filename ->
       open_file(struct, Gt.Uploaders.PaymentCheck.local_path(id, filename))
     end)
+    |> Enum.to_list()
 
     opened_files = if Enum.any?(opened_files, &is_list/1) do
       Enum.concat(opened_files)
@@ -73,7 +74,7 @@ defmodule Gt.PaymentCheck.Processor do
           {:ok, files} ->
             files
             # TODO Use ParallelStream here
-            |> Enum.map(fn path ->
+            |> ParallelStream.map(fn path ->
               open_file(%{struct | total_files: struct.total_files + Enum.count(files) - 1}, to_string(path))
             end)
             |> Enum.concat
