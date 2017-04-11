@@ -48,7 +48,9 @@ defmodule Gt.Mixfile do
      :iconv,
      :mailroom,
      :export,
-     :redix]
+     :redix,
+     :exoffice
+   ]
   end
 
   # Specifies which paths to compile per environment.
@@ -78,7 +80,7 @@ defmodule Gt.Mixfile do
      {:navigation_history, "~> 0.2.0"},
      {:kerosene, "~> 0.5.0"},
      {:amqp, "~> 0.2.0"},
-     {:exoffice, github: "alexkovalevych/exoffice", branch: "parallel-support"},
+     {:exoffice, github: "alexkovalevych/exoffice", branch: "performance-boost"},
      {:money, "~> 1.2"},
      {:html_sanitize_ex, "~> 1.1"},
      {:arc_ecto, "~> 0.5.0"},

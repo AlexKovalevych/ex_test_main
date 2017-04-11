@@ -134,69 +134,13 @@ defmodule Gt.Api.AdmService do
     }
 
     params = prepare_params(struct, params_map)
-        #$params = $this->prepareParams($paramsMap);
-        #$params['mng_auth'] = $mngAuth;
-        #$params['format'] = "xml";
+             |> Map.put("mng_auth", auth)
+             |> Map.put("format", "xml")
 
-        #$xml = $this->executeCommand('transaction_list', $params, true);
-        #//remove "usercomment" field
-        #$xml = preg_replace("`UserComment=\".*?\"\s`is", "", $xml);
-        #$xmlArray = $this->xmlStringToArray($xml);
-
-        #if (!isset($xmlArray['@attributes']['status']) || $xmlArray['@attributes']['status'] != 'ok') {
-            #return null;
-        #}
-
-        #if (!isset($xmlArray['data']) || !is_array($xmlArray['data'])) {
-            #return array();
-        #}
-
-        #if (isset($xmlArray['data']['@attributes'])) {
-            #$xmlArray['data'] = [['@attributes' => $xmlArray['data']['@attributes']]];
-        #}
-
-        #$transactions = array();
-        #foreach ($xmlArray['data'] as $item) {
-
-            #if (!isset($item['@attributes']) || !is_array($item['@attributes'])) {
-                #continue;
-            #}
-
-            #$item = $item['@attributes'];
-            #$transaction = new Transaction();
-
-            #$transaction->setId(isset($item['ID']) ? trim($item['ID']) : 0);
-            #$transaction->setCreateDate(isset($item['DateCreate']) ? new \DateTime($item['DateCreate']) : null);
-            #$transaction->setCommitDateTime(
-                #isset($item['Date']) && isset($item['Time']) ? new \DateTime($item['Date'] . ' ' . $item['Time']) : null
-            #);
-
-            #$projectId = isset($item['project_id']) ? intval($item['project_id']) : null;
-            #if ($this->is170()) {
-                #$projectId = $this->get170Id();
-            #}
-
-            #$transaction->setCash(isset($item['fCash']) ? intval($item['fCash']) : null);
-            #$transaction->setCashUser(isset($item['fCashUser']) ? intval($item['fCashUser']) : null);
-            #$transaction->setLosses(isset($item['fLosses']) ? intval($item['fLosses']) : null);
-            #$transaction->setUserId(isset($item['UserID']) ? trim($item['UserID']) : null);
-            #$transaction->setOrderId(isset($item['OrderID']) ? trim($item['OrderID']) : null);
-            #$transaction->setProjectId($projectId);
-            #$transaction->setIsActive(isset($item['fActive']) ? (bool)$item['fActive'] : null);
-            #$transaction->setComment(isset($item['fComment']) ? $item['fComment'] : null);
-            #$transaction->setSystemId(isset($item['SystemID']) ? trim($item['SystemID']) : null);
-            #$transaction->setSystem(isset($item['System']) ? $item['System'] : null);
-            #$transaction->setStatusId(isset($item['StatusID']) ? trim($item['StatusID']) : null);
-            #$transaction->setStatus(isset($item['Status']) ? $item['Status'] : null);
-            #$transaction->setInfo(isset($item['Info']) ? $item['Info'] : null);
-            #$transaction->setUserLogin(isset($item['UserLogin']) ? $item['UserLogin'] : null);
-            #$transaction->setPGUID(isset($item['PGUID']) ? $item['PGUID'] : null);
-
-            #$transactions[] = $transaction;
-        #}
-
-        #return $transactions;
-    #}
+    case run_command(struct, "transaction_list", params, true) do
+      {:error, response} -> {:error, response}
+      {:ok, body} -> {:ok, String.replace(body, ~r/UserComment=\".*?\"\s/is, "")}
+    end
   end
 
   defp prepare_params(%__MODULE__{encoding: encoding}, params) do
@@ -234,7 +178,6 @@ defmodule Gt.Api.AdmService do
     |> Enum.filter(fn {k, {type, value}} ->
       is_nil(value) && value != ""
     end)
-    #
   end
 
   defp to_int(value) when is_float(value), do: round(value)
