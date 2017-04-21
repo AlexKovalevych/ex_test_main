@@ -50,6 +50,7 @@ defmodule Gt.DataSource do
             one_gamepay_request
             one_gamepay
             event_log
+            gs_adm_service
           )
 
   @pomadorro_types ~w(casino_bonuses
@@ -97,6 +98,15 @@ defmodule Gt.DataSource do
   @optional_event_log ~w(wl_host divide_by_100)a
 
   @optional_event_log_api ~w(client private_key)a
+
+  # Gameserver adm service
+  @required_gs_adm_service ~w()a
+
+  @required_gs_adm_service_api ~w(start_at end_at host port uri)a
+
+  @optional_gs_adm_service ~w()a
+
+  @optional_gs_adm_service_api ~w(login password)a
 
   def is_started(data_source) do
     case data_source.id && Gt.DataSourceRegistry.find(data_source.id, :pid) do
@@ -204,6 +214,20 @@ defmodule Gt.DataSource do
       struct
       |> cast(params, @required_event_log_api ++ @optional_event_log_api)
       |> validate_required(@required_event_log)
+    end
+  end
+
+  defp changeset_type(%{type: "gs_adm_service"} = struct, params) do
+    struct = struct
+    |> cast(params, @required_fields ++ @required_gs_adm_service ++ @optional_fields ++ @optional_gs_adm_service)
+    |> validate_required(@required_fields)
+
+    if Map.get(params, "is_files", !Enum.empty?(apply_changes(struct).files)) do
+      struct |> validate_files(params)
+    else
+      struct
+      |> cast(params, @required_gs_adm_service_api ++ @optional_gs_adm_service_api)
+      |> validate_required(@required_gs_adm_service_api)
     end
   end
 

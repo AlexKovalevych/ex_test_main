@@ -4,7 +4,7 @@ defmodule Gt.Uploaders.DataSource do
 
   @versions [:original]
 
-  @extensions ~w(.csv .txt .json)
+  @extensions ~w(.csv .txt .json .xml)
 
   def extensions(), do: @extensions
 

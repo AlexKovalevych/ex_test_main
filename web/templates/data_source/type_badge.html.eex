@@ -1,7 +1,8 @@
 <%= case @type do %>
-  <%= "rates" -> %><span class="tag green lighten-2"><%= dgettext "data_sources", "rates" %></span>
-  <%= "pomadorro" -> %><span class="tag grey darken-4"><%= dgettext "data_sources", "pomadorro" %></span>
-  <%= "one_gamepay_request" -> %><span class="tag blue lighten-4"><%= dgettext "data_sources", "one_gamepay_request" %></span>
-  <%= "one_gamepay" -> %><span class="tag blue darken-4"><%= dgettext "data_sources", "one_gamepay" %></span>
-  <%= "event_log" -> %><span class="tag indigo accent-2"><%= dgettext "data_sources", "event_log" %></span>
+    <%= "rates" -> %><span class="tag green lighten-2"><%= dgettext "data_sources", "rates" %></span>
+    <%= "pomadorro" -> %><span class="tag grey darken-4"><%= dgettext "data_sources", "pomadorro" %></span>
+    <%= "one_gamepay_request" -> %><span class="tag blue lighten-4"><%= dgettext "data_sources", "one_gamepay_request" %></span>
+    <%= "one_gamepay" -> %><span class="tag blue darken-4"><%= dgettext "data_sources", "one_gamepay" %></span>
+    <%= "event_log" -> %><span class="tag indigo accent-2"><%= dgettext "data_sources", "event_log" %></span>
+    <%= "gs_adm_service" -> %><span class="tag #6d4c41 brown darken-1"><%= dgettext "data_sources", "gs_adm_service" %></span>
 <%= end %>

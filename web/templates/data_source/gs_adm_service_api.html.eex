@@ -1,0 +1,56 @@
+<% is_started = is_started(@changeset.data) %>
+<%= form_for @changeset, @action, fn f -> %>
+<div id="status"></div>
+<div class="col-sm-12"></div>
+
+<div class="col-sm-12 col-md-12 col-lg-6">
+    <%= render Gt.LayoutView, "text_field.html", form: f,
+        field: :name,
+        label: dgettext("data_sources", "name"),
+        disabled: is_started %>
+
+    <%= render Gt.LayoutView, "text_field.html", form: f,
+        field: :host,
+        label: dgettext("data_sources", "host"),
+        disabled: is_started %>
+
+    <%= render Gt.LayoutView, "text_field.html", form: f,
+        field: :port,
+        label: dgettext("data_sources", "port"),
+        disabled: is_started %>
+
+    <%= render Gt.LayoutView, "text_field.html", form: f,
+        field: :uri,
+        label: dgettext("data_sources", "uri"),
+        disabled: is_started %>
+
+    <%= render Gt.LayoutView, "period_field.html", form: f,
+        field_from: :start_at,
+        field_to: :end_at,
+        label: dgettext("data_sources", "period"),
+        current_user: @current_user,
+        disabled: is_started %>
+
+    <%= render Gt.LayoutView, "text_field.html", form: f,
+        field: :login,
+        label: dgettext("data_sources", "login"),
+        disabled: is_started %>
+
+    <%= render Gt.LayoutView, "text_field.html", form: f,
+        field: :password,
+        label: dgettext("data_sources", "password"),
+        disabled: is_started %>
+
+    <%= render Gt.LayoutView, "text_field.html", form: f,
+        field: :interval,
+        label: dgettext("data_sources", "interval"),
+        help: dgettext("data_sources", "interval_help"),
+        disabled: is_started %>
+
+</div>
+
+<div class="col-sm-12"></div>
+<div class="col-sm-12 col-md-12 col-lg-6">
+    <%= render(Gt.LayoutView, "submit_button.html", disabled: is_started) %>
+</div>
+<% end %>
