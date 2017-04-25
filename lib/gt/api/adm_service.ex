@@ -139,7 +139,12 @@ defmodule Gt.Api.AdmService do
 
     case run_command(struct, "transaction_list", params, true) do
       {:error, response} -> {:error, response}
-      {:ok, body} -> {:ok, String.replace(body, ~r/UserComment=\".*?\"\s/is, "")}
+      {:ok, body} ->
+        body = body
+        |> HtmlEntities.decode
+        |> String.replace("&", "&amp;")
+        |> String.replace(~r/UserComment=\".*?\"\s/is, "")
+        {:ok, body}
     end
   end
 
@@ -155,7 +160,9 @@ defmodule Gt.Api.AdmService do
           :integer ->
             to_int(value)
           :string ->
-            to_server_encoding(value, encoding)
+            value
+            |> HtmlEntities.decode
+            |> to_server_encoding(encoding)
           :boolean ->
             if value, do: 1, else: 0
           :boolean_revert ->

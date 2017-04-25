@@ -93,6 +93,7 @@ defmodule Gt.Mixfile do
      {:redix, ">= 0.0.0"},
      {:elixlsx, "~> 0.1.1"},
      {:export, "~> 0.1.0"},
+     {:html_entities, "~> 0.3"},
     ]
   end
 

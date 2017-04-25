@@ -1,22 +1,25 @@
 defmodule Gt.DataSource.GsAdmService do
-  #alias Gt.Api.EventLogResponse
-  #alias Gt.Api.EventLogEvent
-  #alias Gt.DataSourceRegistry
-  #alias Gt.ProjectUser
-  #alias Gt.Payment
-  #alias Gt.Repo
-  #alias Gt.Api.EventLog, as: Api
-  #alias Gt.Api.WlRest, as: WlApi
+  alias Gt.Repo
+  alias Gt.Project
+  alias Gt.DataSourceRegistry
+  alias Gt.GameServerTransaction
+  alias Gt.Api.AdmService
   import SweetXml
   require Logger
 
   def process_file(data_source, {filename, index}, total_files) do
-    Gt.Uploaders.DataSource.local_path(data_source.id, filename)
+    res = Gt.Uploaders.DataSource.local_path(data_source.id, filename)
     |> File.read!()
+    |> HtmlEntities.decode
+    |> String.replace("&", "&amp;")
     |> process_data(data_source, index, total_files)
   end
 
   defp process_data(content, data_source, index, total_files) do
+    count = content |> xpath(~x"//data"l) |> Enum.count
+    DataSourceRegistry.save(data_source.id, :total, total_files * count)
+    DataSourceRegistry.save(data_source.id, :processed, index * count)
+
     if content |> xpath(~x"//result/@status") != 'ok' do
       message = "Failed to parse AdmService response"
       Logger.info(message)
@@ -35,93 +38,41 @@ defmodule Gt.DataSource.GsAdmService do
         system_id: ~x"@SystemID"I,
         status: ~x"@Status"s,
         status_id: ~x"@StatusID"I,
-        pguid: ~x"@PGUID"s
+        pguid: ~x"@PGUID"s,
+        project_id: ~x"@project_Id"s
       )
+      |> Enum.each(&(upsert_transaction(&1, data_source)))
     end
-    #count = Enum.count(events)
-    #Logger.info("Parsing #{count} items")
-    #DataSourceRegistry.delete(data_source.id, :new_user_stats)
-    #DataSourceRegistry.save(data_source.id, :total, total_files * count)
-    #DataSourceRegistry.save(data_source.id, :processed, index * count)
+  end
 
-    #events
-    #|> ParallelStream.each(fn event ->
-      #case event.name do
-        #"user_register" -> new_user_event(data_source, event)
-        #"user_changed" -> change_event(data_source, event)
-        #"user_emailconfirm" -> email_confirm(data_source, event)
-        #"user_depositcomplete" -> payment_event(data_source, event)
-        #"user_cashoutcomplete" -> payment_event(data_source, event)
-        #"user_depositerror" -> payment_event(data_source, event)
-        #"user_cashoutcancel" -> payment_event(data_source, event)
-        #_ -> nil
-      #end
-      #DataSourceRegistry.increment(data_source.id, :processed)
-    #end)
-    #|> Enum.reduce(0, fn _, acc -> acc + 1 end)
-    #user_ids = DataSourceRegistry.find(data_source.id, :new_user_stats) || []
-    #Logger.info("Processing new user stats for #{Enum.count(user_ids)} users")
-    #user_ids
-    #|> Enum.each(fn {_, {user, from, to, count}} ->
-      #ProjectUser.calculate_stats(user, from, to)
-      #ProjectUser.deps_wdrs_cache(user)
-      #ProjectUser.calculate_vip_levels(user)
-    #end)
+  defp upsert_transaction(data, data_source) do
+    project = Project.by_item_id(Project, data.project_id) |> Repo.one
+    [year, month, date] = String.split(data.date, "-") |> Enum.map(&String.to_integer/1)
+    [hours, minutes, seconds] = String.split(data.time, ":") |> Enum.map(&String.to_integer/1)
+    {:ok, date} = NaiveDateTime.new(year, month, date, hours, minutes, seconds)
+    fields = %{
+      date: date,
+      sum: data.sum,
+      user_sum: data.user_sum,
+      system: data.system,
+      system_id: data.system_id,
+      status: data.status,
+      status_id: data.status_id,
+      pguid: data.pguid,
+    }
+
+    transaction = %GameServerTransaction{}
+    |> GameServerTransaction.changeset(Map.merge(
+      fields,
+      %{
+        item_id: data.id,
+        project_id: project.id
+      }
+    ))
+
+    on_conflict = [set: Map.to_list(fields)]
+    Repo.insert!(transaction, on_conflict: on_conflict, conflict_target: [:item_id, :project_id])
+    DataSourceRegistry.increment(data_source.id, :processed)
   end
 
 end
-#
-        #if (!isset($xmlArray['@attributes']['status']) || $xmlArray['@attributes']['status'] != 'ok') {
-            #return null;
-        #}
-
-        #if (!isset($xmlArray['data']) || !is_array($xmlArray['data'])) {
-            #return array();
-        #}
-
-        #if (isset($xmlArray['data']['@attributes'])) {
-            #$xmlArray['data'] = [['@attributes' => $xmlArray['data']['@attributes']]];
-        #}
-
-        #$transactions = array();
-        #foreach ($xmlArray['data'] as $item) {
-
-            #if (!isset($item['@attributes']) || !is_array($item['@attributes'])) {
-                #continue;
-            #}
-
-            #$item = $item['@attributes'];
-            #$transaction = new Transaction();
-
-            #$transaction->setId(isset($item['ID']) ? trim($item['ID']) : 0);
-            #$transaction->setCreateDate(isset($item['DateCreate']) ? new \DateTime($item['DateCreate']) : null);
-            #$transaction->setCommitDateTime(
-                #isset($item['Date']) && isset($item['Time']) ? new \DateTime($item['Date'] . ' ' . $item['Time']) : null
-            #);
-
-            #$projectId = isset($item['project_id']) ? intval($item['project_id']) : null;
-            #if ($this->is170()) {
-                #$projectId = $this->get170Id();
-            #}
-
-            #$transaction->setCash(isset($item['fCash']) ? intval($item['fCash']) : null);
-            #$transaction->setCashUser(isset($item['fCashUser']) ? intval($item['fCashUser']) : null);
-            #$transaction->setLosses(isset($item['fLosses']) ? intval($item['fLosses']) : null);
-            #$transaction->setUserId(isset($item['UserID']) ? trim($item['UserID']) : null);
-            #$transaction->setOrderId(isset($item['OrderID']) ? trim($item['OrderID']) : null);
-            #$transaction->setProjectId($projectId);
-            #$transaction->setIsActive(isset($item['fActive']) ? (bool)$item['fActive'] : null);
-            #$transaction->setComment(isset($item['fComment']) ? $item['fComment'] : null);
-            #$transaction->setSystemId(isset($item['SystemID']) ? trim($item['SystemID']) : null);
-            #$transaction->setSystem(isset($item['System']) ? $item['System'] : null);
-            #$transaction->setStatusId(isset($item['StatusID']) ? trim($item['StatusID']) : null);
-            #$transaction->setStatus(isset($item['Status']) ? $item['Status'] : null);
-            #$transaction->setInfo(isset($item['Info']) ? $item['Info'] : null);
-            #$transaction->setUserLogin(isset($item['UserLogin']) ? $item['UserLogin'] : null);
-            #$transaction->setPGUID(isset($item['PGUID']) ? $item['PGUID'] : null);
-
-            #$transactions[] = $transaction;
-        #}
-
-        #return $transactions;
-
