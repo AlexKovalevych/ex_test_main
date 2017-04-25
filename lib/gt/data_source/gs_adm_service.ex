@@ -7,19 +7,44 @@ defmodule Gt.DataSource.GsAdmService do
   import SweetXml
   require Logger
 
+  def process_api(data_source) do
+    struct = %AdmService{
+      host: data_source.host,
+      port: data_source.port,
+      path: data_source.uri,
+      login: data_source.login,
+      pass: data_source.password,
+      name: data_source.name,
+      options: %{"type" => "eapi"},
+    }
+    case AdmService.new_auth(struct) do
+      {:error, reason} ->
+        {:error, reason}
+      {:ok, auth} ->
+        case AdmService.get_transactions(struct, auth, data_source.start_at, data_source.end_at) do
+          {:error, response} ->
+            Logger.error(response)
+          {:ok, body} ->
+            count = body |> xpath(~x"//data"l) |> Enum.count
+            DataSourceRegistry.save(data_source.id, :total, count)
+            DataSourceRegistry.save(data_source.id, :processed, 0)
+            process_data(body, data_source)
+        end
+    end
+  end
+
   def process_file(data_source, {filename, index}, total_files) do
-    res = Gt.Uploaders.DataSource.local_path(data_source.id, filename)
+    content = Gt.Uploaders.DataSource.local_path(data_source.id, filename)
     |> File.read!()
     |> HtmlEntities.decode
     |> String.replace("&", "&amp;")
-    |> process_data(data_source, index, total_files)
-  end
-
-  defp process_data(content, data_source, index, total_files) do
     count = content |> xpath(~x"//data"l) |> Enum.count
     DataSourceRegistry.save(data_source.id, :total, total_files * count)
     DataSourceRegistry.save(data_source.id, :processed, index * count)
+    process_data(content, data_source)
+  end
 
+  defp process_data(content, data_source) do
     if content |> xpath(~x"//result/@status") != 'ok' do
       message = "Failed to parse AdmService response"
       Logger.info(message)

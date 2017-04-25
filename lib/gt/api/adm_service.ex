@@ -116,7 +116,7 @@ defmodule Gt.Api.AdmService do
     Map.get(options, "type", "") |> String.downcase == "eapi"
   end
 
-  def get_transactions(%__MODULE__{} = struct, %Auth{} = auth, from, to, limit, order, offset) do
+  def get_transactions(%__MODULE__{} = struct, %Auth{} = auth, from, to, limit \\ nil, order \\ nil, offset \\ nil) do
     params_map = %{
       "userid" => {:multiple_id, nil},
       "projectid" => {:multiple_id, nil},
