@@ -133,7 +133,7 @@ msgstr "Поиск"
 #: web/templates/calendar_event/index.html.eex:51
 #: web/templates/calendar_group/index.html.eex:32
 #: web/templates/calendar_type/index.html.eex:30
-#: web/templates/data_source/index.html.eex:52
+#: web/templates/data_source/index.html.eex:53
 #: web/templates/payment_system/index.html.eex:42
 #: web/templates/project/index.html.eex:52 web/templates/user/index.html.eex:52
 msgid "edit"

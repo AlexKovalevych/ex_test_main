@@ -29,6 +29,7 @@ defmodule Gt.Repo.Migrations.CreateDataSource do
       add :private_key, :string
       add :wl_host, :string
       add :divide_by_100, :boolean
+      add :last_event_id, :integer
 
       timestamps()
 

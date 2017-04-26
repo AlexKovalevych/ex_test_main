@@ -29,6 +29,7 @@ defmodule Gt.DataSource do
     field :private_key, :string
     field :wl_host, :string
     field :divide_by_100, :boolean
+    field :last_event_id, :integer
 
     embeds_one :status, Gt.WorkerStatus, on_replace: :delete
 
@@ -95,7 +96,7 @@ defmodule Gt.DataSource do
 
   @required_event_log_api ~w(host uri)a
 
-  @optional_event_log ~w(wl_host divide_by_100)a
+  @optional_event_log ~w(wl_host divide_by_100 last_event_id)a
 
   @optional_event_log_api ~w(client private_key)a
 

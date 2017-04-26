@@ -33,7 +33,9 @@ defmodule Gt.DataSourceWorker do
         DataSourceRegistry.save(data_source.id, :total, Enum.count(data_source.files))
         data_source.files |> Enum.map(&Gt.DataSource.Rates.process_file(data_source, &1))
       true ->
-        period = "[#{data_source.start_at |> Timex.format!("{ISOdate}")}|#{data_source.end_at |> Timex.format!("{ISOdate}")}]"
+        start_at = data_source.start_at |> Timex.format!("{ISOdate}")
+        end_at = data_source.end_at |> Timex.format!("{ISOdate}")
+        period = "[#{start_at}|#{end_at}]"
         Logger.metadata(period: period)
         Gt.DataSource.Rates.process_api(data_source)
     end
@@ -65,9 +67,7 @@ defmodule Gt.DataSourceWorker do
         |> Enum.with_index
         |> Enum.map(&Gt.DataSource.EventLog.process_file(data_source, &1, Enum.count(data_source.files)))
       true ->
-        #period = "[#{data_source.start_at |> Timex.format!("{ISOdate}")}|#{data_source.end_at |> Timex.format!("{ISOdate}")}]"
-        #Logger.metadata(period: period)
-        #Gt.DataSource.Pomadorro.process_api(data_source)
+        Gt.DataSource.EventLog.process_api(data_source)
     end
 
     :timer.cancel(timer)

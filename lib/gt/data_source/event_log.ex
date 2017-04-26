@@ -2,6 +2,7 @@ defmodule Gt.DataSource.EventLog do
   alias Gt.Api.EventLogResponse
   alias Gt.Api.EventLogEvent
   alias Gt.DataSourceRegistry
+  alias Gt.DataSource
   alias Gt.ProjectUser
   alias Gt.Payment
   alias Gt.Repo
@@ -9,22 +10,43 @@ defmodule Gt.DataSource.EventLog do
   alias Gt.Api.WlRest, as: WlApi
   require Logger
 
-  def process_file(data_source, {filename, index}, total_files) do
-    Gt.Uploaders.DataSource.local_path(data_source.id, filename)
-    |> File.read!()
-    |> Poison.decode!(as: %EventLogResponse{events: [%EventLogEvent{}]})
-    |> process_data(data_source, index, total_files)
+  def process_api(data_source) do
+    last_event_id = if is_nil(data_source.last_event_id), do: 0, else: data_source.last_event_id
+    response = Api.read_events(
+      %Api{
+          url: data_source.host,
+          app_key: data_source.client,
+          private_key: data_source.private_key,
+      },
+      data_source.uri,
+      last_event_id
+    )
+    case response do
+      {:error, %HTTPotion.Response{body: body, status_code: code}} ->
+        message = "Error getting events log. Code: #{code}, body: #{body}"
+        Logger.error(message)
+        raise "Error getting events log"
+      response ->
+        process_data(response, data_source)
+    end
   end
 
-  defp process_data(%EventLogResponse{events: events}, data_source, index, total_files) do
-    count = Enum.count(events)
+  def process_file(data_source, {filename, index}, total_files) do
+    data = Gt.Uploaders.DataSource.local_path(data_source.id, filename)
+    |> File.read!()
+    |> Poison.decode!(as: %EventLogResponse{events: [%EventLogEvent{}]})
+
+    count = Enum.count(data.events)
     Logger.info("Parsing #{count} items")
     DataSourceRegistry.delete(data_source.id, :new_user_stats)
     DataSourceRegistry.save(data_source.id, :total, total_files * count)
     DataSourceRegistry.save(data_source.id, :processed, index * count)
+    process_data(data, data_source)
+  end
 
-    events
-    |> ParallelStream.each(fn event ->
+  defp process_data(%EventLogResponse{events: events}, data_source) do
+    last_event_id = events
+    |> ParallelStream.map(fn event ->
       case event.name do
         "user_register" -> new_user_event(data_source, event)
         "user_changed" -> change_event(data_source, event)
@@ -36,8 +58,12 @@ defmodule Gt.DataSource.EventLog do
         _ -> nil
       end
       DataSourceRegistry.increment(data_source.id, :processed)
+      event
     end)
-    |> Enum.reduce(0, fn _, acc -> acc + 1 end)
+    |> Enum.reduce(0, fn event, _ -> EventLogEvent.get_id(event) end)
+    data_source
+    |> DataSource.changeset(%{last_event_id: last_event_id})
+    |> Repo.update!
     user_ids = DataSourceRegistry.find(data_source.id, :new_user_stats) || []
     Logger.info("Processing new user stats for #{Enum.count(user_ids)} users")
     user_ids

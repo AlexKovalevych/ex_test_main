@@ -25,6 +25,7 @@ msgid "encryption"
 msgstr "Шифрование"
 
 #: web/templates/data_source/form_event_log.html.eex:4
+#: web/templates/data_source/form_gs_adm_service.html.eex:4
 #: web/templates/data_source/form_one_gamepay.html.eex:4
 #: web/templates/data_source/form_pomadorro.html.eex:4
 #: web/templates/data_source/form_rates.html.eex:4
@@ -33,9 +34,11 @@ msgstr "Внешний источник"
 
 #: web/templates/data_source/event_log_file.html.eex:33
 #: web/templates/data_source/form_event_log.html.eex:7
+#: web/templates/data_source/form_gs_adm_service.html.eex:7
 #: web/templates/data_source/form_one_gamepay.html.eex:7
 #: web/templates/data_source/form_pomadorro.html.eex:7
 #: web/templates/data_source/form_rates.html.eex:7
+#: web/templates/data_source/gs_adm_service_file.html.eex:15
 #: web/templates/data_source/one_gamepay_file.html.eex:31
 #: web/templates/data_source/pomadorro_file.html.eex:31
 #: web/templates/data_source/rates_file.html.eex:15
@@ -43,6 +46,7 @@ msgid "file"
 msgstr "Локальный источник"
 
 #: web/templates/data_source/event_log_api.html.eex:22
+#: web/templates/data_source/gs_adm_service_api.html.eex:14
 #: web/templates/data_source/one_gamepay_api.html.eex:14
 #: web/templates/data_source/one_gamepay_request_api.html.eex:22
 #: web/templates/data_source/pomadorro_api.html.eex:39
@@ -51,7 +55,8 @@ msgid "host"
 msgstr "Хост"
 
 #: web/templates/data_source/event_log_api.html.eex:52
-#: web/templates/data_source/index.html.eex:31
+#: web/templates/data_source/gs_adm_service_api.html.eex:46
+#: web/templates/data_source/index.html.eex:32
 #: web/templates/data_source/one_gamepay_api.html.eex:55
 #: web/templates/data_source/one_gamepay_request_api.html.eex:37
 #: web/templates/data_source/pomadorro_api.html.eex:44
@@ -60,6 +65,7 @@ msgid "interval"
 msgstr "Интервал"
 
 #: web/templates/data_source/event_log_api.html.eex:53
+#: web/templates/data_source/gs_adm_service_api.html.eex:47
 #: web/templates/data_source/one_gamepay_api.html.eex:56
 #: web/templates/data_source/one_gamepay_request_api.html.eex:38
 #: web/templates/data_source/pomadorro_api.html.eex:45
@@ -71,6 +77,7 @@ msgstr "Интервал запуска воркеров в минутах"
 msgid "list"
 msgstr "Источники данных"
 
+#: web/templates/data_source/gs_adm_service_api.html.eex:36
 #: web/templates/data_source/one_gamepay_request_api.html.eex:27
 msgid "login"
 msgstr "Логин"
@@ -81,7 +88,9 @@ msgstr "Почтовый ящик"
 
 #: web/templates/data_source/event_log_api.html.eex:9
 #: web/templates/data_source/event_log_file.html.eex:9
-#: web/templates/data_source/index.html.eex:27
+#: web/templates/data_source/gs_adm_service_api.html.eex:9
+#: web/templates/data_source/gs_adm_service_file.html.eex:9
+#: web/templates/data_source/index.html.eex:28
 #: web/templates/data_source/one_gamepay_api.html.eex:9
 #: web/templates/data_source/one_gamepay_file.html.eex:9
 #: web/templates/data_source/one_gamepay_request_api.html.eex:9
@@ -102,12 +111,14 @@ msgstr "1Gamepay"
 msgid "one_gamepay_request"
 msgstr "1Gamepay запрос"
 
+#: web/templates/data_source/gs_adm_service_api.html.eex:41
 #: web/templates/data_source/one_gamepay_api.html.eex:34
 #: web/templates/data_source/one_gamepay_request_api.html.eex:32
 msgid "password"
 msgstr "Пароль"
 
-#: web/templates/data_source/index.html.eex:32
+#: web/templates/data_source/gs_adm_service_api.html.eex:30
+#: web/templates/data_source/index.html.eex:33
 #: web/templates/data_source/one_gamepay_request_api.html.eex:15
 #: web/templates/data_source/pomadorro_api.html.eex:32
 #: web/templates/data_source/rates_api.html.eex:23
@@ -127,6 +138,7 @@ msgstr "Тип"
 msgid "pomadorro_types"
 msgstr "Типы"
 
+#: web/templates/data_source/gs_adm_service_api.html.eex:19
 #: web/templates/data_source/one_gamepay_api.html.eex:29
 msgid "port"
 msgstr "Порт"
@@ -152,11 +164,11 @@ msgstr "Тип"
 msgid "separator"
 msgstr "Разделитель"
 
-#: web/templates/data_source/index.html.eex:29
+#: web/templates/data_source/index.html.eex:30
 msgid "subtypes"
 msgstr "Подтипы"
 
-#: web/templates/data_source/index.html.eex:28
+#: web/templates/data_source/index.html.eex:29
 msgid "type"
 msgstr "Тип"
 
@@ -164,7 +176,7 @@ msgstr "Тип"
 msgid "data_source_worker_update"
 msgstr "Источник данных \"%{id}\" обновлен"
 
-#: web/templates/data_source/index.html.eex:30
+#: web/templates/data_source/index.html.eex:31
 msgid "projects"
 msgstr "Проекты"
 
@@ -187,6 +199,7 @@ msgid "private_key"
 msgstr "Приватный ключ"
 
 #: web/templates/data_source/event_log_api.html.eex:27
+#: web/templates/data_source/gs_adm_service_api.html.eex:24
 msgid "uri"
 msgstr "Путь"
 
@@ -194,3 +207,8 @@ msgstr "Путь"
 #: web/templates/data_source/event_log_file.html.eex:22
 msgid "wl_host"
 msgstr "WL rest api base url"
+
+#: web/templates/data_source/index.html.eex:18
+#: web/templates/data_source/type_badge.html.eex:7
+msgid "gs_adm_service"
+msgstr "Игровой сервер AdmService"
