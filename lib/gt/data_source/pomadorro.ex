@@ -100,7 +100,8 @@ defmodule Gt.DataSource.Pomadorro do
         if HTTPotion.Response.success?(response) do
           process_data(response.body, data_source, subtype, Enum.count(data_source.subtypes) * i + j, total_files)
         else
-          Logger.error("Can't load pomadorro #{subtype} for date: #{Timex.format!(date, "{ISOdate}")}")
+          date = Timex.format!(date, "{ISOdate}")
+          Logger.error("Can't load pomadorro #{subtype} for date: #{date}")
           exit(inspect(response))
         end
       end)

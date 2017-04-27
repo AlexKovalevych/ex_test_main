@@ -16,6 +16,7 @@
       <a href="<%= data_source_path(@conn, :new, "one_gamepay") %>" class="dropdown-item"><%= dgettext "data_sources", "one_gamepay" %></a>
       <a href="<%= data_source_path(@conn, :new, "event_log") %>" class="dropdown-item"><%= dgettext "data_sources", "event_log" %></a>
       <a href="<%= data_source_path(@conn, :new, "gs_adm_service") %>" class="dropdown-item"><%= dgettext "data_sources", "gs_adm_service" %></a>
+      <a href="<%= data_source_path(@conn, :new, "gs_wl_rest") %>" class="dropdown-item"><%= dgettext "data_sources", "gs_wl_rest" %></a>
     </div>
   </div>
 </div>

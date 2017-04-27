@@ -20,14 +20,11 @@ defmodule Gt.GameServerTransaction do
   @required_fields ~w(
     item_id
     date
-    sum
-    user_sum
     status
-    status_id
     project_id
   )a
 
-  @optional_fields ~w(pguid system system_id)a
+  @optional_fields ~w(pguid system system_id sum user_sum status_id)a
 
   @doc """
   Builds a changeset based on the `struct` and `params`.

@@ -7,6 +7,8 @@ defmodule Gt.DataSource.GsAdmService do
   import SweetXml
   require Logger
 
+  @limit 500
+
   def process_api(data_source) do
     struct = %AdmService{
       host: data_source.host,
@@ -21,15 +23,20 @@ defmodule Gt.DataSource.GsAdmService do
       {:error, reason} ->
         {:error, reason}
       {:ok, auth} ->
-        case AdmService.get_transactions(struct, auth, data_source.start_at, data_source.end_at) do
-          {:error, response} ->
-            Logger.error(response)
-          {:ok, body} ->
-            count = body |> xpath(~x"//data"l) |> Enum.count
-            DataSourceRegistry.save(data_source.id, :total, count)
-            DataSourceRegistry.save(data_source.id, :processed, 0)
-            process_data(body, data_source)
-        end
+        load_transactions(data_source, struct, auth, data_source.start_at, data_source.end_at, 0)
+    end
+  end
+
+  defp load_transactions(data_source, struct, auth, start_at, end_at, offset) do
+    case AdmService.get_transactions(struct, auth, start_at, end_at, @limit, 'asc', 0) do
+      {:error, response} ->
+        Logger.error(response)
+      {:ok, body} ->
+        count = body |> xpath(~x"//result/@totalcount"I)
+        DataSourceRegistry.save(data_source.id, :total, count)
+        DataSourceRegistry.save(data_source.id, :processed, 0)
+        process_data(body, data_source)
+        if count >= @limit, do: load_transactions(data_source, struct, auth, start_at, end_at, offset + @limit)
     end
   end
 

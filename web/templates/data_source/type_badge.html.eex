@@ -5,4 +5,5 @@
     <%= "one_gamepay" -> %><span class="tag blue darken-4"><%= dgettext "data_sources", "one_gamepay" %></span>
     <%= "event_log" -> %><span class="tag indigo accent-2"><%= dgettext "data_sources", "event_log" %></span>
     <%= "gs_adm_service" -> %><span class="tag #6d4c41 brown darken-1"><%= dgettext "data_sources", "gs_adm_service" %></span>
+    <%= "gs_wl_rest" -> %><span class="tag #6d4c41 brown lighten-1"><%= dgettext "data_sources", "gs_wl_rest" %></span>
 <%= end %>

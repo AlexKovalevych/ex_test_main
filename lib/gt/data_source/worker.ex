@@ -96,7 +96,9 @@ defmodule Gt.DataSourceWorker do
         |> Enum.with_index
         |> Enum.map(&Gt.DataSource.Pomadorro.process_file(data_source, &1, Enum.count(data_source.files)))
       true ->
-        period = "[#{data_source.start_at |> Timex.format!("{ISOdate}")}|#{data_source.end_at |> Timex.format!("{ISOdate}")}]"
+        start_at = data_source.start_at |> Timex.format!("{ISOdate}")
+        end_at = data_source.end_at |> Timex.format!("{ISOdate}")
+        period = "[#{start_at}|#{end_at}]"
         Logger.metadata(period: period)
         Gt.DataSource.Pomadorro.process_api(data_source)
     end
@@ -171,6 +173,34 @@ defmodule Gt.DataSourceWorker do
         |> Enum.map(&Gt.DataSource.GsAdmService.process_file(data_source, &1, Enum.count(data_source.files)))
       true ->
         Gt.DataSource.GsAdmService.process_api(data_source)
+    end
+
+    :timer.cancel(timer)
+    Logger.info("Complete worker")
+    if data_source.interval do
+      data_source = complete(data_source, new_period(data_source))
+      Process.send_after(self(), {:"$gen_cast", :rates}, data_source.interval * 60 * 1000)
+      {:noreply, %{cache: data_source}}
+    else
+      {:stop, :normal, %{state | data_source: complete(data_source)}}
+    end
+  end
+
+  def handle_cast(:gs_wl_rest, state) do
+    Logger.metadata(channel: :game_server, id: state.data_source.id)
+    Logger.info("Start worker")
+    data_source = Repo.get!(DataSource, state.data_source.id)
+    |> Repo.preload(:project)
+    |> init_worker
+
+    {:ok, timer} = :timer.apply_interval(500, __MODULE__, :send_socket, [data_source])
+    case Enum.empty?(data_source.files) do
+      false ->
+        data_source.files
+        |> Enum.with_index
+        |> Enum.map(&Gt.DataSource.GsWlRest.process_file(data_source, &1, Enum.count(data_source.files)))
+      true ->
+        Gt.DataSource.GsWlRest.process_api(data_source)
     end
 
     :timer.cancel(timer)

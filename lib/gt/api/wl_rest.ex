@@ -284,19 +284,40 @@ defmodule Gt.Api.WlRest do
 
   def get_deposits(%__MODULE__{} = struct) do
     wl_request(:get, "transactions/deposits", struct, fn res ->
-      Poison.decode(res.body, as: [%Transaction{}])
+      %{"limit" => limit, "total" => total} = Regex.named_captures(~r/(?<offset>\d+)-(?<limit>\d+)\/(?<total>\d+)/, res.headers[:"content-range"])
+      limit = String.to_integer(limit)
+      total = String.to_integer(total)
+      {:ok, %{
+          transactions: Poison.decode(res.body, as: [%Transaction{}]),
+          limit: limit,
+          total: total,
+      }}
     end)
   end
 
   def get_payouts(%__MODULE__{} = struct) do
     wl_request(:get, "transactions/payouts", struct, fn res ->
-      Poison.decode(res.body, as: [%Transaction{}])
+      %{"limit" => limit, "total" => total} = Regex.named_captures(~r/(?<offset>\d+)-(?<limit>\d+)\/(?<total>\d+)/, res.headers[:"content-range"])
+      limit = String.to_integer(limit)
+      total = String.to_integer(total)
+      {:ok, %{
+          transactions: Poison.decode(res.body, as: [%Transaction{}]),
+          limit: limit,
+          total: total,
+       }}
     end)
   end
 
   def get_refunds(%__MODULE__{} = struct) do
     wl_request(:get, "transactions/refunds", struct, fn res ->
-      Poison.decode(res.body, as: [%Transaction{}])
+      %{"limit" => limit, "total" => total} = Regex.named_captures(~r/(?<offset>\d+)-(?<limit>\d+)\/(?<total>\d+)/, res.headers[:"content-range"])
+      limit = String.to_integer(limit)
+      total = String.to_integer(total)
+      {:ok, %{
+          transactions: Poison.decode(res.body, as: [%Transaction{}]),
+          limit: limit,
+          total: total,
+      }}
     end)
   end
 

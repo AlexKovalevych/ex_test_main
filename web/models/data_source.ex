@@ -109,6 +109,15 @@ defmodule Gt.DataSource do
 
   @optional_gs_adm_service_api ~w(login password)a
 
+  # Gameserver wl rest
+  @required_gs_wl_rest ~w(project_id)a
+
+  @required_gs_wl_rest_api ~w(start_at end_at host client private_key)a
+
+  @optional_gs_wl_rest ~w()a
+
+  @optional_gs_wl_rest_api ~w()a
+
   def is_started(data_source) do
     case data_source.id && Gt.DataSourceRegistry.find(data_source.id, :pid) do
       nil -> false
@@ -229,6 +238,20 @@ defmodule Gt.DataSource do
       struct
       |> cast(params, @required_gs_adm_service_api ++ @optional_gs_adm_service_api)
       |> validate_required(@required_gs_adm_service_api)
+    end
+  end
+
+  defp changeset_type(%{type: "gs_wl_rest"} = struct, params) do
+    struct = struct
+    |> cast(params, @required_fields ++ @required_gs_wl_rest ++ @optional_fields ++ @optional_gs_wl_rest)
+    |> validate_required(@required_fields)
+
+    if Map.get(params, "is_files", !Enum.empty?(apply_changes(struct).files)) do
+      struct |> validate_files(params)
+    else
+      struct
+      |> cast(params, @required_gs_wl_rest_api ++ @optional_gs_wl_rest_api)
+      |> validate_required(@required_gs_wl_rest_api)
     end
   end
 

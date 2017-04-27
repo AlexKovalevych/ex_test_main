@@ -26,7 +26,6 @@ defmodule Gt.PaymentCheck.Processor do
 
     {struct, files} = Script.preprocess(struct)
     opened_files = files
-    # TODO Use ParallelStream here
     |> ParallelStream.map(fn filename ->
       open_file(struct, Gt.Uploaders.PaymentCheck.local_path(id, filename))
     end)
