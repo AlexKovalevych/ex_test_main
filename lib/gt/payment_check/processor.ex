@@ -61,6 +61,7 @@ defmodule Gt.PaymentCheck.Processor do
     end)
 
     process_one_gamepay(struct)
+    process_game_server(struct)
     PaymentCheckRegistry.delete(id, :raw_transaction)
   end
 
@@ -155,6 +156,17 @@ defmodule Gt.PaymentCheck.Processor do
     |> Enum.each(fn chunk ->
       chunk
       |> ParallelStream.each(&compare_1gp(struct, &1))
+      |> Enum.reduce(nil, fn _, _ -> nil end)
+    end)
+  end
+
+  def process_game_server(%{payment_check: payment_check} = struct) do
+    Logger.info("Matching with GameServer")
+    PaymentCheckRegistry.find(payment_check.id, :raw_transaction)
+    |> Enum.chunk(10, 10, [])
+    |> Enum.each(fn chunk ->
+      chunk
+      |> ParallelStream.each(&compare_gs(struct, &1))
       |> Enum.reduce(nil, fn _, _ -> nil end)
     end)
   end
@@ -266,6 +278,27 @@ defmodule Gt.PaymentCheck.Processor do
     |> Repo.insert!
     PaymentCheckRegistry.save(payment_check.id, :transaction, transaction)
     PaymentCheckRegistry.increment(payment_check.id, :processed)
+  end
+
+  @doc """
+  Compare with GameServer transactions
+  """
+  def compare_gs(%{payment_check: payment_check} = struct, transaction) do
+    # compare_result = find_gs_transaction(payment_check, transaction)
+    # |> validate_date()
+    # |> one_gamepay_duplicates(payment_check)
+    # |> compare_sum(struct)
+    # |> compare_currency(struct)
+    # |> set_lang()
+    # |> set_1gp_trans_id()
+    # {transaction, _, errors} = compare_result
+    # transaction = transaction
+    # |> Map.delete(:id)
+    # |> PaymentCheckTransaction.changeset()
+    # |> Ecto.Changeset.put_embed(:errors, errors)
+    # |> Repo.insert!
+    # PaymentCheckRegistry.save(payment_check.id, :transaction, transaction)
+    # PaymentCheckRegistry.increment(payment_check.id, :processed)
   end
 
   def parse_purse(value) when is_binary(value), do: value
